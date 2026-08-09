@@ -69,12 +69,30 @@ jobs:
           export CANWIN_TEST_PUBLISHABLE_KEY="$(jq -r '.PUBLISHABLE_KEY' <<<"$status_json")"
           read -r CANWIN_TEST_SECRET_KEY < <(jq -r '.SECRET_KEY' <<<"$status_json")
           export CANWIN_TEST_SECRET_KEY
+          printf '::add-mask::%s\n' "$CANWIN_TEST_SECRET_KEY"
           export CANWIN_TEST_FUNCTION_URL="${CANWIN_TEST_API_URL}/functions/v1/invite-member"
 
+          function_env="$RUNNER_TEMP/canwin-functions.env"
           edge_log="$RUNNER_TEMP/canwin-edge.log"
-          npx supabase functions serve --no-verify-jwt >"$edge_log" 2>&1 &
+          edge_pid=""
+          cleanup() {
+            if [[ -n "$edge_pid" ]]; then
+              kill "$edge_pid" 2>/dev/null || true
+              wait "$edge_pid" 2>/dev/null || true
+            fi
+            rm -f -- "$function_env" "$edge_log"
+          }
+          trap cleanup EXIT
+
+          install -m 600 /dev/null "$function_env"
+          {
+            printf '%s\n' 'CANWIN_APP_ORIGINS=["http://127.0.0.1:4173"]'
+            printf 'SUPABASE_PUBLISHABLE_KEYS=%s\n' "$(jq -cn --arg value "$CANWIN_TEST_PUBLISHABLE_KEY" '{primary:$value}')"
+            printf 'SUPABASE_SECRET_KEYS=%s\n' "$(jq -cn --arg value "$CANWIN_TEST_SECRET_KEY" '{primary:$value}')"
+          } >"$function_env"
+
+          npx supabase functions serve --no-verify-jwt --env-file "$function_env" >"$edge_log" 2>&1 &
           edge_pid=$!
-          trap 'kill "$edge_pid" 2>/dev/null || true' EXIT
 
           edge_ready=false
           for _ in {1..30}; do

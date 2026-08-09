@@ -295,7 +295,36 @@ requireMatch(workflow, /\bnpx\s+supabase\s+status\s+-o\s+json\b/, 'Quality must 
 for (const variable of ['CANWIN_TEST_API_URL', 'CANWIN_TEST_PUBLISHABLE_KEY', 'CANWIN_TEST_SECRET_KEY', 'CANWIN_TEST_FUNCTION_URL']) {
   if (!workflow.includes(variable)) failures.push(`Quality must provide ${variable} from local Supabase status.`);
 }
-requireMatch(workflow, /\bnpx\s+supabase\s+functions\s+serve\s+--no-verify-jwt\b/, 'Quality must serve the real local invite Edge Function.');
+requireMatch(workflow, /CANWIN_APP_ORIGINS=\["http:\/\/127\.0\.0\.1:4173"\]/, 'Quality must provide the exact local CRM origin to the Edge Function.');
+requireMatch(workflow, /printf\s+['"]::add-mask::%s\\n['"]\s+['"]\$CANWIN_TEST_SECRET_KEY['"]/, 'Quality must mask the local secret key before any downstream command can log it.');
+requireMatch(workflow, /printf\s+['"]SUPABASE_PUBLISHABLE_KEYS=%s\\n['"]\s+"\$\(jq\s+-cn\s+--arg\s+value\s+"\$CANWIN_TEST_PUBLISHABLE_KEY"\s+'\{primary:\$value\}'\)"/, 'Quality must bind the publishable-key dictionary to the local publishable key.');
+requireMatch(workflow, /printf\s+['"]SUPABASE_SECRET_KEYS=%s\\n['"]\s+"\$\(jq\s+-cn\s+--arg\s+value\s+"\$CANWIN_TEST_SECRET_KEY"\s+'\{primary:\$value\}'\)"/, 'Quality must bind the secret-key dictionary to the local secret key.');
+requireMatch(workflow, /\binstall\s+-m\s+600\s+\/dev\/null\s+['"]\$function_env['"]/, 'Quality must create the temporary Edge environment file with mode 0600 before writing it.');
+requireMatch(workflow, /cleanup\s*\(\)\s*\{[\s\S]{0,320}\bkill\s+['"]\$edge_pid['"][\s\S]{0,160}\bwait\s+['"]\$edge_pid['"][\s\S]{0,160}\brm\s+-f\s+--\s+['"]\$function_env['"]\s+['"]\$edge_log['"][\s\S]{0,80}\}/, 'Quality cleanup must stop and wait for Edge, then remove both temporary files.');
+requireMatch(workflow, /\btrap\s+cleanup\s+EXIT\b/, 'Quality must register cleanup for every shell exit path.');
+requireMatch(workflow, /\bnpx\s+supabase\s+functions\s+serve\s+--no-verify-jwt\s+--env-file\s+['"]?\$function_env['"]?/, 'Quality must serve the real local invite Edge Function with its runtime-only environment file.');
+
+const runtimeEnvironmentOrder = [
+  'function_env="$RUNNER_TEMP/canwin-functions.env"',
+  'edge_log="$RUNNER_TEMP/canwin-edge.log"',
+  'edge_pid=""',
+  'cleanup() {',
+  'trap cleanup EXIT',
+  'install -m 600 /dev/null "$function_env"',
+  'CANWIN_APP_ORIGINS=["http://127.0.0.1:4173"]',
+  'SUPABASE_PUBLISHABLE_KEYS=%s',
+  'SUPABASE_SECRET_KEYS=%s',
+  'npx supabase functions serve --no-verify-jwt --env-file "$function_env"',
+];
+let previousRuntimeEnvironmentIndex = -1;
+for (const fragment of runtimeEnvironmentOrder) {
+  const index = workflow.indexOf(fragment);
+  if (index < 0 || index <= previousRuntimeEnvironmentIndex) {
+    failures.push(`Quality runtime environment setup is missing or out of secure order: ${fragment}`);
+    break;
+  }
+  previousRuntimeEnvironmentIndex = index;
+}
 requireMatch(workflow, /\bnpm\s+run\s+verify:auth:runtime\b/, 'Quality must run the real Auth/JWT runtime verifier.');
 forbidMatch(workflow, /continue-on-error:\s*true[\s\S]{0,240}(?:verify:auth|supabase\s+test\s+db|verify:auth:runtime)/i, 'Auth, pgTAP, and runtime checks must be blocking quality gates.');
 
