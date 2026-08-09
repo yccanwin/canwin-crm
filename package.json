@@ -1,0 +1,20 @@
+{
+  "name": "canwin-crm",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "CanWin internal CRM monorepo",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=24.14.0 <25"
+  },
+  "scripts": {
+    "dev": "npm --workspace @canwin-crm/web run dev --",
+    "build": "npm --workspace @canwin-crm/web run build",
+    "typecheck": "npm --workspace @canwin-crm/web run typecheck",
+    "verify:scaffold": "node scripts/verify-scaffold.mjs",
+    "check": "npm run verify:scaffold && npm run typecheck && npm run build"
+  }
+}

@@ -1,0 +1,9 @@
+# Local Supabase state and credentials must never be committed.
+.env
+.env.*
+!.env.example
+.temp/
+*.pem
+*.key
+*service-role*
+*service_role*
