@@ -49,6 +49,45 @@ paused, linked, migrated, or otherwise modified.
 - The documented rollback policy is forward-fix/expand-contract after a
   migration is deployed. Deployed migration history is immutable.
 
+## Local reset, seed, and database-test evidence
+
+- Docker Desktop `4.85.0` provided a Linux/amd64 Docker Engine `29.6.2` for
+  local development only. The Supabase stack used the repository's configured
+  local ports `54321`-`54324` and was stopped after verification.
+- `supabase db reset --local --yes` recreated the local database, initialized
+  the managed schemas, applied the repository's empty migration sequence,
+  executed `supabase/seed.sql`, and restarted the local services successfully.
+- `supabase migration list --local` returned an empty list, matching the
+  repository and all three hosted environments.
+- `supabase test db --local supabase/tests/0001_wbs_1_4_baseline.sql` passed
+  all four pgTAP assertions (`Files=1`, `Tests=4`, `Result: PASS`). The test
+  proves PostgreSQL major 17, zero `public` application tables, zero
+  `anon`/`authenticated` grants on `public` tables, and no migration-history
+  table at the zero-migration baseline.
+
+## Forward-fix rehearsal evidence
+
+- Both temporary rehearsal migrations were created with
+  `supabase migration new`; no timestamp or filename was invented manually.
+- The first migration created a private, non-exposed rehearsal schema and a
+  probe row in the deliberately incomplete `pending` state. A local reset
+  applied it once, and a direct read-only query confirmed one matching
+  migration-history row.
+- Before the fix, the first migration's SHA-256 was
+  `103C6978C8BE407AF967E456D673904222E66F773BB4ACFE62D93D84F8A59416`.
+  A second, later migration changed the row and default to `ready` and added a
+  validating check constraint. After applying both migrations, the first
+  file's SHA-256 was identical and each migration had exactly one history row.
+  This proves the deployed migration was not edited and the repair moved
+  forward through a new migration.
+- The two rehearsal migrations and their temporary queries were then removed.
+  A final local reset returned the repository to its real empty baseline; a
+  read-only query confirmed the rehearsal schema, table, and migration-history
+  table were absent. The local stack was stopped while retaining its data
+  volume.
+- No rehearsal migration or synthetic probe data was pushed to a hosted
+  environment.
+
 ## Repository quality evidence
 
 - `npm.cmd run check` passed on 2026-08-09 after clearing two untracked,
@@ -62,10 +101,6 @@ paused, linked, migrated, or otherwise modified.
 
 ## Evidence still required before acceptance
 
-- Docker-backed `supabase db reset --local`
-- Local migration list and database test output
-- Seed execution verification
-- Local rollback/forward-fix rehearsal
 - Final secret scan and hosted CI run for the completed evidence commit
 - Agent 0 / Agent 1 review and third-party supervisor disposition
 
