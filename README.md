@@ -74,6 +74,30 @@ npm.cmd run verify:env
 See `docs/environment-and-secrets.md` for the dev/test/prod matrix, ownership,
 rotation and incident response rules.
 
+## Branch and quality gate
+
+Work is developed on `agent/*` branches and reaches `main` only through a pull
+request. The required GitHub Actions job is named `quality`; it runs without
+path filters and uses read-only repository permissions.
+
+Run the same positive gates locally:
+
+```powershell
+npm.cmd audit --audit-level=high
+npm.cmd run check
+```
+
+To prove that representative secret, lint, type, test and build failures are
+actually rejected, run the controlled negative suite. It uses temporary
+fixtures, restores the worktree and writes only a sanitized manifest:
+
+```powershell
+npm.cmd run prove:quality-gates
+```
+
+See `docs/branch-ci-quality-gates.md` for the branch protection and review
+policy.
+
 ## License
 
 Original CanWin CRM materials are proprietary and restricted to authorized
