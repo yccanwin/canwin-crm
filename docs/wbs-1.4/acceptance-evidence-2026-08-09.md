@@ -13,11 +13,23 @@
 Project references are deliberately masked. Credentials, URLs, connection
 strings, keys, passwords, tokens, and customer data are not recorded here.
 
-| Environment | Masked ref | Verified state | Hosted migrations | Security advisor | Performance advisor |
-| --- | --- | --- | --- | --- | --- |
-| dev | `foes…dmrb` | `ACTIVE_HEALTHY` after pause/restore rehearsal | Empty baseline | No lints | No lints |
-| test | `nyqk…ksvp` | `INACTIVE` after creation and evidence capture | Empty baseline | No lints | No lints |
-| prod | `tgql…eptg` | `INACTIVE` after creation and evidence capture | Empty baseline | No lints | No lints |
+| Environment | Masked ref | Final state | PostgreSQL major | `public` tables | `anon` / `authenticated` table grants | Hosted migrations | Security advisor | Performance advisor |
+| --- | --- | --- | ---: | ---: | ---: | --- | --- | --- |
+| dev | `foes…dmrb` | `ACTIVE_HEALTHY` | 17 | 0 | 0 | Empty baseline | No lints | No lints |
+| test | `nyqk…ksvp` | `INACTIVE` | 17 | 0 | 0 | Empty baseline | No lints | No lints |
+| prod | `tgql…eptg` | `INACTIVE` | 17 | 0 | 0 | Empty baseline | No lints | No lints |
+
+The application-schema drift query was executed read-only against each CRM
+environment after restoring it in turn. It counted physical tables in the
+`public` schema and grants on `public` tables to the `anon` and
+`authenticated` roles. Every environment returned the same tuple:
+`postgres_major=17`, `public_table_count=0`, and
+`exposed_table_grant_count=0`. This directly rules out dashboard-created
+application tables and public table grants outside migration history at this
+empty baseline.
+
+The free-plan rotation was then returned to its normal operating state:
+development `ACTIVE_HEALTHY`, test `INACTIVE`, and production `INACTIVE`.
 
 Team OS 3.0 remained `ACTIVE_HEALTHY` throughout the rotation. It was not
 paused, linked, migrated, or otherwise modified.
@@ -31,6 +43,9 @@ paused, linked, migrated, or otherwise modified.
 - Development completed a real pause/restore cycle and returned to
   `ACTIVE_HEALTHY`, proving the zero-cost rotation can recover the normal
   engineering environment.
+- Development, test, and production were each queried while active and showed
+  the same empty application schema and grant surface. The hosted schema-drift
+  comparison therefore passed.
 - The documented rollback policy is forward-fix/expand-contract after a
   migration is deployed. Deployed migration history is immutable.
 
@@ -51,7 +66,6 @@ paused, linked, migrated, or otherwise modified.
 - Local migration list and database test output
 - Seed execution verification
 - Local rollback/forward-fix rehearsal
-- Application-schema drift comparison across dev/test/prod
 - Final secret scan and hosted CI run for the completed evidence commit
 - Agent 0 / Agent 1 review and third-party supervisor disposition
 
