@@ -3,7 +3,17 @@
 .env.*
 !.env.example
 .temp/
+.branches/
 *.pem
 *.key
 *service-role*
 *service_role*
+
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local

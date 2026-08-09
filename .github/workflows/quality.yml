@@ -49,6 +49,9 @@ jobs:
       - name: Verify environment contract
         run: npm run verify:env
 
+      - name: Verify Supabase baseline
+        run: npm run verify:supabase
+
       - name: Lint
         run: npm run lint
 

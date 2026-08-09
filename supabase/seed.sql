@@ -1,0 +1,4 @@
+-- WBS 1.4 seed boundary: intentionally empty until a reviewed synthetic
+-- fixture contract is introduced. Seed files run after every migration during
+-- local reset. Keep DDL in migrations and never copy production-derived data,
+-- credentials, real people, customer records, uploads, or identifiers here.
