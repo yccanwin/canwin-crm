@@ -1,6 +1,7 @@
 # Supabase environments and migration lifecycle
 
-Status: WBS 1.4 baseline. No hosted project is created or linked by this file.
+Status: WBS 1.4 implementation in progress. Hosted project identifiers and
+credentials remain outside source control.
 
 ## Environment boundary
 
@@ -14,6 +15,29 @@ before the external write occurs.
 | dev | Synthetic/developer-created only | Interactive engineering | User-approved project; reviewed migrations only |
 | test | Deterministic synthetic only | Automated integration/UAT preparation | Separate project and credentials; resettable |
 | prod | Approved live records only | Production service | Gate 5 plus exact production migration approval |
+
+## Free-plan operating posture
+
+The three CRM environments exist as independent Tokyo-region projects. The
+legacy Team OS 3.0 project must remain active and must never be paused by this
+procedure. Supabase Free Plan limits the account to two active projects across
+organizations; paused projects do not count toward that limit. Until a paid
+plan is explicitly approved, use this operating posture:
+
+| Project | Normal state before CRM launch | Rule |
+| --- | --- | --- |
+| Team OS 3.0 | Active | Never pause or modify from the CRM repository |
+| `canwin-crm-dev` | Active | Default CRM engineering environment |
+| `canwin-crm-test` | Paused | Restore only for an approved test window; pause again before restoring another CRM environment |
+| `canwin-crm-prod` | Paused | Restore only for production readiness or an approved release window |
+
+Only one CRM project may be active alongside Team OS 3.0. Before restoring a
+paused CRM project, verify that the currently active CRM project has finished
+pausing. After a test or release window, collect migration/advisor evidence,
+pause that project, and restore development. A paused Free Plan project has a
+90-day one-click restore window, so the project owner must either restore it
+within that window or follow Supabase's documented backup recovery path. No
+keep-alive traffic may be generated merely to bypass platform pausing rules.
 
 Project references, URLs, publishable keys, secret keys, database passwords,
 access tokens, and connection strings are injected from environment-scoped

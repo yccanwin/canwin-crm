@@ -9,10 +9,13 @@
 - Local migration list:
 - Dev migration list:
 - Test migration list:
-- Schema-drift result:
+- Prod migration list:
+- Hosted PostgreSQL version consistency:
+- Application-schema drift result:
 - Seed verification:
 - Database test result:
-- Security/advisor result:
+- Security advisor result:
+- Performance advisor result:
 - Rollback/forward-fix rehearsal:
 - User approval IDs:
 - Agent 0 / Agent 1 review:

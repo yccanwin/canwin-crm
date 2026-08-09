@@ -90,6 +90,21 @@ for (const required of ['canwin-crm-dev', 'canwin-crm-test', 'canwin-crm-prod', 
   if (!policy.includes(required)) failures.push(`Supabase lifecycle policy must include: ${required}`);
 }
 
+const acceptanceTemplate = read('docs/wbs-1.4/acceptance-evidence-template.md');
+for (const required of [
+  'Dev migration list',
+  'Test migration list',
+  'Prod migration list',
+  'Hosted PostgreSQL version consistency',
+  'Application-schema drift result',
+  'Security advisor result',
+  'Performance advisor result',
+]) {
+  if (!acceptanceTemplate.includes(required)) {
+    failures.push(`WBS 1.4 acceptance template must include: ${required}`);
+  }
+}
+
 const workflow = read('.github/workflows/quality.yml');
 requireMatch(workflow, /^\s*run:\s*npm\s+run\s+verify:supabase\s*$/m, 'Quality workflow must run verify:supabase.');
 
