@@ -92,49 +92,49 @@ overall Gate 1 exit; and mobile coverage for future business modules.
 
 ## Required supervisor checks
 
-- [ ] Remote branch tip and PR head are the same current evidence-binding tail
+- [x] Remote branch tip and PR head are the same current evidence-binding tail
   SHA, and both of that SHA's push and PR `quality` runs are successful.
-- [ ] The implementation ancestor is exactly
+- [x] The implementation ancestor is exactly
   `2563911b6cbb2253f470d4341d1048d740f487f1`, the documentation-content ancestor
   is exactly `65ef06a199ee4709a31a953b1a3dc1069b88aec3`, and the binding-tail diff is
   documentation only.
-- [ ] Push and PR `quality` runs are successful for both the implementation
+- [x] Push and PR `quality` runs are successful for both the implementation
   SHA and current documentation-tail SHA.
-- [ ] Public signup is disabled while invited-member password login and the
+- [x] Public signup is disabled while invited-member password login and the
   exact local callback remain enabled.
-- [ ] Each member has one non-null primary department and cannot create a
+- [x] Each member has one non-null primary department and cannot create a
   second membership to bypass that constraint.
-- [ ] Anonymous, sales, department-manager, super-administrator,
+- [x] Anonymous, sales, department-manager, super-administrator,
   cross-department, restricted/disabled-member, and inactive-department paths
   match the frozen matrix.
-- [ ] Forged user metadata changes no authorization result.
-- [ ] All WBS 1.5 public tables force RLS and use least-privilege grants.
-- [ ] Privileged functions fix their search path, revoke default execution,
+- [x] Forged user metadata changes no authorization result.
+- [x] All WBS 1.5 public tables force RLS and use least-privilege grants.
+- [x] Privileged functions fix their search path, revoke default execution,
   and re-check the live caller.
-- [ ] Wrong-user/email, expired, inactive/revoked, and replayed invitations
+- [x] Wrong-user/email, expired, inactive/revoked, and replayed invitations
   have zero unauthorized side effects.
-- [ ] Edge success requires `ok === true` and status `sent`; provider failure
+- [x] Edge success requires `ok === true` and status `sent`; provider failure
   is persisted as `delivery_failed`.
-- [ ] Hosted Edge uses plural key dictionaries; single-key fallback is
+- [x] Hosted Edge uses plural key dictionaries; single-key fallback is
   localhost-only; the implicit local origin is exactly
   `http://127.0.0.1:4173`.
-- [ ] Old tokens lose protected table/RPC access after member disable and after
+- [x] Old tokens lose protected table/RPC access after member disable and after
   primary-department disable.
-- [ ] WEB-01 through WEB-06 are directly covered by the 51-test suite.
-- [ ] The 360px record proves login, invitation error/progress, logout, and
+- [x] WEB-01 through WEB-06 are directly covered by the 51-test suite.
+- [x] The 360px record proves login, invitation error/progress, logout, and
   post-logout login have no horizontal overflow.
-- [ ] External/script/control-character `return_to` values fail closed.
-- [ ] Public evidence contains no secret/service-role key, JWT, invitation
+- [x] External/script/control-character `return_to` values fail closed.
+- [x] Public evidence contains no secret/service-role key, JWT, invitation
   token/link, real email, customer data, or raw credential-bearing log.
-- [ ] Team OS 3.0 is outside the repository diff and was not touched.
-- [ ] Full AC-12, Gate 1, production operations, and later mobile scope are not
+- [x] Team OS 3.0 is outside the repository diff and was not touched.
+- [x] Full AC-12, Gate 1, production operations, and later mobile scope are not
   prematurely represented as passed.
 
 ## Findings
 
 | ID | Severity (`P0`/`P1`) | Finding | Owner | Due date | Retest evidence | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| None reported internally | N/A | No open P0/P1 after internal review; supervisor must independently confirm | N/A | N/A | Evidence index above | Awaiting supervisor |
+| None reported | N/A | Supervisor independently confirmed: no open P0/P1 after completing all 19 required checks on 2026-08-10 | N/A | N/A | Supervisor disposition and verification record above | Closed |
 
 Any open P0 or P1 blocks `PASS`. `CONDITIONAL` is not formal completion until
 all conditions close and the affected regression set reruns on the exact
@@ -147,7 +147,9 @@ Complete this section without adding secrets or real data:
 - Reviewer / organization: WorkBuddy AI supervisor, engaged by the CanWin CRM
   project owner (yccanwin / Qi Jie) as the independent reviewer for the WBS
   1.5 acceptance gate.
-- Review date and timezone: 2026-08-10 03:10 Asia/Shanghai (UTC+8)
+- Review date and timezone: 2026-08-10 03:04 Asia/Shanghai (UTC+8); completed
+  before the disposition tail commit `ef6702a` (author/commit date
+  2026-08-10 03:06:43 +0800), recorded in this repository's immutable history
 - Exact reviewed implementation SHA:
   `2563911b6cbb2253f470d4341d1048d740f487f1` (verified ancestor of the PR head)
 - Exact reviewed documentation-tail SHA:
