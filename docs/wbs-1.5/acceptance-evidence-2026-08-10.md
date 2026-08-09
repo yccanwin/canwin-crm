@@ -1,7 +1,8 @@
 # WBS 1.5 acceptance evidence — technical gates passed, external review pending
 
-Status: **Technical implementation and exact-SHA quality gates passed;
-third-party supervisor, Agent 0 final acceptance, merge, and main CI pending.**
+Status: **Technical implementation, exact-SHA quality gates, and the immutable
+documentation-content tail passed; third-party supervisor, Agent 0 final
+acceptance, merge, and main CI pending.**
 
 ## Review identity
 
@@ -9,8 +10,15 @@ third-party supervisor, Agent 0 final acceptance, merge, and main CI pending.**
 - Branch: `agent/wbs-1-5-auth-members`
 - Pull request: [#10](https://github.com/yccanwin/canwin-crm/pull/10)
 - Exact implementation SHA: `2563911b6cbb2253f470d4341d1048d740f487f1`
-- Evidence-tail SHA: to be established by the documentation-only commit; this
-  document deliberately does not self-reference its own future SHA
+- Documentation-content tail SHA:
+  `65ef06a199ee4709a31a953b1a3dc1069b88aec3`
+- Documentation-content push Quality:
+  [31327837731 / job 93281017732](https://github.com/yccanwin/canwin-crm/actions/runs/31327837731/job/93281017732)
+- Documentation-content PR Quality:
+  [31327839946 / job 93281024833](https://github.com/yccanwin/canwin-crm/actions/runs/31327839946/job/93281024833)
+- Evidence-binding tail SHA: the commit containing these immutable links cannot
+  self-reference. The supervisor must copy the current PR-head SHA into the
+  disposition and verify its push and PR Quality before issuing a decision.
 - Review date/timezone: `2026-08-10`, Asia/Shanghai (UTC+8)
 - Test environment: local Windows development plus GitHub-hosted Ubuntu CI;
   no production or hosted CRM project was changed
@@ -48,6 +56,18 @@ Both required jobs are named `quality`; locked installation, high-severity
 audit, scaffold, environment, Supabase, Auth, credential suppression, full
 local database, real Edge/Auth, lint, typecheck, frontend tests, build, and all
 post/complete steps succeeded.
+
+### Documentation-content tail Quality
+
+| Trigger | Run | Job | Head | Result |
+| --- | --- | --- | --- | --- |
+| Push | [31327837731](https://github.com/yccanwin/canwin-crm/actions/runs/31327837731) | [93281017732](https://github.com/yccanwin/canwin-crm/actions/runs/31327837731/job/93281017732) | `65ef06a199ee4709a31a953b1a3dc1069b88aec3` | PASS |
+| Pull request | [31327839946](https://github.com/yccanwin/canwin-crm/actions/runs/31327839946) | [93281024833](https://github.com/yccanwin/canwin-crm/actions/runs/31327839946/job/93281024833) | `65ef06a199ee4709a31a953b1a3dc1069b88aec3` | PASS |
+
+Both documentation-content jobs repeated the full Quality workflow. Sanitized
+inspection confirmed pgTAP `54`, real Auth/Edge `44`, frontend `51`, Linux
+`raw_log_mode_0600=true` with `posix-verified`, successful build and audit, and
+zero matches in all four public-log secret-pattern classes.
 
 ### Sanitized results
 
@@ -125,6 +145,8 @@ evidence rule.
 - Agent 1 direct security review: PASS; no open P0/P1
 - Agent 2 client-flow review: PASS; A2-P1-01/02 closed; no open P0/P1
 - Agent 3 quality review: PASS; no open P0/P1
+- Documentation-content tail Quality: PASS at `65ef06a`; current
+  evidence-binding tail Quality remains a handoff prerequisite
 - Third-party supervisor disposition: Pending
 - Agent 0 independent verification: Pending
 - Merge authorization and main-branch Quality: Pending

@@ -1,7 +1,7 @@
 # WBS 1.5 unified third-party supervisor review package
 
-Status: **Ready for independent review after the documentation-tail CI is
-green. Supervisor disposition is not yet recorded.**
+Status: **Ready for independent review after the current evidence-binding tail
+has green push and PR Quality. Supervisor disposition is not yet recorded.**
 
 ## Review target
 
@@ -15,14 +15,25 @@ green. Supervisor disposition is not yet recorded.**
   [31327172530](https://github.com/yccanwin/canwin-crm/actions/runs/31327172530)
 - Implementation PR Quality:
   [31327174437](https://github.com/yccanwin/canwin-crm/actions/runs/31327174437)
-- Documentation-tail SHA and Quality: Pending until this package and the
-  internal review records are committed and checked
+- Documentation-content tail SHA:
+  `65ef06a199ee4709a31a953b1a3dc1069b88aec3`
+- Documentation-content push Quality:
+  [31327837731 / job 93281017732](https://github.com/yccanwin/canwin-crm/actions/runs/31327837731/job/93281017732)
+- Documentation-content PR Quality:
+  [31327839946 / job 93281024833](https://github.com/yccanwin/canwin-crm/actions/runs/31327839946/job/93281024833)
+- Current evidence-binding tail SHA and Quality: read from the current PR head;
+  this package cannot self-reference the commit that records the immutable
+  links above. The supervisor must record that SHA in the disposition.
 - Required supervisor disposition: `PASS`, `FAIL`, or `CONDITIONAL`
 
 The supervisor reviews the exact implementation SHA and its evidence chain. A
 green run from an older SHA is not evidence. Do not request or record a key,
 JWT, invitation link/token, real employee email, customer data, document
 content, database password, or unmasked hosted project reference.
+
+The current binding tail may differ from the documentation-content SHA only by
+documentation that binds the immutable run links above. It must itself have
+green push and PR `quality` runs before review begins.
 
 ## Scope and explicit exclusions
 
@@ -81,10 +92,12 @@ overall Gate 1 exit; and mobile coverage for future business modules.
 
 ## Required supervisor checks
 
-- [ ] Remote branch tip and PR head are the recorded documentation-tail SHA.
+- [ ] Remote branch tip and PR head are the same current evidence-binding tail
+  SHA, and both of that SHA's push and PR `quality` runs are successful.
 - [ ] The implementation ancestor is exactly
-  `2563911b6cbb2253f470d4341d1048d740f487f1` and the tail diff is documentation
-  only.
+  `2563911b6cbb2253f470d4341d1048d740f487f1`, the documentation-content ancestor
+  is exactly `65ef06a199ee4709a31a953b1a3dc1069b88aec3`, and the binding-tail diff is
+  documentation only.
 - [ ] Push and PR `quality` runs are successful for both the implementation
   SHA and current documentation-tail SHA.
 - [ ] Public signup is disabled while invited-member password login and the
