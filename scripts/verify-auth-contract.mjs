@@ -7,6 +7,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 const root = process.cwd();
 const failures = [];
@@ -30,6 +31,21 @@ function requireMatch(text, pattern, message) {
 
 function forbidMatch(text, pattern, message) {
   if (pattern.test(text)) failures.push(message);
+}
+
+function countOccurrences(text, needle) {
+  return text.split(needle).length - 1;
+}
+
+function workflowStep(text, name) {
+  const marker = `      - name: ${name}\n`;
+  const start = text.indexOf(marker);
+  if (start < 0) {
+    failures.push(`Missing required Quality step: ${name}`);
+    return '';
+  }
+  const next = text.indexOf('\n      - name: ', start + marker.length);
+  return text.slice(start, next < 0 ? text.length : next).trimEnd();
 }
 
 function parseJson(relativePath) {
@@ -77,6 +93,10 @@ function readSourceTree(directory) {
 const packageJson = parseJson('package.json');
 const webPackageJson = parseJson('apps/web/package.json');
 const lockJson = parseJson('package-lock.json');
+
+if (packageJson.scripts?.['verify:ci-credential-suppression'] !== 'node scripts/verify-ci-credential-suppression.mjs') {
+  failures.push('package.json must expose the credential-suppression failure-path verifier.');
+}
 
 const supabaseJsVersion = webPackageJson.dependencies?.['@supabase/supabase-js'];
 if (!/^\d+\.\d+\.\d+$/.test(supabaseJsVersion ?? '')) {
@@ -287,11 +307,30 @@ for (const [pattern, message] of [
 ]) requireMatch(runtime, pattern, message);
 
 const workflow = read('.github/workflows/quality.yml');
+const normalizedWorkflow = workflow.replace(/\r\n/g, '\n');
+const startStep = workflowStep(normalizedWorkflow, 'Start local Supabase');
+const runtimeStep = workflowStep(normalizedWorkflow, 'Verify real Auth sessions');
+for (const [name, step, expectedHash] of [
+  ['Start local Supabase', startStep, '2cc6007269bf5526f99d2a78aca03752053a3237c94c40967dbf83a3f256bf9a'],
+  ['Verify real Auth sessions', runtimeStep, 'f2579e55e6050339a1379066f1fce77f53c798699a227e23fb69adccee4325d6'],
+]) {
+  const actualHash = createHash('sha256').update(step, 'utf8').digest('hex');
+  if (actualHash !== expectedHash) {
+    failures.push(`${name} changed from its reviewed credential-safe form; perform a fresh security review before updating its fingerprint.`);
+  }
+}
 requireMatch(workflow, /^\s{2}quality:\s*$/m, 'The required GitHub job must remain named quality.');
 requireMatch(workflow, /^\s*run:\s*npm\s+run\s+verify:auth\s*$/m, 'Quality must run the static Auth contract verifier.');
-requireMatch(workflow, /^\s*run:\s*npx\s+supabase\s+start\s*$/m, 'Quality must start the complete local Supabase stack without service exclusions.');
+requireMatch(workflow, /^\s*run:\s*npm\s+run\s+verify:ci-credential-suppression\s*$/m, 'Quality must prove the credential-safe failure path before starting Supabase.');
+forbidMatch(workflow, /^\s*run:\s*npx\s+supabase\s+start\s*$/m, 'Quality must not stream local Supabase credentials to the public Actions log.');
+requireMatch(workflow, /start_log="\$RUNNER_TEMP\/canwin-supabase-start\.log"/, 'Quality must keep raw Supabase startup output in RUNNER_TEMP.');
+requireMatch(workflow, /cleanup_supabase_start\s*\(\)\s*\{[\s\S]{0,120}\brm\s+-f\s+--\s+"\$start_log"[\s\S]{0,40}\}/, 'Quality must delete the raw Supabase startup log on every exit path.');
+requireMatch(workflow, /\btrap\s+cleanup_supabase_start\s+EXIT\b/, 'Quality must register Supabase startup-log cleanup before starting the stack.');
+requireMatch(workflow, /\binstall\s+-m\s+600\s+\/dev\/null\s+"\$start_log"/, 'Quality must create the Supabase startup log with mode 0600 before writing it.');
+requireMatch(startStep, /^\s{10}if npx supabase start >"\$start_log" 2>&1; then$/m, 'Quality must redirect all Supabase startup output away from the public Actions log.');
+requireMatch(workflow, /start_status=\$\?[\s\S]{0,240}\bexit\s+"\$start_status"/, 'Quality must preserve and return the Supabase startup failure status.');
 requireMatch(workflow, /^\s*run:\s*npx\s+supabase\s+test\s+db\s+--local\s*$/m, 'Quality must run the entire local pgTAP suite without selecting one file.');
-requireMatch(workflow, /\bnpx\s+supabase\s+status\s+-o\s+json\b/, 'Quality must obtain local Supabase runtime endpoints without hard-coded keys.');
+requireMatch(runtimeStep, /^\s{10}if ! status_json="\$\(npx supabase status -o json 2>"\$status_log"\)"; then$/m, 'Quality must capture Supabase status while withholding credential-bearing stderr.');
 for (const variable of ['CANWIN_TEST_API_URL', 'CANWIN_TEST_PUBLISHABLE_KEY', 'CANWIN_TEST_SECRET_KEY', 'CANWIN_TEST_FUNCTION_URL']) {
   if (!workflow.includes(variable)) failures.push(`Quality must provide ${variable} from local Supabase status.`);
 }
@@ -299,18 +338,115 @@ requireMatch(workflow, /CANWIN_APP_ORIGINS=\["http:\/\/127\.0\.0\.1:4173"\]/, 'Q
 requireMatch(workflow, /printf\s+['"]::add-mask::%s\\n['"]\s+['"]\$CANWIN_TEST_SECRET_KEY['"]/, 'Quality must mask the local secret key before any downstream command can log it.');
 requireMatch(workflow, /printf\s+['"]SUPABASE_PUBLISHABLE_KEYS=%s\\n['"]\s+"\$\(jq\s+-cn\s+--arg\s+value\s+"\$CANWIN_TEST_PUBLISHABLE_KEY"\s+'\{primary:\$value\}'\)"/, 'Quality must bind the publishable-key dictionary to the local publishable key.');
 requireMatch(workflow, /printf\s+['"]SUPABASE_SECRET_KEYS=%s\\n['"]\s+"\$\(jq\s+-cn\s+--arg\s+value\s+"\$CANWIN_TEST_SECRET_KEY"\s+'\{primary:\$value\}'\)"/, 'Quality must bind the secret-key dictionary to the local secret key.');
+requireMatch(workflow, /\binstall\s+-m\s+600\s+\/dev\/null\s+['"]\$status_log['"]/, 'Quality must create the temporary Supabase status log with mode 0600 before writing it.');
 requireMatch(workflow, /\binstall\s+-m\s+600\s+\/dev\/null\s+['"]\$function_env['"]/, 'Quality must create the temporary Edge environment file with mode 0600 before writing it.');
-requireMatch(workflow, /cleanup\s*\(\)\s*\{[\s\S]{0,320}\bkill\s+['"]\$edge_pid['"][\s\S]{0,160}\bwait\s+['"]\$edge_pid['"][\s\S]{0,160}\brm\s+-f\s+--\s+['"]\$function_env['"]\s+['"]\$edge_log['"][\s\S]{0,80}\}/, 'Quality cleanup must stop and wait for Edge, then remove both temporary files.');
+requireMatch(workflow, /\binstall\s+-m\s+600\s+\/dev\/null\s+['"]\$edge_log['"]/, 'Quality must create the temporary Edge log with mode 0600 before writing it.');
+requireMatch(workflow, /cleanup\s*\(\)\s*\{[\s\S]{0,320}\bkill\s+['"]\$edge_pid['"][\s\S]{0,160}\bwait\s+['"]\$edge_pid['"][\s\S]{0,160}\brm\s+-f\s+--\s+['"]\$status_log['"]\s+['"]\$function_env['"]\s+['"]\$edge_log['"][\s\S]{0,80}\}/, 'Quality cleanup must stop and wait for Edge, then remove all credential-bearing temporary files.');
 requireMatch(workflow, /\btrap\s+cleanup\s+EXIT\b/, 'Quality must register cleanup for every shell exit path.');
-requireMatch(workflow, /\bnpx\s+supabase\s+functions\s+serve\s+--no-verify-jwt\s+--env-file\s+['"]?\$function_env['"]?/, 'Quality must serve the real local invite Edge Function with its runtime-only environment file.');
+requireMatch(runtimeStep, /^\s{10}npx supabase functions serve --no-verify-jwt --env-file "\$function_env" >"\$edge_log" 2>&1 &$/m, 'Quality must serve Edge with all raw output redirected to its protected log.');
+forbidMatch(normalizedWorkflow, /^\s*(?:set\s+-x|set\s+-o\s+xtrace|bash\s+-x)\b/m, 'Quality must never enable shell tracing around temporary credentials.');
+forbidMatch(normalizedWorkflow, /uses:\s*actions\/upload-artifact(?:@|\s|$)/i, 'Quality must not upload raw runtime logs or temporary credential files as artifacts.');
+
+const normalizedShellCommands = normalizedWorkflow.replace(/\\\n[\t ]*/g, ' ');
+for (const [pattern, label] of [
+  [/\bsupabase[\t ]+start\b/g, 'supabase start'],
+  [/\bsupabase[\t ]+status[\t ]+-o[\t ]+json\b/g, 'supabase status -o json'],
+  [/\bsupabase[\t ]+functions[\t ]+serve\b/g, 'supabase functions serve'],
+]) {
+  const actual = [...normalizedShellCommands.matchAll(pattern)].length;
+  if (actual !== 1) failures.push(`Quality must contain exactly one protected occurrence of: ${label}`);
+}
+
+for (const filename of [
+  'canwin-supabase-start.log',
+  'canwin-supabase-status.log',
+  'canwin-functions.env',
+  'canwin-edge.log',
+]) {
+  if (countOccurrences(normalizedWorkflow, filename) !== 1) {
+    failures.push(`Quality must reference the protected temporary file exactly once by literal name: ${filename}`);
+  }
+}
+
+const allowedSensitiveReferenceLines = new Set([
+  'start_log="$RUNNER_TEMP/canwin-supabase-start.log"',
+  'rm -f -- "$start_log"',
+  'install -m 600 /dev/null "$start_log"',
+  'if npx supabase start >"$start_log" 2>&1; then',
+  'status_log="$RUNNER_TEMP/canwin-supabase-status.log"',
+  'function_env="$RUNNER_TEMP/canwin-functions.env"',
+  'edge_log="$RUNNER_TEMP/canwin-edge.log"',
+  'rm -f -- "$status_log" "$function_env" "$edge_log"',
+  'install -m 600 /dev/null "$status_log"',
+  'install -m 600 /dev/null "$function_env"',
+  'install -m 600 /dev/null "$edge_log"',
+  'if ! status_json="$(npx supabase status -o json 2>"$status_log")"; then',
+  'export CANWIN_TEST_API_URL="$(jq -r \'.API_URL\' <<<"$status_json")"',
+  'export CANWIN_TEST_PUBLISHABLE_KEY="$(jq -r \'.PUBLISHABLE_KEY\' <<<"$status_json")"',
+  'if ! read -r CANWIN_TEST_SECRET_KEY < <(jq -er \'.SECRET_KEY\' <<<"$status_json" 2>>"$status_log"); then',
+  'printf \'::add-mask::%s\\n\' "$CANWIN_TEST_SECRET_KEY"',
+  'export CANWIN_TEST_FUNCTION_URL="${CANWIN_TEST_API_URL}/functions/v1/invite-member"',
+  'printf \'SUPABASE_PUBLISHABLE_KEYS=%s\\n\' "$(jq -cn --arg value "$CANWIN_TEST_PUBLISHABLE_KEY" \'{primary:$value}\')"',
+  'printf \'SUPABASE_SECRET_KEYS=%s\\n\' "$(jq -cn --arg value "$CANWIN_TEST_SECRET_KEY" \'{primary:$value}\')"',
+  '} >"$function_env"',
+  'npx supabase functions serve --no-verify-jwt --env-file "$function_env" >"$edge_log" 2>&1 &',
+]);
+const sensitiveShellVariables = [
+  'start_log',
+  'status_log',
+  'function_env',
+  'edge_log',
+  'RUNNER_TEMP',
+  'status_json',
+  'CANWIN_TEST_API_URL',
+  'CANWIN_TEST_PUBLISHABLE_KEY',
+  'CANWIN_TEST_SECRET_KEY',
+];
+const sensitiveReference = new RegExp(
+  `\\$(?:\\{(?:${sensitiveShellVariables.join('|')})\\}|(?:${sensitiveShellVariables.join('|')})\\b)`,
+);
+for (const line of normalizedWorkflow.split('\n')) {
+  const trimmed = line.trim();
+  if (sensitiveReference.test(trimmed) && !allowedSensitiveReferenceLines.has(trimmed)) {
+    failures.push(`Quality contains a non-allowlisted sensitive value or temporary-file reference: ${trimmed}`);
+  }
+}
+
+const supabaseStartupOrder = [
+  'set +x',
+  'start_log="$RUNNER_TEMP/canwin-supabase-start.log"',
+  'cleanup_supabase_start() {',
+  'trap cleanup_supabase_start EXIT',
+  "trap 'exit 130' INT",
+  "trap 'exit 143' TERM",
+  'install -m 600 /dev/null "$start_log"',
+  'npx supabase start >"$start_log" 2>&1',
+];
+let previousSupabaseStartupIndex = -1;
+for (const fragment of supabaseStartupOrder) {
+  const index = startStep.indexOf(fragment);
+  if (index < 0 || index <= previousSupabaseStartupIndex) {
+    failures.push(`Quality Supabase startup is missing or out of secure order: ${fragment}`);
+    break;
+  }
+  previousSupabaseStartupIndex = index;
+}
 
 const runtimeEnvironmentOrder = [
+  'set +x',
+  'status_log="$RUNNER_TEMP/canwin-supabase-status.log"',
   'function_env="$RUNNER_TEMP/canwin-functions.env"',
   'edge_log="$RUNNER_TEMP/canwin-edge.log"',
   'edge_pid=""',
   'cleanup() {',
   'trap cleanup EXIT',
+  "trap 'exit 130' INT",
+  "trap 'exit 143' TERM",
+  'install -m 600 /dev/null "$status_log"',
   'install -m 600 /dev/null "$function_env"',
+  'install -m 600 /dev/null "$edge_log"',
+  'npx supabase status -o json 2>"$status_log"',
+  '::add-mask::%s\\n',
   'CANWIN_APP_ORIGINS=["http://127.0.0.1:4173"]',
   'SUPABASE_PUBLISHABLE_KEYS=%s',
   'SUPABASE_SECRET_KEYS=%s',
@@ -318,7 +454,7 @@ const runtimeEnvironmentOrder = [
 ];
 let previousRuntimeEnvironmentIndex = -1;
 for (const fragment of runtimeEnvironmentOrder) {
-  const index = workflow.indexOf(fragment);
+  const index = runtimeStep.indexOf(fragment);
   if (index < 0 || index <= previousRuntimeEnvironmentIndex) {
     failures.push(`Quality runtime environment setup is missing or out of secure order: ${fragment}`);
     break;
@@ -327,6 +463,37 @@ for (const fragment of runtimeEnvironmentOrder) {
 }
 requireMatch(workflow, /\bnpm\s+run\s+verify:auth:runtime\b/, 'Quality must run the real Auth/JWT runtime verifier.');
 forbidMatch(workflow, /continue-on-error:\s*true[\s\S]{0,240}(?:verify:auth|supabase\s+test\s+db|verify:auth:runtime)/i, 'Auth, pgTAP, and runtime checks must be blocking quality gates.');
+
+const credentialSuppressionProbe = read('scripts/verify-ci-credential-suppression.mjs');
+for (const [pattern, message] of [
+  [/spawnSync\s*\(\s*bash\s*,\s*\[\s*['"]-s['"]\s*\]/, 'Credential-suppression probe must pass its script to Bash through stdin.'],
+  [/randomUUID\s*\(\s*\)/, 'Credential-suppression probe must generate a fresh synthetic secret sentinel at runtime.'],
+  [/CANWIN_PROBE_SENTINEL/, 'Credential-suppression probe must pass its synthetic secret sentinel only through the child environment.'],
+  [/exit 19/, 'Credential-suppression probe must exercise a non-zero child exit.'],
+  [/install -m 600 \/dev\/null "\$start_log"/, 'Credential-suppression probe must create the raw log with requested mode 0600.'],
+  [/raw_log_mode="\$\(stat -c '%a' "\$start_log"\)"/, 'Credential-suppression probe must read the raw log actual mode.'],
+  [/if \[\[ "\$CANWIN_REQUIRE_POSIX_MODE" == '1' \]\]; then/, 'Credential-suppression probe must enforce actual POSIX mode on Linux CI.'],
+  [/\[\[ "\$raw_log_mode" == '600' \]\] \|\| exit 20/, 'Credential-suppression probe must fail unless the raw log actual mode is exactly 0600.'],
+  [/raw_log_mode_0600=true[\s\S]{0,120}mode_verification='posix-verified'/,
+    'Credential-suppression probe must emit positive mode evidence only after strict POSIX verification.'],
+  [/raw_log_mode_0600=null[\s\S]{0,120}mode_verification='not-applicable-windows'/,
+    'Credential-suppression probe must not claim POSIX mode verification on Windows.'],
+  [/>"\$start_log" 2>&1/, 'Credential-suppression probe must redirect both child output streams.'],
+  [/expected_output='Local Supabase startup failed \(exit 19\); raw output withheld because it may contain temporary credentials\.'/,
+    'Credential-suppression probe must define the reviewed fixed safe failure message.'],
+  [/\[\[ "\$safe_output" == "\$expected_output" \]\]/, 'Credential-suppression probe must require exact fixed safe output.'],
+  [/safe_output[^\n]*!=[^\n]*CANWIN_PROBE_SENTINEL/, 'Credential-suppression probe must reject sentinel exposure.'],
+  [/! -e "\$probe_dir\/start\.log"/, 'Credential-suppression probe must prove raw-log cleanup.'],
+  [/secret_exposed[^\n]*false/, 'Credential-suppression probe must emit machine-readable non-exposure evidence.'],
+  [/raw_log_mode_0600[^\n]*true/, 'Credential-suppression probe must emit machine-readable 0600 mode evidence.'],
+  [/raw_log_removed[^\n]*true/, 'Credential-suppression probe must emit machine-readable cleanup evidence.'],
+  [/CANWIN_REQUIRE_POSIX_MODE:\s*process\.platform === 'win32' \? '0' : '1'/,
+    'Credential-suppression probe must require POSIX mode verification on Linux and mark Windows as not applicable.'],
+  [/evidence\.raw_log_mode_0600 === null[^\n]*mode_verification === 'not-applicable-windows'/,
+    'Credential-suppression probe must validate explicit Windows non-applicability without claiming 0600.'],
+  [/evidence\.raw_log_mode_0600 === true[^\n]*mode_verification === 'posix-verified'/,
+    'Credential-suppression probe must validate strict positive 0600 evidence on Linux CI.'],
+]) requireMatch(credentialSuppressionProbe, pattern, message);
 
 for (const file of [
   'docs/wbs-1.5/acceptance-evidence-template.md',

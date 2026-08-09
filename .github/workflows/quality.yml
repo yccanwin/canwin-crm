@@ -55,8 +55,29 @@ jobs:
       - name: Verify Auth and membership contract
         run: npm run verify:auth
 
+      - name: Verify credential-safe CI failure path
+        run: npm run verify:ci-credential-suppression
+
       - name: Start local Supabase
-        run: npx supabase start
+        shell: bash
+        run: |
+          set +x
+          start_log="$RUNNER_TEMP/canwin-supabase-start.log"
+          cleanup_supabase_start() {
+            rm -f -- "$start_log"
+          }
+          trap cleanup_supabase_start EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+
+          install -m 600 /dev/null "$start_log"
+          if npx supabase start >"$start_log" 2>&1; then
+            printf '%s\n' 'Local Supabase started.'
+          else
+            start_status=$?
+            printf 'Local Supabase startup failed (exit %s); raw output withheld because it may contain temporary credentials.\n' "$start_status" >&2
+            exit "$start_status"
+          fi
 
       - name: Test database policies and Auth contract
         run: npx supabase test db --local
@@ -64,14 +85,8 @@ jobs:
       - name: Verify real Auth sessions
         shell: bash
         run: |
-          status_json="$(npx supabase status -o json)"
-          export CANWIN_TEST_API_URL="$(jq -r '.API_URL' <<<"$status_json")"
-          export CANWIN_TEST_PUBLISHABLE_KEY="$(jq -r '.PUBLISHABLE_KEY' <<<"$status_json")"
-          read -r CANWIN_TEST_SECRET_KEY < <(jq -r '.SECRET_KEY' <<<"$status_json")
-          export CANWIN_TEST_SECRET_KEY
-          printf '::add-mask::%s\n' "$CANWIN_TEST_SECRET_KEY"
-          export CANWIN_TEST_FUNCTION_URL="${CANWIN_TEST_API_URL}/functions/v1/invite-member"
-
+          set +x
+          status_log="$RUNNER_TEMP/canwin-supabase-status.log"
           function_env="$RUNNER_TEMP/canwin-functions.env"
           edge_log="$RUNNER_TEMP/canwin-edge.log"
           edge_pid=""
@@ -80,11 +95,28 @@ jobs:
               kill "$edge_pid" 2>/dev/null || true
               wait "$edge_pid" 2>/dev/null || true
             fi
-            rm -f -- "$function_env" "$edge_log"
+            rm -f -- "$status_log" "$function_env" "$edge_log"
           }
           trap cleanup EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
 
+          install -m 600 /dev/null "$status_log"
           install -m 600 /dev/null "$function_env"
+          install -m 600 /dev/null "$edge_log"
+          if ! status_json="$(npx supabase status -o json 2>"$status_log")"; then
+            printf '%s\n' 'Local Supabase status failed; raw output withheld because it may contain temporary credentials.' >&2
+            exit 1
+          fi
+          export CANWIN_TEST_API_URL="$(jq -r '.API_URL' <<<"$status_json")"
+          export CANWIN_TEST_PUBLISHABLE_KEY="$(jq -r '.PUBLISHABLE_KEY' <<<"$status_json")"
+          if ! read -r CANWIN_TEST_SECRET_KEY < <(jq -er '.SECRET_KEY' <<<"$status_json" 2>>"$status_log"); then
+            printf '%s\n' 'Local Supabase credentials could not be read; raw output withheld.' >&2
+            exit 1
+          fi
+          export CANWIN_TEST_SECRET_KEY
+          printf '::add-mask::%s\n' "$CANWIN_TEST_SECRET_KEY"
+          export CANWIN_TEST_FUNCTION_URL="${CANWIN_TEST_API_URL}/functions/v1/invite-member"
           {
             printf '%s\n' 'CANWIN_APP_ORIGINS=["http://127.0.0.1:4173"]'
             printf 'SUPABASE_PUBLISHABLE_KEYS=%s\n' "$(jq -cn --arg value "$CANWIN_TEST_PUBLISHABLE_KEY" '{primary:$value}')"
@@ -106,7 +138,7 @@ jobs:
             sleep 1
           done
           if [[ "$edge_ready" != true ]]; then
-            tail -n 80 "$edge_log"
+            printf '%s\n' 'Local invite Edge Function did not become ready; raw output withheld because it may contain temporary credentials.' >&2
             exit 1
           fi
 

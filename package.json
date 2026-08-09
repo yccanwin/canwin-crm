@@ -21,9 +21,10 @@
     "verify:quality-config": "node scripts/verify-quality-config.mjs",
     "verify:supabase": "node scripts/verify-supabase-baseline.mjs",
     "verify:auth": "node scripts/verify-auth-contract.mjs",
+    "verify:ci-credential-suppression": "node scripts/verify-ci-credential-suppression.mjs",
     "verify:auth:runtime": "node scripts/verify-auth-runtime.mjs",
     "prove:quality-gates": "node scripts/prove-quality-gate-failures.mjs",
-    "check": "npm run verify:scaffold && npm run verify:env && npm run verify:quality-config && npm run verify:supabase && npm run verify:auth && npm run lint && npm run typecheck && npm run test && npm run build"
+    "check": "npm run verify:scaffold && npm run verify:env && npm run verify:quality-config && npm run verify:supabase && npm run verify:auth && npm run verify:ci-credential-suppression && npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "devDependencies": {
     "supabase": "2.112.0"
