@@ -90,18 +90,26 @@ paused, linked, migrated, or otherwise modified.
 
 ## Repository quality evidence
 
-- `npm.cmd run check` passed on 2026-08-09 after clearing two untracked,
-  generated TypeScript build-information files.
-- The aggregate run passed scaffold, environment boundary, quality
-  configuration, Supabase baseline, lint, typecheck, one Vitest test, and the
-  production Vite build.
+- `npm.cmd run check` passed again on the final content-bearing commit
+  `5604f17` on 2026-08-09. The aggregate run passed scaffold, environment
+  boundary, quality configuration, Supabase baseline, lint, typecheck, one
+  Vitest test, and the production Vite build.
+- The environment-boundary verifier scanned repository text files for live
+  OpenAI, GitHub, Supabase, Google, AWS, Slack, and JWT-style credentials;
+  rejected committed non-example environment files and sensitive `VITE_*`
+  variables; and passed without reporting a potential credential.
+- GitHub Actions Quality run
+  [`31304705400`](https://github.com/yccanwin/canwin-crm/actions/runs/31304705400)
+  completed successfully for full commit
+  `5604f173fc79d8af855fa1d17773be3064d12766`. Its `quality` job passed locked
+  dependency installation, high-severity audit, scaffold, environment,
+  Supabase, lint, typecheck, test, and production-build steps.
 - `.github/workflows/quality.yml` runs `npm run verify:supabase` in the required
   `quality` job; the Supabase baseline is therefore part of the protected CI
   status rather than a local-only check.
 
 ## Evidence still required before acceptance
 
-- Final secret scan and hosted CI run for the completed evidence commit
 - Agent 0 / Agent 1 review and third-party supervisor disposition
 
 WBS 1.4 remains in progress until every item above has direct evidence.
