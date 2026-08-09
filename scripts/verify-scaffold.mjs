@@ -22,7 +22,9 @@ const ignoredDirectories = new Set([
   'dist',
   'node_modules',
 ]);
-const allowedEnvExamples = /\.env\.(example|sample|template)$/i;
+// WBS 1.2 permits only committed .env examples, including mode-specific files
+// such as .env.development.example. Other .env* files are local-only.
+const allowedEnvExamples = /^\.env(?:\.[^.]+)*\.example$/i;
 
 function relative(target) {
   return path.relative(root, target).split(path.sep).join('/');
@@ -117,7 +119,7 @@ function verifyGitignore() {
 
   const gitignore = fs.readFileSync(gitignorePath, 'utf8');
   const ignoresEnvFiles = /^\s*\.env\*\s*$/m.test(gitignore);
-  const permitsExamples = /^\s*!(?:\.env\.(?:example|sample|template)|\*\.example)\s*$/m.test(gitignore);
+  const permitsExamples = /^\s*!\.env(?:\.\*)?\.example\s*$/m.test(gitignore);
   const unsafeEnvExceptions = gitignore
     .split(/\r?\n/)
     .map((line) => line.trim())

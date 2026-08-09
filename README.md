@@ -56,6 +56,24 @@ LAN, internet or an external tunnel without user approval.
   items and require their own evidence and approvals.
 - The browser must never receive service-role or external-channel secrets.
 
+Environment templates are split by execution boundary:
+
+- `apps/web/.env.development.example`, `.env.test.example` and
+  `.env.production.example` contain public browser configuration only.
+- `supabase/functions/.env.example` documents server-only placeholders and must
+  never be copied into `apps/web`.
+- Real local files use `.local` suffixes and remain ignored by Git. Hosted test
+  and production values must be injected through the platform secret store.
+
+Validate the boundary before every commit:
+
+```powershell
+npm.cmd run verify:env
+```
+
+See `docs/environment-and-secrets.md` for the dev/test/prod matrix, ownership,
+rotation and incident response rules.
+
 ## License
 
 Original CanWin CRM materials are proprietary and restricted to authorized

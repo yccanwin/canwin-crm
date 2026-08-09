@@ -15,6 +15,7 @@
     "build": "npm --workspace @canwin-crm/web run build",
     "typecheck": "npm --workspace @canwin-crm/web run typecheck",
     "verify:scaffold": "node scripts/verify-scaffold.mjs",
-    "check": "npm run verify:scaffold && npm run typecheck && npm run build"
+    "verify:env": "node scripts/verify-env-boundary.mjs",
+    "check": "npm run verify:scaffold && npm run verify:env && npm run typecheck && npm run build"
   }
 }
