@@ -13,9 +13,13 @@
   "scripts": {
     "dev": "npm --workspace @canwin-crm/web run dev --",
     "build": "npm --workspace @canwin-crm/web run build",
+    "lint": "npm --workspace @canwin-crm/web run lint",
+    "test": "npm --workspace @canwin-crm/web run test",
     "typecheck": "npm --workspace @canwin-crm/web run typecheck",
     "verify:scaffold": "node scripts/verify-scaffold.mjs",
     "verify:env": "node scripts/verify-env-boundary.mjs",
-    "check": "npm run verify:scaffold && npm run verify:env && npm run typecheck && npm run build"
+    "verify:quality-config": "node scripts/verify-quality-config.mjs",
+    "prove:quality-gates": "node scripts/prove-quality-gate-failures.mjs",
+    "check": "npm run verify:scaffold && npm run verify:env && npm run verify:quality-config && npm run lint && npm run typecheck && npm run test && npm run build"
   }
 }
