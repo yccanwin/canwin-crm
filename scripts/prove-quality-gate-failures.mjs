@@ -5,11 +5,10 @@
  */
 import childProcess from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 
 const root = process.cwd();
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmCliPath = process.env.npm_execpath;
 const evidenceDirectory = path.join(root, 'artifacts', 'verification', 'gate-1', 'wbs-1.3-quality-gates');
 const manifestPath = path.join(evidenceDirectory, 'manifest.json');
 const records = [];
@@ -51,7 +50,18 @@ function sanitize(value) {
 }
 
 function runNpm(script) {
-  const result = childProcess.spawnSync(npmCommand, ['run', script], {
+  if (!npmCliPath) {
+    return {
+      exitCode: -1,
+      signal: null,
+      stdout: '',
+      stderr: 'npm_execpath is unavailable; run this proof through npm.',
+    };
+  }
+
+  // Invoke npm-cli.js with Node instead of spawning npm.cmd directly. The
+  // latter is not an executable binary and can fail with EINVAL on Windows.
+  const result = childProcess.spawnSync(process.execPath, [npmCliPath, 'run', script], {
     cwd: root,
     encoding: 'utf8',
     shell: false,
@@ -65,7 +75,9 @@ function runNpm(script) {
 }
 
 function record(caseId, expected, actual) {
-  const pass = expected === 'non-zero' ? actual.exitCode !== 0 : actual.exitCode === 0;
+  // A spawn/precondition error is represented by -1 and must never count as a
+  // successful rejection. Only a real child-process failure proves the gate.
+  const pass = expected === 'non-zero' ? actual.exitCode > 0 : actual.exitCode === 0;
   records.push({
     case_id: caseId,
     WBS: '1.3',
@@ -74,7 +86,6 @@ function record(caseId, expected, actual) {
       node: process.version,
       platform: process.platform,
       arch: process.arch,
-      hostname: os.hostname(),
     },
     git_sha: readGitSha(),
     expected,
