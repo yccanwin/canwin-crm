@@ -1,4 +1,4 @@
-# WBS 1.4 acceptance evidence — work in progress
+# WBS 1.4 acceptance evidence — implementation complete, reviews pending
 
 - Date: 2026-08-09 (Asia/Shanghai)
 - Branch: `agent/wbs-1-4-supabase`
@@ -104,12 +104,24 @@ paused, linked, migrated, or otherwise modified.
   `5604f173fc79d8af855fa1d17773be3064d12766`. Its `quality` job passed locked
   dependency installation, high-severity audit, scaffold, environment,
   Supabase, lint, typecheck, test, and production-build steps.
+- The following documentation-only evidence commit `896addb` also passed the
+  same immutable Quality workflow in run
+  [`31304869663`](https://github.com/yccanwin/canwin-crm/actions/runs/31304869663).
+  Its full SHA is `896addb0c3cd770ba3c64384fad309c74fc231e2`, and every job
+  step completed successfully.
+- Evidence uses a non-self-referential documentation-tail rule: a document
+  cannot contain the CI run created by its own commit. Each documentation-only
+  tail commit must pass the unchanged Quality workflow before merge, and that
+  branch-tip check plus the preceding recorded run form the auditable chain.
 - `.github/workflows/quality.yml` runs `npm run verify:supabase` in the required
   `quality` job; the Supabase baseline is therefore part of the protected CI
   status rather than a local-only check.
 
 ## Evidence still required before acceptance
 
-- Agent 0 / Agent 1 review and third-party supervisor disposition
+- Agent 1 re-review of the remediated documentation tail
+- Third-party supervisor disposition using
+  `docs/wbs-1.4/third-party-review-package-2026-08-09.md`
 
-WBS 1.4 remains in progress until every item above has direct evidence.
+WBS 1.4 technical implementation is complete but formal acceptance remains
+pending until both review items above have direct evidence.
