@@ -21,7 +21,7 @@ jobs:
   quality:
     name: quality
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         # actions/checkout v6.0.3
@@ -51,6 +51,48 @@ jobs:
 
       - name: Verify Supabase baseline
         run: npm run verify:supabase
+
+      - name: Verify Auth and membership contract
+        run: npm run verify:auth
+
+      - name: Start local Supabase
+        run: npx supabase start
+
+      - name: Test database policies and Auth contract
+        run: npx supabase test db --local
+
+      - name: Verify real Auth sessions
+        shell: bash
+        run: |
+          status_json="$(npx supabase status -o json)"
+          export CANWIN_TEST_API_URL="$(jq -r '.API_URL' <<<"$status_json")"
+          export CANWIN_TEST_PUBLISHABLE_KEY="$(jq -r '.PUBLISHABLE_KEY' <<<"$status_json")"
+          read -r CANWIN_TEST_SECRET_KEY < <(jq -r '.SECRET_KEY' <<<"$status_json")
+          export CANWIN_TEST_SECRET_KEY
+          export CANWIN_TEST_FUNCTION_URL="${CANWIN_TEST_API_URL}/functions/v1/invite-member"
+
+          edge_log="$RUNNER_TEMP/canwin-edge.log"
+          npx supabase functions serve --no-verify-jwt >"$edge_log" 2>&1 &
+          edge_pid=$!
+          trap 'kill "$edge_pid" 2>/dev/null || true' EXIT
+
+          edge_ready=false
+          for _ in {1..30}; do
+            if curl --fail --silent --show-error \
+              -X OPTIONS \
+              -H 'Origin: http://127.0.0.1:4173' \
+              "$CANWIN_TEST_FUNCTION_URL" >/dev/null; then
+              edge_ready=true
+              break
+            fi
+            sleep 1
+          done
+          if [[ "$edge_ready" != true ]]; then
+            tail -n 80 "$edge_log"
+            exit 1
+          fi
+
+          npm run verify:auth:runtime
 
       - name: Lint
         run: npm run lint
