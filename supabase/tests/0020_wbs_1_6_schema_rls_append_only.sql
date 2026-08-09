@@ -1,6 +1,6 @@
 begin;
 
-select plan(47);
+select plan(48);
 
 select is(
   (select count(*) from information_schema.tables where table_schema = 'public' and table_name in (
@@ -142,6 +142,10 @@ select ok(
   exists (select 1 from pg_indexes where schemaname = 'public' and indexname = 'event_outbox_ready_idx'
           and indexdef like '%WHERE (status = ANY%'),
   'outbox ready queue uses a partial index'
+);
+select ok(
+  exists (select 1 from pg_indexes where schemaname = 'public' and indexname = 'event_outbox_envelope_lookup_idx'),
+  'every composite outbox envelope foreign-key column is indexed'
 );
 select ok(
   exists (select 1 from pg_indexes where schemaname = 'public' and indexname = 'domain_events_causation_idx'),

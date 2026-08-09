@@ -182,7 +182,8 @@ create index event_outbox_ready_idx on public.event_outbox (available_at, id)
 create index event_outbox_expired_lease_idx on public.event_outbox (lease_expires_at, id)
   where status = 'leased';
 create index event_outbox_dead_letter_idx on public.event_outbox (updated_at desc, id)
-  where status = 'dead_letter';
+where status = 'dead_letter';
+create index event_outbox_envelope_lookup_idx on public.event_outbox (event_type, schema_version, correlation_id);
 create index operational_errors_request_idx on public.operational_errors (request_id);
 create index operational_errors_correlation_time_idx on public.operational_errors (correlation_id, occurred_at desc);
 create index operational_errors_event_idx on public.operational_errors (event_id) where event_id is not null;

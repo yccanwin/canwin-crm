@@ -280,6 +280,11 @@ requireMatch(
 )
 requireMatch(
   migration,
+  /create\s+index\s+event_outbox_envelope_lookup_idx\s+on\s+public\.event_outbox\s*\(\s*event_type\s*,\s*schema_version\s*,\s*correlation_id\s*\)/i,
+  'Every non-event-id column in the composite outbox envelope FK must be indexed for the full regression contract.',
+)
+requireMatch(
+  migration,
   /schema_fingerprint[\s\S]{0,600}?(?:sha256|sha-256|digest\s*\([^,]+,\s*'sha256')/i,
   'Definition schema_fingerprint must be validated from canonical payload_schema SHA-256.',
 )
