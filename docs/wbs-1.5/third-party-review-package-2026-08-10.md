@@ -52,14 +52,14 @@ overall Gate 1 exit; and mobile coverage for future business modules.
 
 | Requirement | FED / ADR / WBS source | Test IDs | Evidence | Internal state; supervisor disposition |
 | --- | --- | --- | --- | --- |
-| One primary department | FED D-03; ADR-0002; WBS 1.5 | DB-01, DB-02 | Migration hash; pgTAP 54; acceptance requirement table | Ready; Pending |
-| Authoritative membership authorization | ADR-0003; ADR-0006 | DB-03 through DB-08 | `0010`, `0012`, runtime 44, Agent 1 record | Ready; Pending |
-| Controlled invitation lifecycle | WBS 1.5 | AUTH-01 through AUTH-03 | `0011`, real Edge/Auth runtime, frontend invitation states | Ready; Pending |
-| Edge completion envelope and delivery status | WBS 1.5 | AUTH-06 | Edge source, static verifier, runtime manifest | Ready; Pending |
-| Old JWT denied after member/department disable | ADR-0003; AC-12 foundation | DB-08, AUTH-04, AUTH-05 | `0012`; real runtime scopes for both revocation paths | Ready; Pending |
-| Independent mobile login/session recovery | ADR-0006; WBS 1.5 | WEB-01 through WEB-07 | Frontend 51; mobile viewport record; Agent 2 record | Ready; Pending |
-| Safe `return_to` | ADR-0006 | WEB-04, WEB-05 | Script/absolute/protocol-relative/backslash/encoded/control-character regression tests | Ready; Pending |
-| Secret and evidence boundary | ADR-0003 | SEC-01 through SEC-03 | Linux suppression probe; two public-log scans; env verifier | Ready; Pending |
+| One primary department | FED D-03; ADR-0002; WBS 1.5 | DB-01, DB-02 | Migration hash; pgTAP 54; acceptance requirement table | Ready; PASS |
+| Authoritative membership authorization | ADR-0003; ADR-0006 | DB-03 through DB-08 | `0010`, `0012`, runtime 44, Agent 1 record | Ready; PASS |
+| Controlled invitation lifecycle | WBS 1.5 | AUTH-01 through AUTH-03 | `0011`, real Edge/Auth runtime, frontend invitation states | Ready; PASS |
+| Edge completion envelope and delivery status | WBS 1.5 | AUTH-06 | Edge source, static verifier, runtime manifest | Ready; PASS |
+| Old JWT denied after member/department disable | ADR-0003; AC-12 foundation | DB-08, AUTH-04, AUTH-05 | `0012`; real runtime scopes for both revocation paths | Ready; PASS |
+| Independent mobile login/session recovery | ADR-0006; WBS 1.5 | WEB-01 through WEB-07 | Frontend 51; mobile viewport record; Agent 2 record | Ready; PASS |
+| Safe `return_to` | ADR-0006 | WEB-04, WEB-05 | Script/absolute/protocol-relative/backslash/encoded/control-character regression tests | Ready; PASS |
+| Secret and evidence boundary | ADR-0003 | SEC-01 through SEC-03 | Linux suppression probe; two public-log scans; env verifier | Ready; PASS |
 
 ## Evidence index
 
