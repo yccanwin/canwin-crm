@@ -67,6 +67,7 @@ export interface SafeAuthError {
   message: string
   recovery: string
   request_id: string | null
+  correlation_id?: string | null
 }
 
 export type AuthStatus =
