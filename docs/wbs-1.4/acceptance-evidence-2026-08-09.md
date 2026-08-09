@@ -1,4 +1,4 @@
-# WBS 1.4 acceptance evidence — implementation complete, reviews pending
+# WBS 1.4 acceptance evidence — gates complete, merge pending
 
 - Date: 2026-08-09 (Asia/Shanghai)
 - Branch: `agent/wbs-1-4-supabase`
@@ -109,6 +109,14 @@ paused, linked, migrated, or otherwise modified.
   [`31304869663`](https://github.com/yccanwin/canwin-crm/actions/runs/31304869663).
   Its full SHA is `896addb0c3cd770ba3c64384fad309c74fc231e2`, and every job
   step completed successfully.
+- The supervisor-disposition tail commit
+  `962fa8909749b6c2bfba1c0c374ba7ee50923606` passed both push Quality run
+  [`31306108368`](https://github.com/yccanwin/canwin-crm/actions/runs/31306108368)
+  and PR Quality run
+  [`31306110512`](https://github.com/yccanwin/canwin-crm/actions/runs/31306110512).
+  Agent 0 independently confirmed both runs have that exact `headSha` and all
+  quality steps succeeded, then reran `npm.cmd run check` locally with a zero
+  exit code.
 - Evidence uses a non-self-referential documentation-tail rule: a document
   cannot contain the CI run created by its own commit. Each documentation-only
   tail commit must pass the unchanged Quality workflow before merge, and that
@@ -117,11 +125,20 @@ paused, linked, migrated, or otherwise modified.
   `quality` job; the Supabase baseline is therefore part of the protected CI
   status rather than a local-only check.
 
-## Evidence still required before acceptance
+## Review evidence
 
-- Agent 1 re-review of the remediated documentation tail
-- Third-party supervisor disposition using
-  `docs/wbs-1.4/third-party-review-package-2026-08-09.md`
+- Third-party supervisor: **PASS**, no blocking findings, recorded in
+  `docs/wbs-1.4/third-party-review-package-2026-08-09.md`. The supervisor
+  reviewed full SHA `2a3da9ae3693e66faaf658148c9885b9ab67f568` and the later
+  supervisor-only tail commit is protected by the two exact-SHA green runs
+  above.
+- Agent 1 final re-review: **PASS**, no blocking findings, recorded in
+  `docs/wbs-1.4/agent1-final-review-2026-08-09.md` against full SHA
+  `962fa8909749b6c2bfba1c0c374ba7ee50923606`.
+- Agent 0 independently verified the supervisor disposition, commit scope,
+  clean worktree, exact-SHA push/PR runs, unchanged quality workflow, and local
+  aggregate checks on 2026-08-09.
 
-WBS 1.4 technical implementation is complete but formal acceptance remains
-pending until both review items above have direct evidence.
+All WBS 1.4 technical and review gates are complete. The item becomes formally
+completed after PR #9 is merged through protected `main` and the resulting
+main-branch Quality run succeeds.

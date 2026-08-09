@@ -1,8 +1,8 @@
 # Supabase environments and migration lifecycle
 
-Status: WBS 1.4 technical implementation complete; formal acceptance is
-pending final Agent 1 re-review and third-party supervisor disposition. Hosted
-project identifiers and credentials remain outside source control.
+Status: WBS 1.4 technical and review gates complete; PR merge and main-branch
+verification pending. Hosted project identifiers and credentials remain
+outside source control.
 
 ## Environment boundary
 

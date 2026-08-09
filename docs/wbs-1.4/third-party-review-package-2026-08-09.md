@@ -109,5 +109,7 @@ distinguishes technical implementation from formal review status and does not
 claim third-party approval prematurely; (6) the current branch-tip Quality
 workflow result for the exact reviewed SHA is successful.
 
-Until this section is completed by the external reviewer and independently
-verified by Agent 0, WBS 1.4 remains formally unaccepted.
+This section is complete. Agent 0 independently verified the disposition,
+reviewed SHA, supervisor-only tail commit `962fa89`, and exact-SHA push/PR
+Quality runs on 2026-08-09. WBS 1.4 is eligible for protected PR merge and
+main-branch verification.
