@@ -1,14 +1,16 @@
 # CanWin CRM Supabase boundary
 
-This directory is reserved for the Supabase backend of CanWin CRM. The current
-scope is **WBS 1.1 scaffolding only**: no Supabase project is connected and no
-database object, migration, Edge Function, test, seed, credential, or runtime
-configuration is defined here yet.
+This directory is the Supabase backend boundary for CanWin CRM. WBS 1.4 fixes
+the CLI and migration lifecycle without creating business tables early. No
+remote project reference, database password, access token, key, or customer
+data belongs in source control.
 
 ## Directory contract
 
-- `migrations/` — reviewed SQL migrations only. Keep empty until the database
-  model and security rules are approved in WBS 1.4 or later.
+- `config.toml` — CLI-generated local configuration, reviewed and committed.
+- `migrations/` — immutable, reviewed SQL migrations created only by the CLI.
+- `seed.sql` — deterministic synthetic development/test data, applied after all
+  migrations. It must never contain DDL or production-derived data.
 - `functions/` — Supabase Edge Functions and their function-local support files.
   Keep empty until a function has an approved contract, authorization model,
   and test plan.
@@ -44,6 +46,23 @@ Future database work must be deny-by-default:
 - If examples are added later, use obvious placeholders only and document where
   operators must provide values through an approved secret store.
 
-The placeholder files below exist only so the empty directory boundaries are
-kept in source control. Replace a placeholder only when its later WBS deliverable
-has been approved.
+## Operator commands
+
+Use the project-pinned CLI through npm. Do not use the broken global Scoop shim.
+
+```powershell
+npm.cmd exec -- supabase --version
+npm.cmd exec -- supabase migration new -- <descriptive_name>
+npm.cmd exec -- supabase db reset --local
+npm.cmd exec -- supabase migration list --local
+```
+
+`supabase start`, `db reset --local`, and local database tests require Docker
+and reserve local ports. Obtain the user's port/computer-operation approval
+before starting that stack. Linking or changing a hosted project requires a
+separate environment-specific authorization.
+
+Migration history is append-only after deployment. Fix an applied migration by
+adding a new forward migration; never edit, rename, delete, or reset deployed
+history. Destructive forward migrations, production pushes, repairs, backups,
+and restores require their own exact approval and evidence.
