@@ -26,6 +26,16 @@ const errorMessages: Record<string, Omit<SafeAuthError, 'code' | 'request_id'>> 
     message: '该邀请已经接受。',
     recovery: '请直接使用邮箱和密码登录。',
   },
+  INVITATION_ALREADY_USED: {
+    message_key: 'auth.invitation_already_used',
+    message: '该邀请已被使用。',
+    recovery: '请直接登录；如不是本人操作，请联系管理员重新邀请。',
+  },
+  INVITATION_WRONG_ACCOUNT: {
+    message_key: 'auth.invitation_wrong_account',
+    message: '当前登录账号与受邀账号不一致。',
+    recovery: '请退出当前账号，并使用收到邀请的账号重新打开链接。',
+  },
   MEMBERSHIP_INACTIVE: {
     message_key: 'auth.membership_inactive',
     message: '当前成员已停用，无法进入 CRM。',
@@ -83,6 +93,11 @@ const providerCodeMap: Record<string, string> = {
   session_not_found: 'SESSION_EXPIRED',
   refresh_token_not_found: 'SESSION_EXPIRED',
   refresh_token_already_used: 'SESSION_EXPIRED',
+  invitation_not_found: 'INVITATION_INVALID',
+  invitation_not_active: 'INVITATION_INVALID',
+  invitation_already_used: 'INVITATION_ALREADY_USED',
+  invitation_user_mismatch: 'INVITATION_WRONG_ACCOUNT',
+  invitation_email_mismatch: 'INVITATION_WRONG_ACCOUNT',
 }
 
 function readString(record: Record<string, unknown>, key: string) {

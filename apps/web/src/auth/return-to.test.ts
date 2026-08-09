@@ -22,7 +22,26 @@ describe('safe return_to handling', () => {
     '/#fragment',
     '/unknown',
     '/\\evil',
+    'javascript:alert(1)',
+    'JaVaScRiPt:alert(1)',
+    'java%73cript:alert(1)',
+    'vbscript:msgbox(1)',
   ])('rejects unsafe or unknown target %s', (target) => {
+    expect(sanitizeReturnTo(target)).toBe(DEFAULT_RETURN_TO)
+  })
+
+  test.each([
+    ['raw null', '/\u0000'],
+    ['raw tab', '/\t'],
+    ['raw newline', '/\n'],
+    ['raw carriage return', '/\r'],
+    ['raw delete', `/\u007f`],
+    ['encoded null', '/%00'],
+    ['encoded tab', '/%09'],
+    ['encoded newline', '/%0a'],
+    ['encoded carriage return', '/%0D'],
+    ['encoded delete', '/%7f'],
+  ])('rejects %s control characters', (_label, target) => {
     expect(sanitizeReturnTo(target)).toBe(DEFAULT_RETURN_TO)
   })
 

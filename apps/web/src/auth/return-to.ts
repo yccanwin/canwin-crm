@@ -23,7 +23,7 @@ export function sanitizeReturnTo(candidate: string | null | undefined) {
   }
 
   const decoded = decodeCandidate(candidate)
-  if (!decoded || decoded.includes('\\') || decoded.startsWith('//')) {
+  if (!decoded || hasControlCharacter(decoded) || decoded.includes('\\') || decoded.startsWith('//')) {
     return DEFAULT_RETURN_TO
   }
 

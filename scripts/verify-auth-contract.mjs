@@ -255,6 +255,34 @@ for (const [pattern, message] of [
 forbidMatch(frontend, /\b(?:SUPABASE_(?:SECRET|SERVICE_ROLE)_KEY|sb_secret_|service_role)\b/i, 'Frontend source must not contain server-only Supabase credentials.');
 forbidMatch(frontend, /\b(?:raw_)?user_metadata\b/i, 'Frontend must not infer authorization from user_metadata.');
 
+const mobileEvidenceHtml = read('apps/web/evidence/auth-mobile.html');
+const mobileEvidenceSource = read('apps/web/src/evidence/auth-mobile.tsx');
+const productionMain = read('apps/web/src/main.tsx');
+requireMatch(mobileEvidenceHtml, /<script\s+type=["']module["']\s+src=["']\/src\/evidence\/auth-mobile\.tsx["']><\/script>/, 'Mobile Auth evidence HTML must load the reviewed evidence entrypoint.');
+for (const [pattern, message] of [
+  [/import\s+\{\s*AuthContext[^}]*\}\s+from\s+['"]\.\.\/auth\/auth-context['"]/, 'Mobile Auth evidence must reuse the production AuthContext.'],
+  [/import\s+\{\s*LoginPage\s*\}\s+from\s+['"]\.\.\/pages\/LoginPage['"]/, 'Mobile Auth evidence must reuse the production LoginPage.'],
+  [/import\s+\{\s*InviteAcceptPage\s*\}\s+from\s+['"]\.\.\/pages\/InviteAcceptPage['"]/, 'Mobile Auth evidence must reuse the production InviteAcceptPage.'],
+  [/import\s+\{\s*HomePage\s*\}\s+from\s+['"]\.\.\/pages\/HomePage['"]/, 'Mobile Auth evidence must reuse the production HomePage.'],
+  [/type\s+Scenario\s*=\s*['"]login['"]\s*\|\s*['"]invite['"]\s*\|\s*['"]home['"]/, 'Mobile Auth evidence must support exactly the login, invite, and home scenarios.'],
+  [/<AuthContext\.Provider\s+value=\{value\}>/, 'Mobile Auth evidence must provide its synthetic state through the production AuthContext.'],
+  [/<LoginPage\s*\/>/, 'Mobile Auth evidence must render the production LoginPage.'],
+  [/<InviteAcceptPage\s*\/>/, 'Mobile Auth evidence must render the production InviteAcceptPage.'],
+  [/<HomePage\s*\/>/, 'Mobile Auth evidence must render the production HomePage.'],
+]) requireMatch(mobileEvidenceSource, pattern, message);
+
+const evidenceUuidLiterals = [...mobileEvidenceSource.matchAll(/\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/gi)]
+  .map((match) => match[0]);
+if (evidenceUuidLiterals.length === 0) {
+  failures.push('Mobile Auth evidence must declare reviewed synthetic UUID fixtures.');
+}
+for (const uuid of evidenceUuidLiterals) {
+  if (!/^00000000-0000-4000-8000-000000000\d{3}$/i.test(uuid)) {
+    failures.push(`Mobile Auth evidence contains a UUID outside the reviewed synthetic namespace: ${uuid}`);
+  }
+}
+forbidMatch(productionMain, /(?:evidence\/auth-mobile|AuthMobileEvidence)/, 'Production main.tsx must not import the mobile Auth evidence fixture.');
+
 const testContracts = [
   ['supabase/tests/0001_wbs_1_4_baseline.sql', ['plan(', 'finish()', 'rollback;']],
   ['supabase/tests/0010_wbs_1_5_auth_schema.sql', ['plan(', 'public.members', 'primary_department_id', 'relrowsecurity', 'relforcerowsecurity', 'anon', 'finish()', 'rollback;']],
@@ -503,10 +531,15 @@ for (const file of [
 ]) read(file);
 
 const acceptance = read('docs/wbs-1.5/acceptance-evidence-template.md');
-for (const required of ['Status: Pending', 'Exact implementation SHA', 'Real-JWT', 'pgTAP', '54', '44', 'return_to', 'Known limitations', 'Agent 0']) {
+for (const required of ['Status: Pending', 'Exact implementation SHA', 'Real-JWT', 'pgTAP', '54', '44', '51', 'return_to', 'auth-mobile.html', 'Known limitations', 'Agent 0']) {
   if (!acceptance.includes(required)) failures.push(`WBS 1.5 acceptance template must include: ${required}`);
 }
 forbidMatch(acceptance, /^Status:\s*(?:PASS|Passed|Complete)\s*$/mi, 'An unexecuted acceptance template must not claim completion.');
+
+const roleScope = read('docs/wbs-1.5/role-tests-and-scope-boundaries.md');
+for (const required of ['51', 'apps/web/evidence/auth-mobile.html', 'login', 'invite', 'home', 'synthetic UUID', 'main.tsx']) {
+  if (!roleScope.includes(required)) failures.push(`WBS 1.5 role/scope contract must include: ${required}`);
+}
 
 const supervisor = read('docs/wbs-1.5/third-party-review-package-template.md');
 for (const required of ['Exact reviewed implementation SHA', 'Branch-tip Quality run', 'Requirement traceability', 'full pgTAP', 'Real-JWT runtime', 'completion envelope', 'P0/P1', 'PASS', 'FAIL', 'CONDITIONAL', 'Agent 0 independent verification']) {

@@ -53,8 +53,9 @@ The required GitHub `quality` job must start the complete local Supabase stack,
 run the complete pgTAP directory (not a selected SQL file), obtain local keys
 from `supabase status`, serve the real invite Edge Function, and run the
 Real-JWT verifier through that Edge endpoint. The current baselines are 54
-planned pgTAP assertions and 44 Real-JWT runtime assertions; these numbers
-describe the suite to be evidenced and do not claim an unrecorded run passed.
+planned pgTAP assertions, 44 Real-JWT runtime assertions, and 51 frontend
+unit/integration tests; these numbers describe the suites to be evidenced and
+do not claim an unrecorded run passed.
 
 ## Required client tests
 
@@ -67,6 +68,17 @@ describe the suite to be evidenced and do not claim an unrecorded run passed.
 | WEB-05 | Absolute, protocol-relative, backslash, script-scheme, encoded external, and control-character `return_to` inputs fail closed. |
 | WEB-06 | Logout, refresh failure, and signed-out/auth-change events clear protected state and route to login. |
 | WEB-07 | Login, invite acceptance, and logout remain usable at a 360-pixel viewport without horizontal overflow. |
+
+The mobile-width evidence entrypoints are
+`apps/web/evidence/auth-mobile.html` and
+`apps/web/src/evidence/auth-mobile.tsx`. The evidence entrypoint must reuse the
+production `LoginPage`, `InviteAcceptPage`, `HomePage`, and `AuthContext`, and
+must support the `login`, `invite`, and `home` scenarios. All UUID literals in
+the fixture must remain in the reviewed synthetic UUID namespace. Production
+`main.tsx` must not import the evidence fixture, so the fixture cannot become a
+production authentication path. The fixture's presence is not visual evidence
+by itself; the 360-pixel browser capture and inspection remain separately
+required.
 
 Stable application errors use `{code, message_key, safe_params, request_id}` or
 an equivalent safe client mapping. Raw database/Auth errors, secrets, tokens,

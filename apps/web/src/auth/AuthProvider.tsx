@@ -31,6 +31,8 @@ export function AuthProvider({ adapter, children }: { adapter: AuthAdapter; chil
         const user = await adapter.getAuthenticatedUser()
         if (!mounted.current) return
         if (!user) {
+          clearSensitiveClientState()
+          if (expiredWhenMissing) storeReturnTo(returnToFromCurrentLocation())
           dispatch({ type: 'SESSION_MISSING', expired: expiredWhenMissing })
           return
         }
@@ -40,6 +42,12 @@ export function AuthProvider({ adapter, children }: { adapter: AuthAdapter; chil
         }
       } catch (error) {
         if (!mounted.current) return
+        if (expiredWhenMissing) {
+          clearSensitiveClientState()
+          storeReturnTo(returnToFromCurrentLocation())
+          dispatch({ type: 'SESSION_MISSING', expired: true })
+          return
+        }
         const safeError = normalizeAuthError(error, expiredWhenMissing ? 'SESSION_EXPIRED' : 'UNEXPECTED')
         dispatch({ type: 'OPERATION_FAILED', error: safeError, resume: 'signed_out' })
       }

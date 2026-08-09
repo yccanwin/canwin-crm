@@ -12,8 +12,19 @@ describe('CanWin CRM authentication experience', () => {
 
   test('restores a verified active session and renders the workbench', async () => {
     const fake = fakeAuthAdapter()
+    let finishUserLookup: ((user: { id: string; email: string } | null) => void) | undefined
+    fake.getAuthenticatedUser.mockImplementationOnce(
+      () => new Promise((resolve) => {
+        finishUserLookup = resolve
+      }),
+    )
     render(<App adapter={fake.adapter} />)
 
+    expect(screen.getByRole('heading', { name: '正在确认登录状态' })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: '工作台' })).not.toBeInTheDocument()
+    await act(async () => {
+      finishUserLookup?.({ id: accessContext().auth_user_id, email: 'member@example.invalid' })
+    })
     expect(await screen.findByRole('heading', { name: '工作台' })).toBeVisible()
     expect(screen.getByText('测试成员 · 测试部门')).toBeVisible()
     expect(fake.getAuthenticatedUser).toHaveBeenCalled()
@@ -64,6 +75,26 @@ describe('CanWin CRM authentication experience', () => {
     expect(fake.acceptInvitation).toHaveBeenCalledWith(invitationId)
   })
 
+  test.each([
+    ['INVITATION_EXPIRED', '邀请链接已过期。'],
+    ['INVITATION_ALREADY_USED', '该邀请已被使用。'],
+    ['INVITATION_USER_MISMATCH', '当前登录账号与受邀账号不一致。'],
+  ] as const)('shows a stable safe invitation recovery state for %s', async (code, expectedMessage) => {
+    const invitationId = '44444444-4444-4444-8444-444444444444'
+    window.history.replaceState(null, '', `/invite/accept?invitation_id=${invitationId}`)
+    const fake = fakeAuthAdapter({ context: { ...accessContext(), member: null } })
+    fake.acceptInvitation.mockRejectedValueOnce({ code, message: 'raw provider invitation detail' })
+    render(<App adapter={fake.adapter} />)
+
+    expect(await screen.findByRole('heading', { name: '接受邀请' })).toBeVisible()
+    fireEvent.change(screen.getByLabelText('新密码'), { target: { value: 'strong-pass-123' } })
+    fireEvent.change(screen.getByLabelText('确认新密码'), { target: { value: 'strong-pass-123' } })
+    fireEvent.click(screen.getByRole('button', { name: '完成激活' }))
+
+    expect(await screen.findByText(expectedMessage)).toBeVisible()
+    expect(screen.queryByText('raw provider invitation detail')).not.toBeInTheDocument()
+  })
+
   test('does not show member invitation controls without the server capability', async () => {
     const fake = fakeAuthAdapter({ context: accessContext({ canInvite: true }) })
     render(<App adapter={fake.adapter} />)
@@ -107,7 +138,38 @@ describe('CanWin CRM authentication experience', () => {
     expect(await screen.findByText('邀请已提交发送。')).toBeVisible()
   })
 
-  test('moves a revoked session to login and uses local sign out for user logout', async () => {
+  test('clears protected state and returns to login on a signed-out auth event', async () => {
+    const fake = fakeAuthAdapter()
+    render(<App adapter={fake.adapter} />)
+    await screen.findByRole('heading', { name: '工作台' })
+    window.localStorage.setItem('canwin.crm.sensitive.fixture', 'synthetic-sensitive-state')
+
+    act(() => fake.emit('SIGNED_OUT'))
+
+    expect(await screen.findByRole('heading', { name: '独立登录' })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: '工作台' })).not.toBeInTheDocument()
+    expect(window.localStorage.getItem('canwin.crm.sensitive.fixture')).toBeNull()
+  })
+
+  test.each(['TOKEN_REFRESHED', 'USER_UPDATED'] as const)(
+    'clears protected state and returns to login when %s access refresh fails',
+    async (event) => {
+      const fake = fakeAuthAdapter()
+      render(<App adapter={fake.adapter} />)
+      await screen.findByRole('heading', { name: '工作台' })
+      window.localStorage.setItem('canwin.crm.sensitive.fixture', 'synthetic-sensitive-state')
+      fake.getAccessContext.mockRejectedValueOnce(new TypeError('synthetic refresh failure'))
+
+      act(() => fake.emit(event))
+
+      expect(await screen.findByRole('heading', { name: '独立登录' })).toBeVisible()
+      expect(await screen.findByText('登录状态已过期，请重新登录。')).toBeVisible()
+      expect(screen.queryByRole('heading', { name: '工作台' })).not.toBeInTheDocument()
+      expect(window.localStorage.getItem('canwin.crm.sensitive.fixture')).toBeNull()
+    },
+  )
+
+  test('uses local sign out for user logout', async () => {
     const fake = fakeAuthAdapter()
     render(<App adapter={fake.adapter} />)
     await screen.findByRole('heading', { name: '工作台' })

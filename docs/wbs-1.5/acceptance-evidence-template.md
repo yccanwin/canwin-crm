@@ -39,9 +39,11 @@ department`. Its presence is not evidence that the item passed. Replace every
 - Complete local Supabase start and environment identity: Pending
 - Full pgTAP (`npx supabase test db --local`) TAP output, exit code, and result against the current 54-assertion plan: Pending
 - Live Edge/Auth runtime (`functions serve --no-verify-jwt` then `npm run verify:auth:runtime`) sanitized JSON result and result against the current 44-assertion suite: Pending
-- Frontend unit/integration test report and result against the current 28-test suite: Pending
+- Frontend unit/integration test report and result against the current 51-test suite: Pending
 - Production build command/output: Pending
-- Mobile-width login/invitation evidence: Pending
+- Mobile-width evidence from `apps/web/evidence/auth-mobile.html`, covering the
+  `login`, `invite`, and `home` scenarios at 360 pixels while reusing production
+  Auth components and synthetic UUID fixtures: Pending
 - Dependency audit and secret scan: Pending
 - Branch-tip push Quality run: Pending
 - Exact-SHA pull-request Quality run: Pending
