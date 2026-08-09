@@ -1,6 +1,6 @@
 begin;
 
-select plan(4);
+select plan(3);
 
 select is(
   current_setting('server_version_num')::integer / 10000,
@@ -11,27 +11,17 @@ select is(
 select is(
   (
     select count(*)
-    from pg_catalog.pg_tables
-    where schemaname = 'public'
-  ),
-  0::bigint,
-  'empty WBS 1.4 baseline has no public application tables'
-);
-
-select is(
-  (
-    select count(*)
     from information_schema.role_table_grants
     where table_schema = 'public'
-      and grantee in ('anon', 'authenticated')
+      and grantee = 'anon'
   ),
   0::bigint,
-  'empty baseline exposes no public table grants'
+  'application tables expose no anonymous grants'
 );
 
 select ok(
-  to_regclass('supabase_migrations.schema_migrations') is null,
-  'zero-migration baseline has no migration history table'
+  to_regclass('supabase_migrations.schema_migrations') is not null,
+  'migration history exists after the first application migration'
 );
 
 select * from finish();

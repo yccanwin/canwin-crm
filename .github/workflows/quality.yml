@@ -21,7 +21,7 @@ jobs:
   quality:
     name: quality
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         # actions/checkout v6.0.3
@@ -51,6 +51,98 @@ jobs:
 
       - name: Verify Supabase baseline
         run: npm run verify:supabase
+
+      - name: Verify Auth and membership contract
+        run: npm run verify:auth
+
+      - name: Verify credential-safe CI failure path
+        run: npm run verify:ci-credential-suppression
+
+      - name: Start local Supabase
+        shell: bash
+        run: |
+          set +x
+          start_log="$RUNNER_TEMP/canwin-supabase-start.log"
+          cleanup_supabase_start() {
+            rm -f -- "$start_log"
+          }
+          trap cleanup_supabase_start EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+
+          install -m 600 /dev/null "$start_log"
+          if npx supabase start >"$start_log" 2>&1; then
+            printf '%s\n' 'Local Supabase started.'
+          else
+            start_status=$?
+            printf 'Local Supabase startup failed (exit %s); raw output withheld because it may contain temporary credentials.\n' "$start_status" >&2
+            exit "$start_status"
+          fi
+
+      - name: Test database policies and Auth contract
+        run: npx supabase test db --local
+
+      - name: Verify real Auth sessions
+        shell: bash
+        run: |
+          set +x
+          status_log="$RUNNER_TEMP/canwin-supabase-status.log"
+          function_env="$RUNNER_TEMP/canwin-functions.env"
+          edge_log="$RUNNER_TEMP/canwin-edge.log"
+          edge_pid=""
+          cleanup() {
+            if [[ -n "$edge_pid" ]]; then
+              kill "$edge_pid" 2>/dev/null || true
+              wait "$edge_pid" 2>/dev/null || true
+            fi
+            rm -f -- "$status_log" "$function_env" "$edge_log"
+          }
+          trap cleanup EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+
+          install -m 600 /dev/null "$status_log"
+          install -m 600 /dev/null "$function_env"
+          install -m 600 /dev/null "$edge_log"
+          if ! status_json="$(npx supabase status -o json 2>"$status_log")"; then
+            printf '%s\n' 'Local Supabase status failed; raw output withheld because it may contain temporary credentials.' >&2
+            exit 1
+          fi
+          export CANWIN_TEST_API_URL="$(jq -r '.API_URL' <<<"$status_json")"
+          export CANWIN_TEST_PUBLISHABLE_KEY="$(jq -r '.PUBLISHABLE_KEY' <<<"$status_json")"
+          if ! read -r CANWIN_TEST_SECRET_KEY < <(jq -er '.SECRET_KEY' <<<"$status_json" 2>>"$status_log"); then
+            printf '%s\n' 'Local Supabase credentials could not be read; raw output withheld.' >&2
+            exit 1
+          fi
+          export CANWIN_TEST_SECRET_KEY
+          printf '::add-mask::%s\n' "$CANWIN_TEST_SECRET_KEY"
+          export CANWIN_TEST_FUNCTION_URL="${CANWIN_TEST_API_URL}/functions/v1/invite-member"
+          {
+            printf '%s\n' 'CANWIN_APP_ORIGINS=["http://127.0.0.1:4173"]'
+            printf 'SUPABASE_PUBLISHABLE_KEYS=%s\n' "$(jq -cn --arg value "$CANWIN_TEST_PUBLISHABLE_KEY" '{primary:$value}')"
+            printf 'SUPABASE_SECRET_KEYS=%s\n' "$(jq -cn --arg value "$CANWIN_TEST_SECRET_KEY" '{primary:$value}')"
+          } >"$function_env"
+
+          npx supabase functions serve --no-verify-jwt --env-file "$function_env" >"$edge_log" 2>&1 &
+          edge_pid=$!
+
+          edge_ready=false
+          for _ in {1..30}; do
+            if curl --fail --silent --show-error \
+              -X OPTIONS \
+              -H 'Origin: http://127.0.0.1:4173' \
+              "$CANWIN_TEST_FUNCTION_URL" >/dev/null; then
+              edge_ready=true
+              break
+            fi
+            sleep 1
+          done
+          if [[ "$edge_ready" != true ]]; then
+            printf '%s\n' 'Local invite Edge Function did not become ready; raw output withheld because it may contain temporary credentials.' >&2
+            exit 1
+          fi
+
+          npm run verify:auth:runtime
 
       - name: Lint
         run: npm run lint
