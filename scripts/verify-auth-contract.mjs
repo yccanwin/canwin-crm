@@ -336,7 +336,7 @@ for (const file of [
 ]) read(file);
 
 const acceptance = read('docs/wbs-1.5/acceptance-evidence-template.md');
-for (const required of ['Status: Pending', 'Exact implementation SHA', 'Real-JWT', 'pgTAP', '54', '43', 'return_to', 'Known limitations', 'Agent 0']) {
+for (const required of ['Status: Pending', 'Exact implementation SHA', 'Real-JWT', 'pgTAP', '54', '44', 'return_to', 'Known limitations', 'Agent 0']) {
   if (!acceptance.includes(required)) failures.push(`WBS 1.5 acceptance template must include: ${required}`);
 }
 forbidMatch(acceptance, /^Status:\s*(?:PASS|Passed|Complete)\s*$/mi, 'An unexecuted acceptance template must not claim completion.');

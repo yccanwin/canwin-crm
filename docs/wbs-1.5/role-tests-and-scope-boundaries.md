@@ -53,7 +53,7 @@ The required GitHub `quality` job must start the complete local Supabase stack,
 run the complete pgTAP directory (not a selected SQL file), obtain local keys
 from `supabase status`, serve the real invite Edge Function, and run the
 Real-JWT verifier through that Edge endpoint. The current baselines are 54
-planned pgTAP assertions and 43 Real-JWT runtime assertions; these numbers
+planned pgTAP assertions and 44 Real-JWT runtime assertions; these numbers
 describe the suite to be evidenced and do not claim an unrecorded run passed.
 
 ## Required client tests

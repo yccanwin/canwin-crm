@@ -44,7 +44,7 @@ entry switching, or the overall Gate 1 exit.
 - Acceptance evidence record: Pending
 - Migration and hash: Pending
 - Full pgTAP TAP report, 54 planned assertions, and exit code: Pending
-- Real-JWT runtime manifest, sanitized JSON, and 43 executed assertions: Pending
+- Real-JWT runtime manifest, sanitized JSON, and 44 executed assertions: Pending
 - Live local Edge Function start and invitation response envelope/status: Pending
 - Frontend test and mobile-width evidence: Pending
 - RLS/grant/function catalog assertions: Pending

@@ -38,7 +38,7 @@ department`. Its presence is not evidence that the item passed. Replace every
 - Static Auth contract (`npm run verify:auth`) command/output: Pending
 - Complete local Supabase start and environment identity: Pending
 - Full pgTAP (`npx supabase test db --local`) TAP output, exit code, and result against the current 54-assertion plan: Pending
-- Live Edge/Auth runtime (`functions serve --no-verify-jwt` then `npm run verify:auth:runtime`) sanitized JSON result and result against the current 43-assertion suite: Pending
+- Live Edge/Auth runtime (`functions serve --no-verify-jwt` then `npm run verify:auth:runtime`) sanitized JSON result and result against the current 44-assertion suite: Pending
 - Frontend unit/integration test report and result against the current 28-test suite: Pending
 - Production build command/output: Pending
 - Mobile-width login/invitation evidence: Pending
