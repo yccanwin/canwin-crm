@@ -1,8 +1,8 @@
-# WBS 1.5 acceptance evidence — technical gates passed, external review pending
+# WBS 1.5 acceptance evidence — review gates passed, protected merge pending
 
-Status: **Technical implementation, exact-SHA quality gates, and the immutable
-documentation-content tail passed; third-party supervisor, Agent 0 final
-acceptance, merge, and main CI pending.**
+Status: **Technical implementation, exact-SHA quality gates, third-party
+supervisor review, and Agent 0 independent verification passed; explicit
+protected-merge authorization, squash merge, and main CI remain pending.**
 
 ## Review identity
 
@@ -16,9 +16,17 @@ acceptance, merge, and main CI pending.**
   [31327837731 / job 93281017732](https://github.com/yccanwin/canwin-crm/actions/runs/31327837731/job/93281017732)
 - Documentation-content PR Quality:
   [31327839946 / job 93281024833](https://github.com/yccanwin/canwin-crm/actions/runs/31327839946/job/93281024833)
-- Evidence-binding tail SHA: the commit containing these immutable links cannot
-  self-reference. The supervisor must copy the current PR-head SHA into the
-  disposition and verify its push and PR Quality before issuing a decision.
+- Evidence-binding tail SHA: `cc865663109ff16a654fcbe50934a6206efc5581`
+- Supervisor disposition tail SHA:
+  `ef6702a62963676d71630aefc929c62c2a636cfb`
+- Supervisor correction tail SHA:
+  `33f9ba2abfb93135169b738238750f8bd9258196`
+- Supervisor traceability tail SHA:
+  `c27b7d7a76fa6e240e1f395fa0ebaf54681d7d21`
+- Agent 0 evidence-tail SHA: the commit containing the final Agent 0 record
+  cannot self-reference. Before merge authorization is requested, its exact
+  SHA must equal the remote branch tip and PR head and have green push and PR
+  Quality.
 - Review date/timezone: `2026-08-10`, Asia/Shanghai (UTC+8)
 - Test environment: local Windows development plus GitHub-hosted Ubuntu CI;
   no production or hosted CRM project was changed
@@ -126,8 +134,9 @@ evidence rule.
   switched.
 - Agent 3 independently bound the sanitized Quality evidence to the same SHA
   and recorded PASS in `agent3-quality-review-2026-08-10.md`.
-- Open implementation P0/P1 findings: none across the three completed internal
-  review records. The third-party and Agent 0 dispositions remain required.
+- Open implementation P0/P1 findings: none across the completed internal,
+  supervisor, and Agent 0 review records. Only the Agent 0 evidence-tail
+  exact-SHA checks, protected merge authorization, and main Quality remain.
 
 ## Known limitations
 
@@ -145,10 +154,13 @@ evidence rule.
 - Agent 1 direct security review: PASS; no open P0/P1
 - Agent 2 client-flow review: PASS; A2-P1-01/02 closed; no open P0/P1
 - Agent 3 quality review: PASS; no open P0/P1
-- Documentation-content tail Quality: PASS at `65ef06a`; current
-  evidence-binding tail Quality remains a handoff prerequisite
-- Third-party supervisor disposition: Pending
-- Agent 0 independent verification: Pending
+- Documentation-content, evidence-binding, and supervisor-tail Quality: PASS
+- Third-party supervisor disposition: PASS at traceability tail `c27b7d7`; all
+  19 checks and eight requirement dispositions complete; no open P0/P1
+- Agent 0 independent verification: PASS; see
+  `agent0-final-verification-2026-08-10.md`
+- Agent 0 evidence-tail exact-SHA push and PR Quality: required before the
+  protected-merge authorization request
 - Merge authorization and main-branch Quality: Pending
 
 WBS 1.5 remains incomplete until all reviews are recorded, the

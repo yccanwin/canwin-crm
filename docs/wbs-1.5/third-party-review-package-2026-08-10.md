@@ -1,7 +1,7 @@
 # WBS 1.5 unified third-party supervisor review package
 
-Status: **Supervisor disposition recorded (PASS). Awaiting Agent 0
-independent verification and user-authorized protected merge.**
+Status: **Supervisor disposition and Agent 0 independent verification recorded
+(PASS). Awaiting user-authorized protected merge and main Quality.**
 
 ## Review target
 
@@ -167,9 +167,10 @@ Complete this section without adding secrets or real data:
      cases; the CI run reports 5 files / 51 tests passed. WEB-04/WEB-05
      coverage is direct and confirmed in the CI log.
 - Signature or immutable review reference: Supervisor disposition recorded
-  directly in this file by the reviewer on 2026-08-10; commit and Quality runs
-  recorded after this tail is pushed. Independent verification of this
-  disposition by Agent 0 remains required before acceptance.
+  directly in this file by the reviewer on 2026-08-10; disposition and
+  correction commits and Quality runs are recorded in the immutable PR
+  ancestry. Agent 0 independent verification is recorded below; protected
+  merge and main Quality remain separate gates.
 
 ### Supervisor verification performed (independent, 2026-08-10)
 
@@ -236,14 +237,26 @@ Complete this section without adding secrets or real data:
 
 ## Agent 0 independent verification
 
-- Verified reviewer identity/reference: Pending
-- Verified implementation SHA and ancestry: Pending
-- Verified documentation/supervisor-only tail diff: Pending
-- Verified exact-SHA push and PR Quality results: Pending
-- Verified all P0/P1 findings closed: Pending
-- Final WBS 1.5 acceptance decision: Pending
+- Verified reviewer identity/reference: PASS — WorkBuddy AI supervisor;
+  disposition `ef6702a`, corrections `33f9ba2` and `c27b7d7`, and owner
+  confirmation form the immutable review reference.
+- Verified implementation SHA and ancestry: PASS —
+  `2563911b` -> `65ef06a` -> `cc86566` -> `ef6702a` -> `33f9ba2` -> `c27b7d7`.
+- Verified documentation/supervisor-only tail diff: PASS — all three
+  supervisor tails modify only this package.
+- Verified exact-SHA push and PR Quality results: PASS — traceability-tail push
+  [31331701103 / 93290872431](https://github.com/yccanwin/canwin-crm/actions/runs/31331701103/job/93290872431)
+  and PR [31331703873 / 93290878577](https://github.com/yccanwin/canwin-crm/actions/runs/31331703873/job/93290878577)
+  are successful, including 54/44/51, Linux 0600 proof, build/audit, and zero
+  secret-pattern matches.
+- Verified all P0/P1 findings closed: PASS — none open; all four Agent 0
+  evidence-chain blockers are closed at `c27b7d7`.
+- Final WBS 1.5 acceptance decision: **PASS for requesting explicit protected
+  Squash-merge authorization.** WBS 1.5 remains incomplete until the merge and
+  exact resulting `main` Quality run succeed.
+- Detailed Agent 0 record:
+  `docs/wbs-1.5/agent0-final-verification-2026-08-10.md`.
 
-If the supervisor disposition is added as another documentation-only tail,
-record the implementation SHA, evidence-tail SHA, and supervisor-tail SHA. The
-new tail must have green push and PR Quality runs before Agent 0 may request
-protected merge authorization.
+The Agent 0 evidence-tail commit containing this section cannot self-reference.
+Before requesting merge authorization, confirm its exact SHA equals the remote
+branch tip and PR head and has successful push and PR Quality runs.
