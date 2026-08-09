@@ -1,7 +1,7 @@
 # WBS 1.5 unified third-party supervisor review package
 
-Status: **Ready for independent review after the current evidence-binding tail
-has green push and PR Quality. Supervisor disposition is not yet recorded.**
+Status: **Supervisor disposition recorded (PASS). Awaiting Agent 0
+independent verification and user-authorized protected merge.**
 
 ## Review target
 
@@ -144,14 +144,93 @@ resulting SHA.
 
 Complete this section without adding secrets or real data:
 
-- Reviewer / organization: Pending
-- Review date and timezone: Pending
-- Exact reviewed implementation SHA: Pending
-- Exact reviewed documentation-tail SHA: Pending
-- Disposition (`PASS`, `FAIL`, or `CONDITIONAL`): Pending
-- Blocking findings: Pending
-- Non-blocking findings: Pending
-- Signature or immutable review reference: Pending
+- Reviewer / organization: WorkBuddy AI supervisor, engaged by the CanWin CRM
+  project owner (yccanwin / Qi Jie) as the independent reviewer for the WBS
+  1.5 acceptance gate.
+- Review date and timezone: 2026-08-10 03:10 Asia/Shanghai (UTC+8)
+- Exact reviewed implementation SHA:
+  `2563911b6cbb2253f470d4341d1048d740f487f1` (verified ancestor of the PR head)
+- Exact reviewed documentation-tail SHA:
+  `65ef06a199ee4709a31a953b1a3dc1069b88aec3` (verified ancestor of the PR head)
+- Evidence-binding PR head SHA:
+  `cc865663109ff16a654fcbe50934a6206efc5581` (equals remote branch tip and PR
+  head after a fresh fetch)
+- Disposition (`PASS`, `FAIL`, or `CONDITIONAL`): **PASS**
+- Blocking findings: None.
+- Non-blocking findings:
+  1. Supabase CLI was upgraded from `2.109.1` (WBS 1.4) to `2.112.0`; the
+     pinned version and lockfile stay consistent and `verify:supabase` passes
+     in CI. No action required.
+  2. The 51 frontend tests include 24 parameterized `return_to` regression
+     cases; the CI run reports 5 files / 51 tests passed. WEB-04/WEB-05
+     coverage is direct and confirmed in the CI log.
+- Signature or immutable review reference: Supervisor disposition recorded
+  directly in this file by the reviewer on 2026-08-10; commit and Quality runs
+  recorded after this tail is pushed. Independent verification of this
+  disposition by Agent 0 remains required before acceptance.
+
+### Supervisor verification performed (independent, 2026-08-10)
+
+1. Remote branch tip and PR head are the same SHA
+   `cc865663109ff16a654fcbe50934a6206efc5581`; its push Quality
+   `31328095401` and PR Quality `31328098029` both completed success.
+2. Implementation ancestor `2563911b` and documentation-content ancestor
+   `65ef06a` are both ancestors of the head; the binding-tail diff
+   (`65ef06a..cc86566`) touches only two documentation files
+   (`acceptance-evidence` and this package).
+3. Push and PR Quality are successful for the implementation SHA
+   (`31327172530`, `31327174437`) and the documentation tail
+   (`31327837731`, `31327839946`), all with matching head SHAs.
+4. Public signup disabled (`enable_signup = false` global) while the email
+   provider stays enabled for invited members; local callback
+   `http://127.0.0.1:4173` is the exact allowed local origin.
+5. Each member has `primary_department_id bigint not null`, `auth_user_id`
+   is unique, and membership creation is restricted so a second membership
+   cannot bypass the one-primary-department rule.
+6. Anonymous, sales, department-manager, super-administrator,
+   cross-department, restricted/disabled-member, and inactive-department
+   paths are covered by `0012` pgTAP (17 assertions) and the runtime scope
+   list ("authoritative roles and departments", "stale JWT denial",
+   "inactive-department stale JWT denial").
+7. Authorization derives from live database member/department state; forged
+   user metadata and stale JWT claims are not trusted (ADR-0003/0006,
+   runtime denial evidence).
+8. All WBS 1.5 public tables (`departments`, `members`, `member_profiles`,
+   `member_invitations`) have `ENABLE` + `FORCE ROW LEVEL SECURITY`; default
+   grants revoked from `public`/`anon`/`authenticated` and least-privilege
+   grants applied.
+9. 11 `SECURITY DEFINER` functions fix `search_path = ''`, revoke default
+   execution, and re-check the live caller; `app_private` execution revoked
+   and the two public privileged entry points revoked from `anon`.
+10. Invitation lifecycle: unique code, unique `auth_user_id`, idempotency
+    key, one-open-email and one-sent-auth-user partial unique indexes;
+    wrong-user/expired/revoked/replay paths covered by `0011` pgTAP
+    (14 assertions) and runtime replay/wrong-user rejection.
+11. Edge completion envelope requires `ok === true` and status `sent`; a
+    provider failure is persisted as `delivery_failed` before returning
+    502, otherwise 500 `INVITATION_DELIVERY_STATE_FAILED`.
+12. Edge uses hosted plural key dictionaries with a localhost-only single-key
+    fallback; `CANWIN_APP_ORIGINS` origin allow-list; the implicit local
+    origin is exactly `http://127.0.0.1:4173`.
+13. Old JWTs are denied protected access after member disable and after
+    primary-department disable (runtime scopes, `0012`).
+14. WEB-01..WEB-06 covered by the 51-test suite (5 files / 51 tests passed
+    in CI log).
+15. The 360px record (`apps/web/evidence/auth-mobile.html` +
+    `mobile-viewport-evidence-2026-08-10.md`) proves login, invitation
+    error/progress, logout, and post-logout login have no horizontal
+    overflow at `360 x 800`; identities are synthetic.
+16. `return_to` fails closed: length limit, control characters, backslash,
+    protocol-relative `//`, absolute origins, query/hash, and credentials
+    all rejected; only `/` is allowed (24 parameterized regression tests).
+17. Public evidence secret scan: 0 matches for credential patterns in
+    `docs/wbs-1.5`; CI credential-suppression proof passed (`exit 19`,
+    `secret_exposed=false`, `raw_log_mode_0600`, raw log removed); the
+    `sb_secret_`-shaped grep hit is a count-table label, not a secret.
+18. Team OS 3.0 is outside this repository diff (all 50 PR files are within
+    `yccanwin/canwin-crm`).
+19. Full AC-12, Gate 1, production operations, and later mobile scope are
+    explicitly excluded from this review and not represented as passed.
 
 ## Agent 0 independent verification
 
