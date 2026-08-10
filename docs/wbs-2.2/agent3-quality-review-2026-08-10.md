@@ -6,6 +6,7 @@
 - Branch: `agent/wbs-2-2-contact-secrets`
 - Pull request: [#14](https://github.com/yccanwin/canwin-crm/pull/14)
 - Reviewed implementation full SHA: `6a3f4d1105ccb8345d2ce751f593ffaafafd4b89`
+- Verified documentation-content tail SHA: `c82a463d5219a1c90731095eb5d5d3f0175000bc`
 - Disposition: **PASS**
 - Open P0 findings: **0**
 - Open P1 findings: **0**
@@ -13,13 +14,37 @@
 
 本复核通过 GitHub 连接器独立读取 PR 元数据、commit、双 Quality run/job、
 job steps 和脱敏 job logs；没有复用实施方或项目总的 `gh` 日志命令结果，
-也没有重跑测试。结论只绑定上述 implementation SHA。本文是未覆盖于该 SHA
-双 CI 的文档证据尾，未来提交后仍需为新的 evidence-tail SHA 取得独立
-push/PR Quality。
+也没有重跑测试。实现结论绑定上述 implementation SHA，五份验收文档的已验证
+内容版本绑定上述 documentation-content tail SHA。当前为补写该绑定而产生的
+amendment 不属于 `c82a463d5219a1c90731095eb5d5d3f0175000bc`，不能用其双 CI
+自证；本 amendment 提交后仍须取得自身的 push/PR Quality，才能交第三方监理。
 
-## Exact-SHA 与 PR 绑定
+## Documentation-content tail verification
 
-- PR #14 当前为 open/draft，`head_sha` 精确等于
+- 核验时 PR #14 `head_sha`、远端分支 `agent/wbs-2-2-contact-secrets` tip 与
+  documentation-content tail 均精确等于
+  `c82a463d5219a1c90731095eb5d5d3f0175000bc`；connector compare 结果为
+  `identical`、ahead `0`、behind `0`。
+- Push Quality [run 31407223281](https://github.com/yccanwin/canwin-crm/actions/runs/31407223281) /
+  [job 93516386450](https://github.com/yccanwin/canwin-crm/actions/runs/31407223281/job/93516386450)：
+  **completed / success / 25 of 25 steps success**，直接 checkout 完整 tail SHA。
+- PR Quality [run 31407227201](https://github.com/yccanwin/canwin-crm/actions/runs/31407227201) /
+  [job 93516398294](https://github.com/yccanwin/canwin-crm/actions/runs/31407227201/job/93516398294)：
+  **completed / success / 25 of 25 steps success**，按 GitHub `pull_request`
+  merge-ref 语义验证 reviewed tail head 与目标 base 的合并结果。
+- 两个 job 的脱敏结果一致：pgTAP **393**、WBS 2.2 planned **134**、contact
+  runtime **249 assertions / 9 real JWT sessions / 1 stale-session case**、
+  Vitest **9 files / 124 tests**；credential log **0600 / posix-verified /
+  removed**；direct-private、Realtime、unauthorized-canary、sensitive-key 与
+  audit-canary 均为 **0**，secret pattern counts **[0,0,0,0]**、PII **0**；
+  dependency audit、lint、typecheck、test、build 均 PASS。
+
+以上只证明 `c82a463d5219a1c90731095eb5d5d3f0175000bc` 所含五份文档内容。
+本节自身属于其后的 binding amendment，必须由 amendment 自身双 CI 证明。
+
+## Implementation Exact-SHA 与 PR 绑定
+
+- implementation review 时 PR #14 为 open/draft，`head_sha` 精确等于
   `6a3f4d1105ccb8345d2ce751f593ffaafafd4b89`，base 为 `main`，尚未合并。
 - Push Quality 的 checkout 日志直接出现并检出上述完整 SHA。
 - PR Quality 是 GitHub `pull_request` merge-ref 语义：job checkout 为
@@ -112,6 +137,7 @@ job 中均为 `completed / success`；无 skipped、cancelled 或 failure：
 - Open P0: **none**
 - Open P1: **none**
 - Agent 3 mandatory remediation: **none**
+- Current five-document binding amendment push/PR Quality: **Pending**
 - Third-party supervisor disposition: **Pending**
 - Agent 0 independent verification: **Pending**
 - User-authorized protected Squash merge: **Pending**
@@ -121,5 +147,7 @@ job 中均为 `completed / success`；无 skipped、cancelled 或 failure：
 
 Agent 3 对 WBS 2.2 在 reviewed implementation SHA
 `6a3f4d1105ccb8345d2ce751f593ffaafafd4b89` 的质量门、CI 编排、真实会话
-运行时证据、凭据失败保护与泄漏计数给出 **PASS**；P0=0，P1=0。该结论不
-替代第三方监理或 Agent 0，不授权 merge，也不宣告 WBS 2.2 已正式完成。
+运行时证据、凭据失败保护与泄漏计数给出 **PASS**，并确认 documentation-content
+tail `c82a463d5219a1c90731095eb5d5d3f0175000bc` 的双 Quality 与脱敏结果
+**PASS**；P0=0，P1=0。当前 binding amendment 仍待自身双 CI。该结论不替代
+第三方监理或 Agent 0，不授权 merge，也不宣告 WBS 2.2 已正式完成。

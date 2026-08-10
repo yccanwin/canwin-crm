@@ -1,9 +1,13 @@
 # WBS 2.2 第三方监理包
 
-状态：**内部技术证据已通过；等待 documentation/evidence tail 双 CI 后交监理。**
+状态：**implementation 与 documentation-content tail 技术证据已通过；当前五文档
+binding amendment 待自身双 CI 后方可交监理。**
 
 本文不预填监理 PASS。Supervisor、Agent 0、protected merge 与 main Quality 均为
-独立后续门禁。
+独立后续门禁。已验证的 documentation-content tail 是
+`c82a463d5219a1c90731095eb5d5d3f0175000bc`；当前为写入该绑定而修改的五文档
+amendment 不在该 SHA 中，不能用 `c82a463d5219a1c90731095eb5d5d3f0175000bc`
+的双 CI 自证。
 
 ## A. Review target
 
@@ -19,7 +23,14 @@
 - Runtime verifier SHA-256: `5CCFEDB26F1E962E1E5006F4E6C81D54DCFB6E24FBDED95239A3638FEB17CF8A`
 - Push run/job: `31405862026 / 93511915238` — PASS
 - PR run/job: `31405915945 / 93512096256` — PASS
-- Documentation/evidence tail SHA and Quality: **Pending**
+- Verified documentation-content tail SHA: `c82a463d5219a1c90731095eb5d5d3f0175000bc`
+- Content-tail PR head / remote branch tip: `c82a463d5219a1c90731095eb5d5d3f0175000bc /
+  c82a463d5219a1c90731095eb5d5d3f0175000bc` — identical, ahead `0`, behind `0`
+- Content-tail push run/job: `31407223281 / 93516386450` — completed / success /
+  25 of 25 steps success
+- Content-tail PR run/job: `31407227201 / 93516398294` — completed / success /
+  25 of 25 steps success; GitHub merge-ref bound to the reviewed tail head
+- Current five-document binding amendment SHA and Quality: **Pending**
 
 ## B. Evidence index
 
@@ -56,6 +67,10 @@
 - Linux temporary credential file: **0600 / posix-verified / removed**。
 - audit/lint/typecheck/test/build: PASS。
 - 360×800 five states: body/document width 360、panel width 320、horizontal overflow 0。
+
+上述脱敏计数已在 documentation-content tail 的 push 与 PR Quality 中再次一致
+核验。当前 binding amendment 未包含在该 tail 中，仍须由 amendment 自身双 CI
+复核这些状态后才能交第三方监理。
 
 ## E. Required supervisor checks
 
@@ -110,6 +125,8 @@
 - Open P0/P1 / CHANGES_REQUESTED: **Pending**
 - Final decision: **Pending**
 
-如果监理结论作为新的 docs-only supervisor tail 入库，必须记录 review target 与
-supervisor-tail SHA，并为 supervisor tail 再取得独立 push/PR Quality；随后才由 Agent 0
-核验。合并与 main Quality 在实际发生前不得写 PASS。
+当前五文档 binding amendment 必须先形成新的 exact SHA 并取得自身 push/PR
+Quality，才能交第三方监理。如果监理结论随后作为新的 docs-only supervisor tail
+入库，必须记录 review target 与 supervisor-tail SHA，并为 supervisor tail 再取得独立
+push/PR Quality；随后才由 Agent 0 核验。合并与 main Quality 在实际发生前不得写
+PASS。

@@ -27,6 +27,20 @@
 PR job 使用 GitHub merge-ref 运行，但日志明确绑定 reviewed head 与 base；本文不把
 merge-ref 冒充 implementation SHA。
 
+### Documentation-content tail Quality
+
+- Documentation-content tail SHA: `c82a463d5219a1c90731095eb5d5d3f0175000bc`
+
+| Trigger | Run | Job | Reviewed head | Steps | Result |
+| --- | --- | --- | --- | --- | --- |
+| push | [31407223281](https://github.com/yccanwin/canwin-crm/actions/runs/31407223281) | [93516386450](https://github.com/yccanwin/canwin-crm/actions/runs/31407223281/job/93516386450) | `c82a463d5219a1c90731095eb5d5d3f0175000bc` | 25/25 | **completed / success** |
+| pull_request | [31407227201](https://github.com/yccanwin/canwin-crm/actions/runs/31407227201) | [93516398294](https://github.com/yccanwin/canwin-crm/actions/runs/31407227201/job/93516398294) | reviewed head `c82a463d5219a1c90731095eb5d5d3f0175000bc` | 25/25 | **completed / success** |
+
+两份 documentation-content tail Quality 的脱敏结果与 implementation 证据一致：
+full pgTAP **12/393**、WBS 2.2 **134**、contact runtime **249 assertions / 9
+sessions / 1 stale-session case**、frontend **9/124**，私表、Realtime、未授权
+canary、敏感键、审计 canary、secret pattern 与 PII 命中均为 **0**。
+
 ## 3. 脱敏自动证据
 
 - WBS 2.2 static verifier: **PASS**，唯一 migration、3 个 pgTAP suite、计划数 **134**。
@@ -69,14 +83,17 @@ merge-ref 冒充 implementation SHA。
 
 ## 6. 未完成治理门
 
-- Documentation/evidence tail exact-SHA push Quality: **Pending**。
-- Documentation/evidence tail exact-SHA PR Quality: **Pending**。
+- Documentation-content tail `c82a463d5219a1c90731095eb5d5d3f0175000bc`
+  push/PR Quality: **completed / success，25/25**。
+- 当前五份证据文档 binding amendment 的新 exact-SHA push Quality: **Pending**。
+- 当前五份证据文档 binding amendment 的新 exact-SHA PR Quality: **Pending**。
 - Third-party supervisor disposition: **Pending**。
 - Agent 0 independent verification: **Pending**。
 - User-authorized protected Squash merge: **Pending**。
 - Resulting `main` Quality: **Pending**。
 - Formal progress change 13/54 → 14/54: **Pending**。
 
-当前新增的验收与 Agent 记录改变了 implementation SHA 之后的文档内容，不能用
-implementation 双 CI 自证。必须先形成 documentation-only tail 并取得该 tail 自身的
-push/PR Quality，再交第三方监理。
+当前 binding amendment 会协调修改全部五份证据文档（acceptance、Agent 1、
+Agent 2、Agent 3 与 third-party package），因此它不属于 `c82a463` 的已验证内容，
+不能由 `c82a463` 双 CI 自证。必须先提交新的 documentation-only exact SHA，并为
+该 SHA 取得新的 push/PR Quality，之后才能交第三方监理。

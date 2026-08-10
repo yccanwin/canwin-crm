@@ -27,6 +27,32 @@ implementation SHA. The pull-request job checked out GitHub's merge-ref built
 from reviewed head `6a3f4d1105ccb8345d2ce751f593ffaafafd4b89` and the target base; this record
 does not present the merge-ref as the implementation SHA.
 
+## Documentation-content tail binding
+
+- Documentation-content tail SHA:
+  `c82a463d5219a1c90731095eb5d5d3f0175000bc`.
+- Push Quality: [run 31407223281](https://github.com/yccanwin/canwin-crm/actions/runs/31407223281) /
+  [job 93516386450](https://github.com/yccanwin/canwin-crm/actions/runs/31407223281/job/93516386450) —
+  reviewed head `c82a463d5219a1c90731095eb5d5d3f0175000bc`, **25/25 steps,
+  completed / success**.
+- Pull-request Quality:
+  [run 31407227201](https://github.com/yccanwin/canwin-crm/actions/runs/31407227201) /
+  [job 93516398294](https://github.com/yccanwin/canwin-crm/actions/runs/31407227201/job/93516398294) —
+  reviewed head `c82a463d5219a1c90731095eb5d5d3f0175000bc`, **25/25 steps,
+  completed / success**; the job used GitHub's merge-ref semantics.
+
+The sanitized results remained consistent with the implementation evidence:
+full pgTAP **12 files / 393 assertions**, WBS 2.2 **134 assertions**, contact
+runtime **249 assertions / 9 sessions / 1 stale-session case**, and frontend
+**9 files / 124 tests**, all PASS. Private-row, Realtime, unauthorized-canary,
+sensitive-key, audit-canary, secret-pattern, and PII findings remained **0**.
+
+This binding amendment coordinates changes across all five evidence documents:
+acceptance, Agent 1, Agent 2, Agent 3, and the third-party package. Those changes
+are not content of `c82a463` and cannot be self-certified by its Quality runs.
+The amended five-document tail requires a new exact SHA and its own green push
+and pull-request Quality before delivery to the supervisor.
+
 ## Sanitized verification counts
 
 - Full pgTAP regression: **12 files / 393 assertions PASS**.
@@ -72,10 +98,13 @@ response, raw log, or hosted-project identifier.
 
 ## Remaining governance gates
 
+- Current five-document binding-amendment exact-SHA push/PR Quality:
+  **Pending**.
 - Third-party supervisor disposition: **Pending**.
 - Agent 0 independent verification: **Pending**.
 - User-authorized protected Squash merge: **Pending**.
 - Resulting `main` Quality run: **Pending**.
+- Formal progress change 13/54 to 14/54: **Pending**.
 
 ## Conclusion
 
