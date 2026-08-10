@@ -1,28 +1,38 @@
 # WBS 1.6 third-party supervisor review package
 
-Status: **Internal technical review and Agent 1/2/3 reviews PASS. Ready for supervisor review only after the documentation-tail exact SHA has successful push and pull-request Quality runs. Supervisor, Agent 0, merge, and resulting `main` verification are Pending.**
+Status: **Internal technical review and Agent 1/2/3 reviews PASS. The documentation-content tail has successful exact-SHA push and pull-request Quality runs. This evidence-binding amendment must still be pushed and independently verified at the then-current tip before the package is handed to the supervisor. Supervisor, Agent 0, merge, and resulting `main` verification are Pending.**
 
 ## Review target
 
 - Repository / PR: `yccanwin/canwin-crm` / PR `#11`
 - Exact implementation SHA: `0bf6fb8a5dbee32c6a727c4dff6473d24b22bdbc`
-- Exact evidence-tail SHA: `Pending` (cannot self-reference this file)
+- Exact documentation-content evidence-tail SHA:
+  `453023d62578e6daa41c69d13d0652421826fc3e`
+- Evidence-tail contents: all five WBS 1.6 evidence documents at that SHA
 - Migration: `supabase/migrations/20260809200324_wbs_1_6_observability_foundation.sql`
 - Migration SHA-256: `3070631bc2856756639716b9cddfb8a6fa6a0b2005bed7d73a7d8407f8a32094`
-- Push Quality run / job: `31348278773` / `93334226055`
-- Pull-request Quality run / job: `31348280529` / `93334231275`
+- Documentation-content-tail push Quality run / job:
+  `31349234653` / `93336833192`
+- Documentation-content-tail pull-request Quality run / job:
+  `31349238005` / `93336841927`
 - Agent 1 review: `docs/wbs-1.6/agent1-final-review-2026-08-10.md`
 - Agent 2 review: `docs/wbs-1.6/agent2-client-review-2026-08-10.md`
 - Agent 3 review: `docs/wbs-1.6/agent3-quality-review-2026-08-10.md`
 - Acceptance record: `docs/wbs-1.6/acceptance-evidence-2026-08-10.md`
 - Frozen contract: `docs/wbs-1.6/contract-and-scope.md`
 
-The implementation SHA is internally verified. The documentation-tail SHA is
-still Pending because the commit containing this review package cannot record
-its own SHA. After this documentation-only tail is pushed, an independent
-check must bind its exact SHA to the remote branch tip, PR head, and successful
-push and pull-request Quality runs before the package is presented as ready to
-the supervisor.
+The implementation SHA is internally verified. The documentation-content
+evidence-tail SHA above contains all five evidence documents, and its remote
+branch tip, PR head, and both Quality `headSha` values were independently
+verified as exact matches. Its push and pull-request Quality runs both
+completed successfully with every required step successful and with the
+sanitized counts recorded below.
+
+This evidence-binding amendment necessarily changes all five evidence documents,
+so the amendment itself cannot self-reference its future commit SHA. After the
+amendment is pushed, an independent check must bind the then-current remote
+branch tip and PR head to successful push and pull-request Quality runs before
+the package is handed to the supervisor.
 
 The supervisor must review exact-SHA evidence. An older green run is not
 evidence. This package contains only synthetic references, fixed status labels,
@@ -32,7 +42,7 @@ real email, customer data, or raw log.
 
 ## Internal evidence summary
 
-| Evidence | Exact result at implementation SHA |
+| Evidence | Exact result at documentation-content tail SHA |
 | --- | --- |
 | Push and pull-request Quality | both success; every required job step success |
 | Full pgTAP regression | 186 |
@@ -68,7 +78,9 @@ The following boxes are intentionally unchecked. Only the third-party
 supervisor may complete them after independently reviewing the cited evidence.
 
 - [ ] Remote branch tip and PR head equal the exact reviewed SHA. Evidence:
-  implementation SHA above; documentation-tail exact-SHA binding still Pending.
+  implementation SHA and verified documentation-content evidence-tail SHA
+  above; the later evidence-binding amendment tip must be independently
+  verified before supervisor handoff.
 - [ ] That SHA has successful push and PR `quality` runs and all steps succeed.
   Evidence: the two run/job pairs above and Agent 3 review.
 - [ ] The migration is the only WBS 1.6 migration and its hash is recorded.
@@ -166,8 +178,9 @@ condition closes on a new exact SHA and the affected regression set is rerun.
 - Protected Squash-merge request decision: Pending
 - Resulting `main` tip and Quality: Pending
 
-The final supervisor or Agent 0 evidence-tail commit cannot self-reference.
-After this file is committed and pushed, a separate verification must bind the
-exact tail SHA to remote tip, PR head, and successful push/PR runs and jobs.
-Supervisor and Agent 0 results must remain Pending until independently
-recorded. Merge and `main` remain Pending until actually completed.
+The documentation-content evidence tail is verified, but this evidence-binding
+amendment cannot self-reference its future commit. After this file is committed
+and pushed, a separate verification must bind the current tip SHA to remote
+tip, PR head, and successful push/PR runs and jobs before supervisor handoff.
+Supervisor checklist and disposition, Agent 0 results, merge, and `main` must
+remain Pending until independently completed and recorded.

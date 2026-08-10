@@ -28,6 +28,28 @@ The cited run and job identifiers are the exact-SHA Quality evidence references
 for this implementation. Independent remote-tip, PR-head, evidence-tail, merge,
 and resulting-`main` verification remains an Agent 0 gate.
 
+## Documentation-content tail binding
+
+- Documentation-content tail SHA:
+  `453023d62578e6daa41c69d13d0652421826fc3e`
+- Push Quality run / job:
+  [31349234653 / 93336833192](https://github.com/yccanwin/canwin-crm/actions/runs/31349234653/job/93336833192)
+- Pull-request Quality run / job:
+  [31349238005 / 93336841927](https://github.com/yccanwin/canwin-crm/actions/runs/31349238005/job/93336841927)
+
+The documentation-content tail above contains this Agent 2 review record. Its
+exact-SHA push and pull-request Quality runs both completed successfully. This
+binding supplements the implementation evidence only; it does not change or
+broaden the client PASS recorded against implementation SHA
+`0bf6fb8a5dbee32c6a727c4dff6473d24b22bdbc`.
+
+This binding amendment cannot self-reference: the text that records the
+binding is newer than documentation-content tail SHA
+`453023d62578e6daa41c69d13d0652421826fc3e`. After this amendment is pushed,
+an independent verifier must bind the new remote branch tip and PR head to its
+own successful push and pull-request Quality evidence. Until that occurs, this
+amended record itself must not be represented as exact-SHA verified.
+
 ## Client contract results
 
 | Requirement | Result | Direct evidence |
@@ -70,7 +92,8 @@ claim an additional local test execution by Agent 2.
 The following remain **Pending** and are not promoted by this client PASS:
 
 1. third-party supervisor review and disposition;
-2. Agent 0 independent exact-SHA and evidence-tail verification;
+2. Agent 0 independent verification of the amended evidence-tail SHA and its
+   exact-SHA push/pull-request Quality;
 3. protected Squash merge authorization and execution; and
 4. verification of the resulting `main` tip and its exact Quality run.
 

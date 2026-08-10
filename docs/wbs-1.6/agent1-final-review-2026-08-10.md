@@ -23,6 +23,12 @@ verification.
   [31348278773 / 93334226055](https://github.com/yccanwin/canwin-crm/actions/runs/31348278773/job/93334226055)
 - Pull-request Quality run / job:
   [31348280529 / 93334231275](https://github.com/yccanwin/canwin-crm/actions/runs/31348280529/job/93334231275)
+- Documentation-content tail SHA:
+  `453023d62578e6daa41c69d13d0652421826fc3e`
+- Documentation-content tail push Quality run / job:
+  [31349234653 / 93336833192](https://github.com/yccanwin/canwin-crm/actions/runs/31349234653/job/93336833192)
+- Documentation-content tail pull-request Quality run / job:
+  [31349238005 / 93336841927](https://github.com/yccanwin/canwin-crm/actions/runs/31349238005/job/93336841927)
 - Agent 1 review method: exact-commit, read-only static inspection of the WBS
   1.6 migration, pgTAP suites, runtime verifier, CI wiring, and WBS 1.5 Auth
   compatibility changes. Agent 1 did not rerun the database or runtime tests
@@ -39,9 +45,22 @@ successful with the following sanitized results:
 | Synchronized observability workers | `16` |
 | Frontend regression | `60` tests passed |
 
-This review record is a documentation tail created after the implementation
-SHA. Its future commit must receive its own Quality evidence and must not be
-represented as part of the implementation SHA above.
+Documentation-content tail SHA
+`453023d62578e6daa41c69d13d0652421826fc3e` contains this Agent 1 record,
+the acceptance record, the Agent 2 and Agent 3 records, and the third-party
+review package. Both bound Quality runs and jobs completed successfully with
+that exact `headSha`. Each recorded `186` pgTAP assertions, `44` real Auth
+runtime assertions, `87` observability assertions with `16` synchronized
+workers, `60` frontend tests, dependency audit `0`, Linux protected raw-log
+mode `0600` with `posix-verified`, credential value-pattern counts
+`[0, 0, 0, 0]`, and PII value-pattern count `0`.
+
+This evidence-binding amendment changes this Agent 1 record after the
+documentation-content tail. The amendment cannot self-reference or claim that
+the two content-tail runs validate its new binding text. After the amendment is
+committed and pushed, an independent check must bind its exact SHA to the
+remote branch tip, PR head, successful push Quality, and successful
+pull-request Quality.
 
 ## Database and security verification
 
@@ -169,5 +188,8 @@ append-only/outbox, atomic event, idempotency, sequence, causation, trace,
 sensitive-data, metrics, future-table, WBS 1.5 compatibility, and local runtime
 boundaries a **PASS** at implementation SHA
 `0bf6fb8a5dbee32c6a727c4dff6473d24b22bdbc`. No P0 or P1 finding remains open
-in Agent 1 scope. This record may enter the documentation-only evidence tail;
-it does not by itself authorize merge or declare WBS 1.6 complete.
+in Agent 1 scope. The original record is included in documentation-content tail
+`453023d62578e6daa41c69d13d0652421826fc3e`; this evidence-binding amendment
+must enter a later tail and receive its own push and pull-request Quality
+verification. It does not by itself authorize merge or declare WBS 1.6
+complete.

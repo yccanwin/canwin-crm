@@ -8,17 +8,23 @@ Review date: 2026-08-10 (Asia/Shanghai)
 
 - Repository / PR: `yccanwin/canwin-crm` / PR `#11`
 - Exact implementation SHA: `0bf6fb8a5dbee32c6a727c4dff6473d24b22bdbc`
+- Exact documentation-content tail SHA:
+  `453023d62578e6daa41c69d13d0652421826fc3e`
 - Remote branch: `agent/wbs-1-6-observability`
-- Push Quality run / job: `31348278773` / `93334226055`
-- Pull-request Quality run / job: `31348280529` / `93334231275`
-- PR head and remote branch tip at implementation-evidence verification time:
-  exact implementation SHA above
+- Documentation-content-tail push Quality run / job:
+  `31349234653` / `93336833192`
+- Documentation-content-tail pull-request Quality run / job:
+  `31349238005` / `93336841927`
+- PR head, remote branch tip, and both Quality `headSha` values at
+  documentation-content-tail verification time: exact documentation-content
+  tail SHA above
 
 Both Quality runs completed successfully with their `headSha` equal to the
-exact implementation SHA. This record contains only sanitized counts and
-fixed status labels. It contains no credential value, JWT, Supabase status
-JSON, database connection value, raw log, event payload, or real identity or
-customer data.
+exact documentation-content tail SHA. That SHA contains all five WBS 1.6
+evidence documents as they existed before this evidence-binding amendment.
+This record contains only sanitized counts and fixed status labels. It
+contains no credential value, JWT, Supabase status JSON, database connection
+value, raw log, event payload, or real identity or customer data.
 
 ## Quality results
 
@@ -70,7 +76,11 @@ authorization, or post-merge `main` Quality evidence.
 
 ## Documentation-tail boundary
 
-This review is part of a future documentation-only evidence tail. It cannot
-self-reference that future tail SHA. Exact-SHA push and pull-request Quality
-evidence for the documentation tail remains Pending and must be bound and
-independently verified after the tail is pushed.
+The documentation-content tail above has successful exact-SHA push and
+pull-request Quality evidence. This evidence-binding amendment necessarily
+changes this file and therefore cannot be part of, or self-reference, that
+earlier content-tail SHA. After this amendment is pushed, an independent check
+must bind the then-current remote branch tip and PR head to successful push and
+pull-request Quality runs before the package is handed to the supervisor.
+Third-party supervisor disposition, Agent 0 verification, merge, and resulting
+`main` verification remain Pending.

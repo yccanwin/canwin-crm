@@ -24,6 +24,12 @@ credential-bearing log, real identity, or customer data.
   [31348278773 / 93334226055](https://github.com/yccanwin/canwin-crm/actions/runs/31348278773/job/93334226055)
 - Pull-request Quality run / job:
   [31348280529 / 93334231275](https://github.com/yccanwin/canwin-crm/actions/runs/31348280529/job/93334231275)
+- Documentation-content tail SHA:
+  `453023d62578e6daa41c69d13d0652421826fc3e`
+- Documentation-content tail push Quality run / job:
+  [31349234653 / 93336833192](https://github.com/yccanwin/canwin-crm/actions/runs/31349234653/job/93336833192)
+- Documentation-content tail pull-request Quality run / job:
+  [31349238005 / 93336841927](https://github.com/yccanwin/canwin-crm/actions/runs/31349238005/job/93336841927)
 - Review date/timezone: `2026-08-10`, Asia/Shanghai (UTC+8)
 - Test environment: local Supabase/PostgreSQL 17 and GitHub Ubuntu; no hosted
   project or production data
@@ -32,6 +38,29 @@ The push and pull-request Quality jobs above are recorded as successful with
 their head SHA equal to the exact implementation SHA. This acceptance record
 is a later evidence-tail file and is not contained in, or validated by, those
 implementation runs.
+
+The documentation-content tail SHA above contains these five review artifacts:
+
+1. `acceptance-evidence-2026-08-10.md`;
+2. `agent1-final-review-2026-08-10.md`;
+3. `agent2-client-review-2026-08-10.md`;
+4. `agent3-quality-review-2026-08-10.md`; and
+5. `third-party-review-package-2026-08-10.md`.
+
+Both documentation-content tail runs and their jobs completed successfully
+with `headSha` equal to
+`453023d62578e6daa41c69d13d0652421826fc3e`. Their sanitized results were:
+
+| Documentation-content tail gate | Push | Pull request |
+| --- | ---: | ---: |
+| Full pgTAP regression | `186` | `186` |
+| Real Auth runtime assertions | `44` | `44` |
+| Observability runtime | `87` assertions / `16` workers | `87` assertions / `16` workers |
+| Frontend Vitest | `60` tests | `60` tests |
+| Dependency audit | `0` vulnerabilities | `0` vulnerabilities |
+| Linux protected raw-log mode | `0600`, `posix-verified` | `0600`, `posix-verified` |
+| Credential value-pattern counts | `[0, 0, 0, 0]` | `[0, 0, 0, 0]` |
+| PII value-pattern count | `0` | `0` |
 
 ## Requirement results
 
@@ -125,12 +154,15 @@ matches without reproducing any candidate value.
 
 ## Evidence-tail boundary
 
-This evidence-tail file cannot self-reference its own future commit. It is not
-covered by implementation SHA
-`0bf6fb8a5dbee32c6a727c4dff6473d24b22bdbc` or the two implementation Quality
-runs listed above. After the documentation tail is committed and pushed, Agent
-0 must independently bind its exact commit SHA to the remote branch tip, PR
-head, successful push Quality, and successful pull-request Quality.
+Documentation-content tail SHA
+`453023d62578e6daa41c69d13d0652421826fc3e` and its two successful Quality
+runs bind the five artifacts listed above as they existed in that commit. This
+evidence-binding amendment changes all five evidence documents after that
+content tail, so it cannot self-reference or claim coverage by the content
+tail runs. After this amendment is committed and pushed, an independent check
+must bind its exact SHA to the remote branch tip, PR head, successful push
+Quality, and successful pull-request Quality before the amended evidence chain
+is treated as current.
 
 WBS 1.6 remains incomplete while third-party supervision, Agent 0 independent
 verification, protected Squash merge, the exact resulting `main` Quality run,
