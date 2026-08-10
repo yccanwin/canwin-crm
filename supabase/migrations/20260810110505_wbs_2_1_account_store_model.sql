@@ -28,6 +28,7 @@ create table public.accounts (
     or
     (
       status in ('suspected_closed', 'disabled')
+      and status_reason is not null
       and char_length(btrim(status_reason)) between 1 and 500
       and status_reason !~ '[[:cntrl:]]'
     )
@@ -75,6 +76,7 @@ create table public.stores (
     or
     (
       status = 'inactive'
+      and status_reason is not null
       and char_length(btrim(status_reason)) between 1 and 500
       and status_reason !~ '[[:cntrl:]]'
     )

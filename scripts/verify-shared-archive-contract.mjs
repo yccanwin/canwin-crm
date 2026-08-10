@@ -36,6 +36,8 @@ for(const column of ['public_id','name','name_normalized','status','status_reaso
 requireMatch(migration,/account_id\s+bigint\s+not\s+null[\s\S]*references\s+public\.accounts\s*\(id\)\s+on\s+delete\s+restrict/i,'stores.account_id must restrict deletion.')
 forbidMatch(migration,/create\s+table\s+public\.(?:accounts|stores)[\s\S]{0,1800}\bdepartment_id\b/i,'Shared archive tables must not embed department_id.')
 requireMatch(migration,/using\s*\(\(select\s+app_private\.current_member_id\(\)\)\s+is\s+not\s+null\)/i,'Shared reads must use the live member helper.')
+requireMatch(migration,/status\s+in\s*\(\s*'suspected_closed'\s*,\s*'disabled'\s*\)\s+and\s+status_reason\s+is\s+not\s+null/i,'Inactive account states must explicitly reject a NULL reason.')
+requireMatch(migration,/status\s*=\s*'inactive'\s+and\s+status_reason\s+is\s+not\s+null/i,'Inactive store state must explicitly reject a NULL reason.')
 for(const marker of ['ACCOUNT_IDENTITY_IMMUTABLE','STORE_IDENTITY_IMMUTABLE','ACCOUNT_DELETE_FORBIDDEN','STORE_DELETE_FORBIDDEN'])requireMatch(migration,new RegExp(marker),`Missing immutable marker ${marker}.`)
 for(const index of ['accounts_name_normalized_idx','accounts_status_updated_idx','accounts_created_by_member_id_idx','accounts_updated_by_member_id_idx','stores_account_status_idx','stores_name_normalized_idx','stores_status_updated_idx','stores_created_by_member_id_idx','stores_updated_by_member_id_idx'])requireMatch(migration,new RegExp(`create\\s+index\\s+${index}\\b`,'i'),`Missing required index ${index}.`)
 forbidMatch(contract,/\b(?:contacts|portrait_values|department_opportunities)\b.*(?:create|implement)/i,'WBS 2.1 contract must not implement later-scope tables.')
