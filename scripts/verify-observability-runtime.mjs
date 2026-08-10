@@ -5,6 +5,25 @@ import { createClient } from '@supabase/supabase-js'
 const LOCAL_DB_CONTAINER = 'supabase_db_canwin-crm'
 const CONCURRENT_WORKERS = 16
 const MINIMUM_ASSERTIONS = 28
+const SAFE_STAGE_CODES = Object.freeze([
+  'RT16-00',
+  'RT16-01',
+  'RT16-02',
+  'RT16-03',
+  'RT16-04',
+  'RT16-05',
+  'RT16-06',
+  'RT16-07',
+  'RT16-08',
+  'RT16-09',
+  'RT16-10',
+  'RT16-11',
+  'RT16-12',
+  'RT16-13',
+  'RT16-14',
+  'RT16-15',
+])
+const SAFE_STAGE_CODE_SET = new Set(SAFE_STAGE_CODES)
 const clientOptions = { auth: { autoRefreshToken: false, persistSession: false } }
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const metricsAllowList = new Set([
@@ -36,6 +55,12 @@ const piiValuePatterns = [
 ]
 
 let assertions = 0
+let safeStage = 'RT16-00'
+
+function setSafeStage(nextStage) {
+  if (!SAFE_STAGE_CODE_SET.has(nextStage)) failSafely()
+  safeStage = nextStage
+}
 
 function assert(condition, label) {
   if (!condition) throw new Error(`Observability runtime assertion failed: ${label}`)
@@ -270,8 +295,10 @@ async function runSynchronized(runKey, statements) {
 }
 
 async function main() {
+  setSafeStage('RT16-01')
   const { apiUrl, publishableKey, secretKey } = readLocalStatus()
   assert(['127.0.0.1', 'localhost'].includes(new URL(apiUrl).hostname), 'Supabase API is local-only')
+  setSafeStage('RT16-02')
   const dockerState = await runCommand('docker', ['inspect', '--format={{.State.Running}}', LOCAL_DB_CONTAINER])
   assert(dockerState.code === 0 && dockerState.stdout.trim() === 'true', 'fixed local database container is running')
 
@@ -280,14 +307,17 @@ async function main() {
   const runId = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`
   const password = `Cw-${crypto.randomUUID()}-9a`
 
+  setSafeStage('RT16-03')
   const department = await admin.from('departments').insert({
     code: `obs-${runId}`.slice(0, 62),
     name: 'Synthetic Observability Department',
   }).select('id').single()
   if (department.error || !department.data?.id) failSafely()
+  setSafeStage('RT16-04')
   const superAdminUser = await createAuthUser(admin, 'obs-sa', runId, password)
   const managerUser = await createAuthUser(admin, 'obs-manager', runId, password)
   const salesUser = await createAuthUser(admin, 'obs-sales', runId, password)
+  setSafeStage('RT16-05')
   const members = await admin.from('members').insert([
     { auth_user_id: superAdminUser.id, primary_department_id: department.data.id, role: 'super_admin', status: 'active', accepted_at: new Date().toISOString() },
     { auth_user_id: managerUser.id, primary_department_id: department.data.id, role: 'department_manager', status: 'active', accepted_at: new Date().toISOString() },
@@ -298,12 +328,14 @@ async function main() {
   if (!superAdminMember) failSafely()
   assert(members.data.length === 3, 'synthetic authorization roles exist')
 
+  setSafeStage('RT16-06')
   const [superAdminLogin, managerLogin, salesLogin] = await Promise.all([
     signIn(apiUrl, publishableKey, superAdminUser.email, password),
     signIn(apiUrl, publishableKey, managerUser.email, password),
     signIn(apiUrl, publishableKey, salesUser.email, password),
   ])
 
+  setSafeStage('RT16-07')
   const anonymousMetrics = await publicClient.rpc('get_observability_snapshot')
   assert(Boolean(anonymousMetrics.error), 'anonymous cannot execute observability metrics')
   const managerMetrics = await managerLogin.client.rpc('get_observability_snapshot')
@@ -342,7 +374,8 @@ async function main() {
   if (invalidWindow.error) failSafely()
   assertErrorEnvelope(invalidWindow.data, 'WINDOW_INVALID', 'invalid observability window')
 
-  const definitionType = `test.synthetic.${crypto.randomUUID().replaceAll('-', '').toLowerCase()}`
+  setSafeStage('RT16-08')
+  const definitionType = `test.synthetic.e${crypto.randomUUID().replaceAll('-', '').toLowerCase()}`
   const payloadSchema = { type: 'object', properties: { probe: { type: 'string', maxLength: 64 } }, additionalProperties: false }
   const fingerprintExpression = `encode(extensions.digest(convert_to(payload_schema::text, 'UTF8'), 'sha256'), 'hex')`
   await runPsql(`
@@ -371,6 +404,7 @@ async function main() {
   assert(traceReuse.first?.correlation_id === traceReuse.first?.request_id, 'missing correlation defaults to request UUID')
   assert(traceReuse.second?.correlation_id === traceReuse.first?.correlation_id, 'correlation UUID is reused inside one transaction')
 
+  setSafeStage('RT16-09')
   const aggregateType = 'quality_probe'
   const uniqueAggregate = `continuous-${runId}`
   const uniqueStatements = Array.from({ length: CONCURRENT_WORKERS }, () => emitSql({
@@ -399,6 +433,7 @@ async function main() {
   assert(JSON.stringify(continuous.sequences) === JSON.stringify(Array.from({ length: CONCURRENT_WORKERS }, (_, index) => index + 1)), 'same-aggregate sequences are exactly 1..16')
   assert(Number(continuous.outbox) === CONCURRENT_WORKERS, 'each concurrent event has exactly one outbox row')
 
+  setSafeStage('RT16-10')
   const sameKeyAggregate = `same-key-${runId}`
   const sameKey = crypto.randomUUID()
   await runSynchronized(`same-key-${runId}`, Array.from({ length: 8 }, () => emitSql({
@@ -426,6 +461,7 @@ async function main() {
   assert(Number(sameKeyCounts.outbox) === 1, 'same idempotency key commits at most one outbox row')
   assert(Number(sameKeyCounts.max_sequence) === 1, 'idempotent replay does not consume aggregate sequence')
 
+  setSafeStage('RT16-11')
   const aggregateA = `independent-a-${runId}`
   const aggregateB = `independent-b-${runId}`
   const independent = [aggregateA, aggregateB].flatMap((aggregateId) => Array.from({ length: 4 }, () => emitSql({
@@ -446,6 +482,7 @@ async function main() {
     assert(JSON.stringify(sequences) === JSON.stringify([1, 2, 3, 4]), `independent aggregate ${aggregateId.endsWith(`a-${runId}`) ? 'A' : 'B'} has sequence 1..4`)
   }
 
+  setSafeStage('RT16-12')
   const rootAggregate = `causation-root-${runId}`
   await runPsql(emitSql({
     eventType: definitionType,
@@ -519,6 +556,7 @@ async function main() {
   assert(Number(sensitiveSideEffects.sequence_rows) === 0, 'sensitive payload key consumes no sequence')
   assert(Number(sensitiveSideEffects.audit_delta) === 0, 'sensitive payload key writes no audit payload evidence')
 
+  setSafeStage('RT16-13')
   const faultAggregate = `atomic-fault-${runId}`
   await runPsql(`
     create or replace function canwin_runtime_test.fail_target_outbox()
@@ -580,6 +618,7 @@ async function main() {
   const auditAfterMetrics = await psqlNumber('select count(*) from public.audit_log;')
   assert(auditAfterMetrics > auditBeforeMetrics, 'metrics access writes safe audit evidence')
 
+  setSafeStage('RT16-14')
   const disable = await admin.from('members').update({
     status: 'disabled',
     disabled_at: new Date().toISOString(),
@@ -608,6 +647,7 @@ async function main() {
   const inactiveDepartmentDirect = await superAdminLogin.client.from('audit_log').select('*').limit(1)
   assert(Boolean(inactiveDepartmentDirect.error), 'inactive-department old JWT is rejected from the audit ledger')
 
+  setSafeStage('RT16-15')
   await runPsql('drop schema if exists canwin_runtime_test cascade;', { allowFailure: true })
   assert(assertions >= MINIMUM_ASSERTIONS, `runtime records at least ${MINIMUM_ASSERTIONS} assertions`)
 
@@ -628,6 +668,6 @@ async function main() {
 
 main().catch(async () => {
   await runPsql('drop schema if exists canwin_runtime_test cascade;', { allowFailure: true }).catch(() => undefined)
-  console.error('Observability runtime verification failed; raw output withheld.')
+  console.error(`Observability runtime verification failed [${safeStage}]; raw output withheld.`)
   process.exit(1)
 })

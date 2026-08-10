@@ -401,9 +401,36 @@ requireMatch(runtime, /supabase_db_canwin-crm/, 'Runtime must pin the local Dock
 requireMatch(runtime, /127\.0\.0\.1|localhost/, 'Runtime must enforce local-only API hosts.')
 requireMatch(runtime, /SYNC_WORKERS\s*=\s*16|CONCURRENT_WORKERS\s*=\s*16/, 'Runtime must use a 16-worker synchronized aggregate test.')
 requireMatch(runtime, /assertions\s*<\s*28|MINIMUM_ASSERTIONS\s*=\s*28/, 'Runtime must enforce at least 28 assertions.')
-requireMatch(runtime, /test\.synthetic\./, 'Runtime must register only a local synthetic event definition.')
+requireMatch(
+  runtime,
+  /`test\.synthetic\.e\$\{crypto\.randomUUID\(\)\.replaceAll\(\s*['"]-['"]\s*,\s*['"]{2}\s*\)\.toLowerCase\(\)\}`/,
+  'Runtime synthetic event type must give the random segment a fixed alphabetic prefix required by the database constraint.',
+)
 requireMatch(runtime, /schema_fingerprint[\s\S]{0,240}(?:sha256|digest)/i, 'Runtime synthetic definition must bind the canonical payload schema SHA-256 fingerprint.')
 requireMatch(runtime, /raw_log_mode_0600|secretPatternCounts|sensitive/i, 'Runtime must include a safe secret/PII boundary assertion.')
+const frozenSafeStages = Array.from({ length: 16 }, (_, index) => `RT16-${String(index).padStart(2, '0')}`)
+const declaredStageBlock = /const SAFE_STAGE_CODES = Object\.freeze\(\[([\s\S]*?)\]\)/.exec(runtime)?.[1] ?? ''
+const declaredSafeStages = [...declaredStageBlock.matchAll(/['\"](RT16-\d{2})['\"]/g)].map((match) => match[1])
+if (declaredSafeStages.join('|') !== frozenSafeStages.join('|')) {
+  failures.push('Runtime must freeze the exact RT16-00 through RT16-15 diagnostic stage allow-list in order.')
+}
+const assignedSafeStages = [...runtime.matchAll(/setSafeStage\(\s*['\"](RT16-\d{2})['\"]\s*\)/g)].map((match) => match[1])
+if (assignedSafeStages.join('|') !== frozenSafeStages.slice(1).join('|')) {
+  failures.push('Runtime must assign each RT16-01 through RT16-15 stage exactly once and in execution order.')
+}
+requireMatch(runtime, /const SAFE_STAGE_CODE_SET = new Set\(SAFE_STAGE_CODES\)/, 'Runtime must derive stage validation only from the frozen allow-list.')
+requireMatch(runtime, /function setSafeStage\(nextStage\)\s*\{\s*if \(!SAFE_STAGE_CODE_SET\.has\(nextStage\)\) failSafely\(\)\s*safeStage = nextStage\s*\}/, 'Runtime stage setter must reject every non-allow-listed value before assignment.')
+const stageAssignments = [...runtime.matchAll(/\bsafeStage\s*=/g)]
+if (stageAssignments.length !== 2) failures.push('Runtime safeStage may be assigned only at initialization and inside the validated setter.')
+const consoleCalls = [...runtime.matchAll(/console\.(?:log|error)\s*\([^\n]*\)/g)].map((match) => match[0])
+const expectedConsoleCalls = [
+  'console.log(summaryText)',
+  'console.error(`Observability runtime verification failed [${safeStage}]; raw output withheld.`)',
+]
+if (consoleCalls.join('|') !== expectedConsoleCalls.join('|')) {
+  failures.push('Runtime console output must remain limited to the sanitized success summary and allow-listed failure stage code.')
+}
+forbidMatch(runtime, /console\.(?:log|error)\s*\([^\n]*(?:error|message|cause|stack|stdout|stderr|apiUrl|publishableKey|secretKey|jwt|payload|runId|aggregateId)/i, 'Runtime must never print errors, raw process output, URLs, credentials, JWTs, payloads, or identifiers.')
 for (const [pattern, message] of [
   [/auth\.admin\.createUser[\s\S]{0,1000}signInWithPassword/i, 'Runtime must obtain real local Auth JWT sessions.'],
   [/\['domain_event_definitions',\s*'audit_log',\s*'domain_events',\s*'event_outbox',\s*'operational_errors'\][\s\S]{0,360}select\s*\(/i, 'Runtime must prove direct-table denial across every public observability table.'],
