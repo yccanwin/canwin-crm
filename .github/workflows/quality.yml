@@ -58,6 +58,9 @@ jobs:
       - name: Verify observability contract
         run: npm run verify:observability
 
+      - name: Verify shared archive contract
+        run: npm run verify:shared-archive
+
       - name: Verify credential-safe CI failure path
         run: npm run verify:ci-credential-suppression
 

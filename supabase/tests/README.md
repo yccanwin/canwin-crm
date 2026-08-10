@@ -71,3 +71,9 @@ Test reports and review packages must use synthetic identities and sanitized
 references. Never preserve JWTs, invitation links or tokens, secret/service-
 role keys, real employee emails, customer data, or unmasked hosted project
 references in the repository, CI log, or evidence bundle.
+
+WBS 2.1 adds `0030_wbs_2_1_account_store_schema.sql` and
+`0031_wbs_2_1_shared_archive_rls.sql`. Together they freeze the global
+account/store schema, constraints, audit identity, least grants, shared reads,
+stale-session denial, and direct-write refusal. They add 73 assertions without
+replacing the earlier WBS 1.4–1.6 regression suites.
