@@ -61,6 +61,9 @@ jobs:
       - name: Verify shared archive contract
         run: npm run verify:shared-archive
 
+      - name: Verify contact boundary contract
+        run: npm run verify:contacts
+
       - name: Verify credential-safe CI failure path
         run: npm run verify:ci-credential-suppression
 
@@ -149,6 +152,34 @@ jobs:
           fi
 
           npm run verify:auth:runtime
+
+      - name: Verify contact access runtime
+        shell: bash
+        run: |
+          set +x
+          status_log="$RUNNER_TEMP/canwin-contact-status.log"
+          cleanup_contact_status() {
+            rm -f -- "$status_log"
+          }
+          trap cleanup_contact_status EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+
+          install -m 600 /dev/null "$status_log"
+          if ! status_json="$(npx supabase status -o json 2>"$status_log")"; then
+            printf '%s\n' 'Local Supabase status failed; raw output withheld because it may contain temporary credentials.' >&2
+            exit 1
+          fi
+          export CANWIN_TEST_API_URL="$(jq -r '.API_URL' <<<"$status_json")"
+          export CANWIN_TEST_PUBLISHABLE_KEY="$(jq -r '.PUBLISHABLE_KEY' <<<"$status_json")"
+          if ! read -r CANWIN_TEST_SECRET_KEY < <(jq -er '.SECRET_KEY' <<<"$status_json" 2>>"$status_log"); then
+            printf '%s\n' 'Local Supabase credentials could not be read; raw output withheld.' >&2
+            exit 1
+          fi
+          export CANWIN_TEST_SECRET_KEY
+          printf '::add-mask::%s\n' "$CANWIN_TEST_SECRET_KEY"
+
+          npm run verify:contacts:runtime
 
       - name: Verify audit, event, and observability runtime
         run: npm run verify:observability:runtime
