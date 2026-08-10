@@ -1,6 +1,6 @@
 # WBS 2.1 第三方监理包（2026-08-10）
 
-状态：内部技术门与 Agent 1/2/3 独立复核通过；待 evidence-tail 双 CI 后交第三方监理。
+状态：内部技术门与 Agent 1/2/3 独立复核通过；第三方监理已 PASS；待 supervisor-tail exact-SHA 双 CI、Agent 0 独立验证、用户 protected merge 授权、Squash merge 与 main Quality。
 
 ## Review target
 
@@ -19,49 +19,49 @@
 - Documentation-content tail SHA：`3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8`
 - Content-tail push Quality：`31385131609 / 93443747930` — completed / success
 - Content-tail PR Quality：`31385134713 / 93443757681` — completed / success
-- Evidence-binding amendment SHA / exact-tail Quality：Pending
+- Evidence-binding amendment SHA / exact-tail Quality：`5e6a6e7333dc99c06043103f6aa6494a8e1df948` — push `31385611770 / 93445220185` + PR `31385615804 / 93445233553` — completed / success
 
 ## Traceability
 
 | 范围 | 内部结果 | 证据 | 监理结果 |
 |---|---|---|---|
-| 全局 accounts/stores、无部门复制 | PASS | migration、0030、contract | Pending |
-| 一主体多门店、FK/索引 | PASS | migration、0030 | Pending |
-| 状态/NULL/名称/地址/版本约束 | PASS | migration、0030 | Pending |
-| 审计字段与不可变身份 | PASS | triggers、0030 | Pending |
-| RLS/FORCE/最小 GRANT | PASS | migration、0030/0031 | Pending |
-| 跨部门共享读取 | PASS | 0031 | Pending |
-| stale member/department JWT 失权 | PASS | 0031 | Pending |
-| 直接写拒绝和零副作用 | PASS | 0031 | Pending |
-| 静态/全量 CI/无泄露 | PASS | exact-SHA双CI与脱敏计数 | Pending |
-| WBS 2.1 范围边界 | PASS | contract、PR diff | Pending |
+| 全局 accounts/stores、无部门复制 | PASS | migration、0030、contract | PASS |
+| 一主体多门店、FK/索引 | PASS | migration、0030 | PASS |
+| 状态/NULL/名称/地址/版本约束 | PASS | migration、0030 | PASS |
+| 审计字段与不可变身份 | PASS | triggers、0030 | PASS |
+| RLS/FORCE/最小 GRANT | PASS | migration、0030/0031 | PASS |
+| 跨部门共享读取 | PASS | 0031 | PASS |
+| stale member/department JWT 失权 | PASS | 0031 | PASS |
+| 直接写拒绝和零副作用 | PASS | 0031 | PASS |
+| 静态/全量 CI/无泄露 | PASS | exact-SHA双CI与脱敏计数 | PASS |
+| WBS 2.1 范围边界 | PASS | contract、PR diff | PASS |
 
 ## Required supervisor checks
 
-- [ ] `accounts`、`stores` 是全局共享表且没有 `department_id`。
-- [ ] 一个主体允许多个门店，门店 FK 删除策略为 RESTRICT。
-- [ ] 所有 WBS 2.1 外键列均有索引。
-- [ ] 名称没有被普通唯一约束自动当作同一主体。
-- [ ] `public_id` 在各自表内唯一。
-- [ ] 非活动状态显式拒绝 NULL/空白原因。
-- [ ] 名称、地址、版本约束 fail closed。
-- [ ] created/updated actor 与 timestamp/version 字段完整。
-- [ ] 主键、public_id、创建者、创建时间不可变。
-- [ ] 门店不能直接移动到另一主体，主体/门店不能直接删除。
-- [ ] 两表 ENABLE RLS + FORCE RLS。
-- [ ] `public`/`anon` 零表权限。
-- [ ] authenticated 只有 SELECT，没有写 GRANT 或写 policy。
-- [ ] service_role 只有 SELECT，无写权限和新 identity sequence 权限。
-- [ ] 权威 active member + active primary department 是唯一读取门。
-- [ ] 不同部门读取同一全局行，不复制档案。
-- [ ] disabled member 与 inactive department 的旧 JWT 均读取 0 行。
-- [ ] forged user metadata 不能改变授权。
-- [ ] authenticated/service_role 写入失败且行数不变。
-- [ ] 73 条新增 pgTAP、259 条全量 pgTAP 均执行，而非只做静态扫描。
-- [ ] Auth 44、observability 87/16、frontend 60、audit 0 均保持回归通过。
-- [ ] Linux credential probe 为 0600/posix verified，secret/PII 计数为 0。
-- [ ] PR diff 未引入 contacts、portraits、mutation RPC、UI、duplicate governance 或 opportunities。
-- [ ] exact evidence-tail 的 push/PR Quality 全绿，且无开放 P0/P1。
+- [x] `accounts`、`stores` 是全局共享表且没有 `department_id`。
+- [x] 一个主体允许多个门店，门店 FK 删除策略为 RESTRICT。
+- [x] 所有 WBS 2.1 外键列均有索引。
+- [x] 名称没有被普通唯一约束自动当作同一主体。
+- [x] `public_id` 在各自表内唯一。
+- [x] 非活动状态显式拒绝 NULL/空白原因。
+- [x] 名称、地址、版本约束 fail closed。
+- [x] created/updated actor 与 timestamp/version 字段完整。
+- [x] 主键、public_id、创建者、创建时间不可变。
+- [x] 门店不能直接移动到另一主体，主体/门店不能直接删除。
+- [x] 两表 ENABLE RLS + FORCE RLS。
+- [x] `public`/`anon` 零表权限。
+- [x] authenticated 只有 SELECT，没有写 GRANT 或写 policy。
+- [x] service_role 只有 SELECT，无写权限和新 identity sequence 权限。
+- [x] 权威 active member + active primary department 是唯一读取门。
+- [x] 不同部门读取同一全局行，不复制档案。
+- [x] disabled member 与 inactive department 的旧 JWT 均读取 0 行。
+- [x] forged user metadata 不能改变授权。
+- [x] authenticated/service_role 写入失败且行数不变。
+- [x] 73 条新增 pgTAP、259 条全量 pgTAP 均执行，而非只做静态扫描。
+- [x] Auth 44、observability 87/16、frontend 60、audit 0 均保持回归通过。
+- [x] Linux credential probe 为 0600/posix verified，secret/PII 计数为 0。
+- [x] PR diff 未引入 contacts、portraits、mutation RPC、UI、duplicate governance 或 opportunities。
+- [x] exact evidence-tail 的 push/PR Quality 全绿，且无开放 P0/P1。
 
 ## Internal findings
 
@@ -73,17 +73,27 @@
 
 ## Supervisor findings
 
-Pending。需记录 ID、severity、owner、due、retest SHA/evidence 和 status；任一开放 P0/P1 阻断 PASS。
+完整记录见 `docs/wbs-2.1/supervisor-review-2026-08-10.md`。
+
+| ID | Severity | Description | Owner | Due | Retest SHA/evidence | Status |
+|---|---|---|---|---|---|---|
+| SUP-001 | P2 | 静态 verifier 未精确锁定 CI DB test step 完整文本 | Agent 1（Agent 0 跟踪） | WBS 2.4 验收前 | N/A（非阻断） | Open |
+| SUP-002 | P2 | 部分索引检查仅验证名称，未扩展为完整列序断言 | Agent 1（Agent 0 跟踪） | WBS 2.4 验收前 | N/A（非阻断） | Open |
+
+- Open P0：None
+- Open P1：None
+- Open P2：2（SUP-001, SUP-002），均不阻断 PASS
 
 ## Supervisor disposition
 
-- Reviewer / organization：Pending
-- Reviewed full SHA：Pending
-- Date / timezone：Pending
-- Decision：Pending（PASS / FAIL / CONDITIONAL）
-- Blocking / non-blocking findings：Pending
-- Signature or immutable review reference：Pending
+- Reviewer / organization：WorkBuddy Supervisor（独立第三方监理）
+- Reviewed full SHA：`5e6a6e7333dc99c06043103f6aa6494a8e1df948`
+- Review completed at：2026-08-10T21:27:41+08:00（Asia/Shanghai；监理报告本地创建时间）
+- Decision：**PASS**
+- Blocking findings：None
+- Non-blocking findings：2 P2（SUP-001, SUP-002），移交 WBS 2.4 跟进
+- Signature or immutable review reference：Pending；supervisor tail 入库后填写完整 SHA，并对该 SHA 取得 exact-SHA push/PR Quality
 
 ## Agent 0 independent verification
 
-Pending。documentation-content tail 已由 exact-SHA 双绿验证；本次 binding amendment 修改全部五份证据文档，不能自引用 content-tail CI。只有 amendment 新尾取得自己的 push/PR Quality 后才可交监理。若监理结论作为纯文档尾入库，必须记录 implementation SHA、content-tail SHA、binding-tail SHA、supervisor-tail SHA，并对 supervisor tail 重新取得 exact-SHA push/PR Quality。用户授权、Squash merge 和 main Quality 在实际完成前均保持 Pending。
+Pending。第三方监理已对 binding-tail SHA `5e6a6e7333dc99c06043103f6aa6494a8e1df948` 给出 PASS。监理结论作为纯文档 supervisor tail 入库后，必须记录 implementation SHA、content-tail SHA、binding-tail SHA、supervisor-tail SHA，并对 supervisor tail 重新取得 exact-SHA push/PR Quality。上述证据完成后才进入 Agent 0 独立验证；用户授权、Squash merge 和 main Quality 在实际完成前均保持 Pending。
