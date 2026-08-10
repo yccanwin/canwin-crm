@@ -1,15 +1,18 @@
 # WBS 2.1 验收证据（2026-08-10）
 
-状态：技术门与 Agent 1/2/3 内部独立复核通过；第三方监理、Agent 0、合并和 main Quality 待完成。
+状态：技术门、Agent 1/2/3、第三方监理和 Agent 0 独立核验均通过；待 Agent 0 证据尾 exact-SHA 双 CI、用户 protected merge 授权、Squash merge 与 main Quality。
 
 ## 目标绑定
 
 - Repository：`yccanwin/canwin-crm`
 - Branch：`agent/wbs-2-1-account-store`
-- PR：[#13](https://github.com/yccanwin/canwin-crm/pull/13)（Draft）
+- PR：[#13](https://github.com/yccanwin/canwin-crm/pull/13)（Open、非 Draft、mergeable）
 - Remote implementation SHA：`6e2caedf75140b18022a645bfb13c2582fc00376`
 - Implementation tree：`f03c7b562e65dcbffa5cfafe3e9a4eada63a7291`
-- Local HEAD：`e64c125506411fe91619a3f86a0aa5885dd9991c`；tree 与远端 implementation tree 完全一致
+- Supervisor-tail SHA：`2ae36ca9c93cebcab2e8098c8021e55f4297abf8`
+- Supervisor-tail tree：`d4f26a2988c4a5244cab615f75d8813455b95a21`
+- Supervisor-tail push Quality：`31394276754 / 93473226037` — completed / success；23/23 steps success
+- Supervisor-tail PR Quality：`31394282223 / 93473244243` — completed / success；23/23 steps success
 - Migration：`supabase/migrations/20260810110505_wbs_2_1_account_store_model.sql`
 - Migration SHA-256：`231F2BC4774EAA95124D7F9DEA991A3AB9589E5852358EA3AFD748CA97EA5EDB`
 - Evidence date / timezone：2026-08-10 / Asia/Shanghai
@@ -70,9 +73,10 @@ SHA `3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8` 包含本验收记录、Agent 1/2
 
 ## 当前治理门
 
-- 第三方监理：Pending
-- Agent 0：Pending
+- 第三方监理：PASS；24/24；P0=0，P1=0；2 项 P2 移交 WBS 2.4
+- Agent 0：PASS；记录见 `agent0-final-verification-2026-08-10.md`
+- Agent 0 证据尾 exact-SHA push/PR Quality：Pending
 - 用户 protected merge 授权：Pending
 - Squash merge / main Quality：Pending
 
-本次 evidence-binding amendment 修改全部五份 WBS 2.1 证据文档，因此不能用上述 content-tail CI 自证当前文本。必须提交并推送本次 amendment，再对 then-current tail SHA 取得 push/PR Quality 后才可交第三方监理。
+本次 Agent 0 证据尾修改本验收记录、第三方监理包并新增 Agent 0 终验记录，不能用 supervisor-tail CI 自证当前文本。必须提交并推送后，对 then-current SHA 取得 push/PR Quality，才可申请 protected merge 授权。

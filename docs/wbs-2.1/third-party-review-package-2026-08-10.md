@@ -1,6 +1,6 @@
 # WBS 2.1 第三方监理包（2026-08-10）
 
-状态：内部技术门与 Agent 1/2/3 独立复核通过；第三方监理已 PASS；待 supervisor-tail exact-SHA 双 CI、Agent 0 独立验证、用户 protected merge 授权、Squash merge 与 main Quality。
+状态：内部技术门、Agent 1/2/3、第三方监理与 Agent 0 独立核验均 PASS；待 Agent 0 证据尾 exact-SHA 双 CI、用户 protected merge 授权、Squash merge 与 main Quality。
 
 ## Review target
 
@@ -20,6 +20,9 @@
 - Content-tail push Quality：`31385131609 / 93443747930` — completed / success
 - Content-tail PR Quality：`31385134713 / 93443757681` — completed / success
 - Evidence-binding amendment SHA / exact-tail Quality：`5e6a6e7333dc99c06043103f6aa6494a8e1df948` — push `31385611770 / 93445220185` + PR `31385615804 / 93445233553` — completed / success
+- Supervisor-tail SHA：`2ae36ca9c93cebcab2e8098c8021e55f4297abf8`
+- Supervisor-tail push Quality：`31394276754 / 93473226037` — completed / success；23/23 steps success
+- Supervisor-tail PR Quality：`31394282223 / 93473244243` — completed / success；23/23 steps success
 
 ## Traceability
 
@@ -92,8 +95,16 @@
 - Decision：**PASS**
 - Blocking findings：None
 - Non-blocking findings：2 P2（SUP-001, SUP-002），移交 WBS 2.4 跟进
-- Signature or immutable review reference：Pending；supervisor tail 入库后填写完整 SHA，并对该 SHA 取得 exact-SHA push/PR Quality
+- Signature or immutable review reference：supervisor-tail `2ae36ca9c93cebcab2e8098c8021e55f4297abf8`；push `31394276754 / 93473226037` 与 PR `31394282223 / 93473244243` 均 completed / success
 
 ## Agent 0 independent verification
 
-Pending。第三方监理已对 binding-tail SHA `5e6a6e7333dc99c06043103f6aa6494a8e1df948` 给出 PASS。监理结论作为纯文档 supervisor tail 入库后，必须记录 implementation SHA、content-tail SHA、binding-tail SHA、supervisor-tail SHA，并对 supervisor tail 重新取得 exact-SHA push/PR Quality。上述证据完成后才进入 Agent 0 独立验证；用户授权、Squash merge 和 main Quality 在实际完成前均保持 Pending。
+**PASS**。Agent 0 于 2026-08-10T21:48:04+08:00 独立核验：
+
+- SHA 链 `6e2caedf` → `3a1b2a6e` → `5e6a6e73` → `2ae36ca9` 完整；supervisor tail 仅包含两份 WBS 2.1 监理文档。
+- PR #13 head 与远端 `agent/wbs-2-1-account-store` tip 均为 supervisor-tail SHA。
+- supervisor-tail push/PR Quality 均 completed / success，23/23 steps success；脱敏计数为 pgTAP 259、Auth 44、observability 87/16、frontend 60、audit 0、Linux 0600/posix、secret `[0,0,0,0]`、PII 0。
+- 监理 24/24 PASS；开放 P0=0、P1=0；SUP-001 与 SUP-002 为非阻断 P2，责任人为 Agent 1、Agent 0 跟踪，WBS 2.4 验收前关闭。
+- 无 CHANGES_REQUESTED、无提前合并或 WBS 完成声明。
+
+完整记录见 `docs/wbs-2.1/agent0-final-verification-2026-08-10.md`。当前 Agent 0 证据尾不可自引用；须取得其自身 exact-SHA push/PR Quality 后，才可请求用户 protected merge 授权。Squash merge 与 main Quality 在实际完成前仍为 Pending。
