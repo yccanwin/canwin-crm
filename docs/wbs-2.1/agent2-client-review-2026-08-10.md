@@ -12,6 +12,9 @@
 - Reviewed tree：`f03c7b562e65dcbffa5cfafe3e9a4eada63a7291`
 - Push Quality：`31384084754 / 93440502381` — completed / success
 - PR Quality：`31384091661 / 93440524033` — completed / success
+- Documentation-content tail：`3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8`
+- Content-tail push Quality：`31385131609 / 93443747930` — completed / success
+- Content-tail PR Quality：`31385134713 / 93443757681` — completed / success
 
 ## 独立核验
 
@@ -28,4 +31,4 @@
 - Open P1：none
 - 非阻塞交接：WBS 2.4 应冻结状态转换矩阵和乐观锁语义；WBS 2.2/2.3 应继续通过主体/门店外键扩展，不把敏感或部门私有字段回填至核心表；WBS 2.6 的合并只能走人工批准的受控服务。
 
-本记录进入后续 evidence tail 后不能自引用证明该 tail；必须对 then-current tail SHA 重新取得 push/PR Quality。
+本记录的首个版本已进入 documentation-content tail `3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8`，并取得 exact-SHA 双绿。本次 binding amendment 修改该记录，不能自引用上述 CI；必须进入新的 tail 并对新 SHA 重新取得 push/PR Quality。

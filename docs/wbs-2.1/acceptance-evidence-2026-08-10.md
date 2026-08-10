@@ -14,6 +14,9 @@
 - Migration SHA-256：`231F2BC4774EAA95124D7F9DEA991A3AB9589E5852358EA3AFD748CA97EA5EDB`
 - Evidence date / timezone：2026-08-10 / Asia/Shanghai
 - Environment：GitHub-hosted Ubuntu 24.04、PostgreSQL 17、本地 Supabase CLI `2.112.0`
+- Documentation-content tail SHA：`3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8`
+- Content-tail push Quality：`31385131609 / 93443747930` — completed / success
+- Content-tail PR Quality：`31385134713 / 93443757681` — completed / success
 
 ## 需求追踪
 
@@ -55,6 +58,10 @@
 
 首次两轮失败证据保留为整改链：run `31383556241` 暴露 pgTAP API 兼容问题；run `31383818779` 暴露 PostgreSQL CHECK 的 NULL 语义。两项均在后续提交中修复并由以上 exact-SHA 双绿关闭。
 
+## Documentation-content tail
+
+SHA `3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8` 包含本验收记录、Agent 1/2/3 复核记录和第三方监理包的首个完整版本。它的 push 与 pull-request Quality 均以相同 `headSha` completed / success，所有 job steps success；脱敏结果保持 73 planned、全量 pgTAP 259、Auth 44、observability 87/16、Vitest 60、audit 0、Linux 0600/posix verified、secret `[0,0,0,0]`、PII 0。
+
 ## 内部独立复核
 
 - Agent 1 数据库/RLS：PASS；P0=0，P1=0；`agent1-final-review-2026-08-10.md`
@@ -68,4 +75,4 @@
 - 用户 protected merge 授权：Pending
 - Squash merge / main Quality：Pending
 
-本文件若进入后续 documentation/evidence tail，不能自引用证明该 tail；必须对 then-current tail SHA 再取得 push/PR Quality。
+本次 evidence-binding amendment 修改全部五份 WBS 2.1 证据文档，因此不能用上述 content-tail CI 自证当前文本。必须提交并推送本次 amendment，再对 then-current tail SHA 取得 push/PR Quality 后才可交第三方监理。

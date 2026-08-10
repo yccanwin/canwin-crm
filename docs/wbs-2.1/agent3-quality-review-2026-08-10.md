@@ -13,6 +13,9 @@
 - PR head / remote branch tip：与 reviewed implementation SHA 精确一致
 - Push Quality：`31384084754 / 93440502381` — completed / success；head SHA 精确一致；所有 steps success
 - PR Quality：`31384091661 / 93440524033` — completed / success；head SHA 精确一致；所有 steps success
+- Documentation-content tail：`3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8`
+- Content-tail push Quality：`31385131609 / 93443747930` — completed / success
+- Content-tail PR Quality：`31385134713 / 93443757681` — completed / success
 
 ## Sanitized quality results
 
@@ -37,4 +40,4 @@
 - Open P1：none
 - 非阻塞 P2：后续可让 static verifier 精确锁定 DB test step 文本，并把部分索引检查从名称存在扩展为完整列序；当前 exact migration 的列序已人工核验正确。
 
-本记录进入后续 evidence tail 后不能自引用证明该 tail；必须对 then-current tail SHA 重新取得 push/PR Quality。
+本记录的首个版本已进入 documentation-content tail `3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8`，并取得 exact-SHA 双绿。本次 binding amendment 修改该记录，不能自引用上述 CI；必须进入新的 tail 并对新 SHA 重新取得 push/PR Quality。

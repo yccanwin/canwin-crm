@@ -16,7 +16,10 @@
 - Agent 1 review：`docs/wbs-2.1/agent1-final-review-2026-08-10.md` — PASS
 - Agent 2 review：`docs/wbs-2.1/agent2-client-review-2026-08-10.md` — PASS
 - Agent 3 review：`docs/wbs-2.1/agent3-quality-review-2026-08-10.md` — PASS
-- Evidence-tail SHA / exact-tail Quality：Pending
+- Documentation-content tail SHA：`3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8`
+- Content-tail push Quality：`31385131609 / 93443747930` — completed / success
+- Content-tail PR Quality：`31385134713 / 93443757681` — completed / success
+- Evidence-binding amendment SHA / exact-tail Quality：Pending
 
 ## Traceability
 
@@ -83,4 +86,4 @@ Pending。需记录 ID、severity、owner、due、retest SHA/evidence 和 status
 
 ## Agent 0 independent verification
 
-Pending。若监理结论作为纯文档尾入库，必须记录 implementation SHA、evidence-tail SHA、supervisor-tail SHA，并对 supervisor tail 重新取得 exact-SHA push/PR Quality。用户授权、Squash merge 和 main Quality 在实际完成前均保持 Pending。
+Pending。documentation-content tail 已由 exact-SHA 双绿验证；本次 binding amendment 修改全部五份证据文档，不能自引用 content-tail CI。只有 amendment 新尾取得自己的 push/PR Quality 后才可交监理。若监理结论作为纯文档尾入库，必须记录 implementation SHA、content-tail SHA、binding-tail SHA、supervisor-tail SHA，并对 supervisor tail 重新取得 exact-SHA push/PR Quality。用户授权、Squash merge 和 main Quality 在实际完成前均保持 Pending。

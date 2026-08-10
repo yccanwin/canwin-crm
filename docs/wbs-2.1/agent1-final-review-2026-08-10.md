@@ -13,6 +13,9 @@
 - Migration SHA-256：`231F2BC4774EAA95124D7F9DEA991A3AB9589E5852358EA3AFD748CA97EA5EDB`
 - Push Quality：`31384084754 / 93440502381` — completed / success
 - PR Quality：`31384091661 / 93440524033` — completed / success
+- Documentation-content tail：`3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8`
+- Content-tail push Quality：`31385131609 / 93443747930` — completed / success
+- Content-tail PR Quality：`31385134713 / 93443757681` — completed / success
 
 ## 独立核验
 
@@ -29,4 +32,4 @@
 - Open P1：none
 - 非阻塞交接：WBS 2.4 的状态转换服务应原子维护 `status_changed_at`、`updated_by_member_id`、`version` 和审计事件。
 
-本记录进入后续 evidence tail 后不能自引用证明该 tail；必须对 then-current tail SHA 重新取得 push/PR Quality。
+本记录的首个版本已进入 documentation-content tail `3a1b2a6e2fe3effa60bbda9704b3b364758ce7e8`，并取得 exact-SHA 双绿。本次 binding amendment 修改该记录，不能自引用上述 CI；必须进入新的 tail 并对新 SHA 重新取得 push/PR Quality。
