@@ -1,6 +1,9 @@
 # WBS 1.6 acceptance evidence
 
-Status: **Technical gates PASS; Agent 1, Agent 2, and Agent 3 PASS. Third-party supervisor, Agent 0, protected merge, and resulting `main` verification are Pending.**
+Status: **Technical gates, Agent 1/2/3, third-party supervisor, and Agent 0
+independent verification PASS. Awaiting exact-SHA Quality for the Agent 0
+evidence tail, protected merge authorization, Squash merge, and resulting
+`main` verification.**
 
 This record is bound to the exact implementation SHA below. All identities,
 events, aggregates, and test inputs used by the recorded evidence are
@@ -30,6 +33,18 @@ credential-bearing log, real identity, or customer data.
   [31349234653 / 93336833192](https://github.com/yccanwin/canwin-crm/actions/runs/31349234653/job/93336833192)
 - Documentation-content tail pull-request Quality run / job:
   [31349238005 / 93336841927](https://github.com/yccanwin/canwin-crm/actions/runs/31349238005/job/93336841927)
+- Evidence-binding tail SHA:
+  `b7fff4c459934468939ff474f143359ed8f43606`
+- Evidence-binding push Quality run / job:
+  [31349699747 / 93338088160](https://github.com/yccanwin/canwin-crm/actions/runs/31349699747/job/93338088160)
+- Evidence-binding pull-request Quality run / job:
+  [31349702701 / 93338095809](https://github.com/yccanwin/canwin-crm/actions/runs/31349702701/job/93338095809)
+- Supervisor disposition tail SHA:
+  `a99b9e64135caf5350df4749cd4ce154d8f27d48`
+- Supervisor-tail push Quality run / job:
+  [31353515435 / 93348679152](https://github.com/yccanwin/canwin-crm/actions/runs/31353515435/job/93348679152)
+- Supervisor-tail pull-request Quality run / job:
+  [31353517606 / 93348685963](https://github.com/yccanwin/canwin-crm/actions/runs/31353517606/job/93348685963)
 - Review date/timezone: `2026-08-10`, Asia/Shanghai (UTC+8)
 - Test environment: local Supabase/PostgreSQL 17 and GitHub Ubuntu; no hosted
   project or production data
@@ -147,23 +162,26 @@ matches without reproducing any candidate value.
   [`agent2-client-review-2026-08-10.md`](./agent2-client-review-2026-08-10.md)
 - Agent 3 quality/runtime review: **PASS** -
   [`agent3-quality-review-2026-08-10.md`](./agent3-quality-review-2026-08-10.md)
-- Third-party supervisor disposition: **Pending**
-- Agent 0 independent verification: **Pending**
+- Third-party supervisor disposition: **PASS** —
+  [`third-party-review-package-2026-08-10.md`](./third-party-review-package-2026-08-10.md)
+- Agent 0 independent verification: **PASS** —
+  [`agent0-final-verification-2026-08-10.md`](./agent0-final-verification-2026-08-10.md)
 - Protected merge authorization: **Pending**
 - Squash merge and exact resulting `main` Quality: **Pending**
 
 ## Evidence-tail boundary
 
-Documentation-content tail SHA
-`453023d62578e6daa41c69d13d0652421826fc3e` and its two successful Quality
-runs bind the five artifacts listed above as they existed in that commit. This
-evidence-binding amendment changes all five evidence documents after that
-content tail, so it cannot self-reference or claim coverage by the content
-tail runs. After this amendment is committed and pushed, an independent check
-must bind its exact SHA to the remote branch tip, PR head, successful push
-Quality, and successful pull-request Quality before the amended evidence chain
-is treated as current.
+The immutable chain through supervisor tail
+`a99b9e64135caf5350df4749cd4ce154d8f27d48` is independently verified. The
+Agent 0 evidence-tail commit containing this amended record cannot
+self-reference its future SHA. After it is pushed, a separate check must bind
+its exact SHA to the remote branch tip, PR head, and successful push and PR
+Quality before protected merge authorization is requested.
 
-WBS 1.6 remains incomplete while third-party supervision, Agent 0 independent
-verification, protected Squash merge, the exact resulting `main` Quality run,
-the progress update, and the required checkpoint remain Pending.
+WBS 1.6 remains incomplete while the Agent 0 tail Quality gate, explicit merge
+authorization, protected Squash merge, the exact resulting `main` Quality
+run, progress update to `12/54`, and checkpoint 006 remain Pending.
+
+The stale WBS 1.5 post-merge status sentence is a non-blocking documentation
+hygiene item for the subsequent progress closeout; it does not gate WBS 1.6
+acceptance or merge.

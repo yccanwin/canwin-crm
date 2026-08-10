@@ -1,8 +1,9 @@
 # WBS 1.6 third-party supervisor review package
 
-Status: **Supervisor disposition recorded (PASS) at PR head `b7fff4c`.
-Awaiting Agent 0 independent verification, user-authorized protected
-Squash-merge, and resulting `main` Quality.**
+Status: **Supervisor disposition PASS at supervisor tail `a99b9e6`; Agent 0
+independent verification PASS. Awaiting exact-SHA Quality for the Agent 0
+evidence tail, user-authorized protected Squash merge, and resulting `main`
+Quality.**
 
 ## Review target
 
@@ -30,11 +31,10 @@ verified as exact matches. Its push and pull-request Quality runs both
 completed successfully with every required step successful and with the
 sanitized counts recorded below.
 
-This evidence-binding amendment necessarily changes all five evidence documents,
-so the amendment itself cannot self-reference its future commit SHA. After the
-amendment is pushed, an independent check must bind the then-current remote
-branch tip and PR head to successful push and pull-request Quality runs before
-the package is handed to the supervisor.
+The evidence-binding amendment changed all five evidence documents and therefore
+did not self-reference its own commit SHA. Its exact SHA `b7fff4c` was
+subsequently verified as the remote branch tip and PR head with successful push
+and pull-request Quality runs before the package was handed to the supervisor.
 
 The supervisor must review exact-SHA evidence. An older green run is not
 evidence. This package contains only synthetic references, fixed status labels,
@@ -76,13 +76,13 @@ It is not a supervisor disposition and does not replace Agent 0 verification.
 
 ## Required supervisor checks
 
-The following boxes are intentionally unchecked. Only the third-party
-supervisor may complete them after independently reviewing the cited evidence.
+The third-party supervisor independently completed all 24 checks below before
+recording the PASS disposition.
 
 - [x] Remote branch tip and PR head equal the exact reviewed SHA. Evidence:
   implementation SHA and verified documentation-content evidence-tail SHA
-  above; the later evidence-binding amendment tip must be independently
-  verified before supervisor handoff.
+  above; evidence-binding amendment tail `b7fff4c` was independently verified
+  before supervisor handoff.
 - [x] That SHA has successful push and PR `quality` runs and all steps succeed.
   Evidence: the two run/job pairs above and Agent 3 review.
 - [x] The migration is the only WBS 1.6 migration and its hash is recorded.
@@ -163,8 +163,8 @@ condition closes on a new exact SHA and the affected regression set is rerun.
 ## Supervisor disposition
 
 - Reviewer / organization: WorkBuddy AI supervisor, engaged by the CanWin CRM
-  project owner (yccanwin / Qi Jie) as the independent reviewer for the WBS
-  1.6 acceptance gate.
+  project owner `yccanwin` as the independent reviewer for the WBS 1.6
+  acceptance gate.
 - Review date/timezone: 2026-08-10 11:45 Asia/Shanghai (UTC+8); completed
   before the supervisor tail commit recorded below.
 - Exact reviewed implementation SHA:
@@ -186,9 +186,10 @@ condition closes on a new exact SHA and the affected regression set is rerun.
      scan-count table label, not a secret; live secret/PII scan counts are
      `[0,0,0,0]` and `0` on both reviewed SHA CI logs.
 - Signature or immutable reference: Supervisor disposition recorded directly in
-  this file by the reviewer on 2026-08-10; commit and Quality runs recorded
-  after this tail is pushed. Independent verification by Agent 0 remains
-  required before acceptance.
+  this file by the reviewer on 2026-08-10 and bound by supervisor tail
+  `a99b9e64135caf5350df4749cd4ce154d8f27d48` plus its successful exact-SHA
+  push and PR Quality runs. Agent 0 independent verification is recorded below;
+  the current Agent 0 evidence tail still requires its own exact-SHA runs.
 
 ### Supervisor verification performed (independent, 2026-08-10)
 
@@ -205,9 +206,9 @@ condition closes on a new exact SHA and the affected regression set is rerun.
 5. All five public tables and the private `aggregate_event_sequences` allocator
    `ENABLE` + `FORCE ROW LEVEL SECURITY` (lines 168–201 of the migration).
 6. ACLs revoke all from `public`/`anon`/`authenticated`/`service_role` for the
-   five public tables, the private allocator, and all sequences; `service_role`
-   receives only the five frozen `SELECT` grants and `authenticated` receives
-   only `get_observability_snapshot` execution.
+   five public tables, the private allocator, and all new WBS 1.6 identity
+   sequences; `service_role` receives only the five frozen `SELECT` grants
+   and `authenticated` receives only `get_observability_snapshot` execution.
 7. `public` schema contains no `SECURITY DEFINER`; all five DEFINER functions
    live in `app_private` with `set search_path = ''`, and default execution is
    revoked.
@@ -260,16 +261,31 @@ condition closes on a new exact SHA and the affected regression set is rerun.
 
 ## Agent 0 independent verification
 
-- Reviewer identity/reference: Pending
-- SHA ancestry and documentation-only tail: Pending
-- Exact-SHA push and PR Quality: Pending
-- All P0/P1 closed: Pending
-- Protected Squash-merge request decision: Pending
+- Reviewer identity/reference: **PASS** — Agent 0 (project lead and final
+  acceptance integrator); see
+  `docs/wbs-1.6/agent0-final-verification-2026-08-10.md`.
+- SHA ancestry and documentation-only tail: **PASS** — `b7fff4c..a99b9e6`
+  is one direct-parent commit and changes only this supervisor package.
+- Exact-SHA push and PR Quality: **PASS for supervisor tail `a99b9e6`** —
+  push `31353515435/93348679152` and PR
+  `31353517606/93348685963` completed successfully. The Agent 0 evidence
+  tail containing this amendment still requires its own exact-SHA runs.
+- All P0/P1 closed: **PASS** — none open. Four Agent 0 documentation findings
+  are corrected in this amendment and recorded as closed in the Agent 0
+  verification record.
+- Protected Squash-merge request decision: **PASS after the Agent 0 evidence
+  tail receives successful exact-SHA push and PR Quality**; explicit user
+  authorization remains required.
 - Resulting `main` tip and Quality: Pending
 
-The documentation-content evidence tail is verified, but this evidence-binding
-amendment cannot self-reference its future commit. After this file is committed
-and pushed, a separate verification must bind the current tip SHA to remote
-tip, PR head, and successful push/PR runs and jobs before supervisor handoff.
-Supervisor checklist and disposition, Agent 0 results, merge, and `main` must
-remain Pending until independently completed and recorded.
+Supervisor checklist and disposition are complete and independently verified.
+The Agent 0 evidence-tail commit containing this amendment and the Agent 0
+record cannot self-reference its own future SHA. After it is pushed, a separate
+check must bind that exact SHA to the remote tip, PR head, and successful push
+and PR runs/jobs before merge authorization is requested. User authorization,
+Squash merge, resulting `main` Quality, progress `12/54`, and checkpoint 006
+remain Pending until actually completed.
+
+The stale WBS 1.5 post-merge status sentence is a non-blocking documentation
+hygiene item for the subsequent progress closeout; it does not gate WBS 1.6
+acceptance or merge.
