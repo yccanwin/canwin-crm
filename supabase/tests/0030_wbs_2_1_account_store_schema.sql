@@ -12,12 +12,12 @@ select has_pk('public','accounts','accounts has a primary key');
 select has_pk('public','stores','stores has a primary key');
 select col_is_unique('public','accounts','public_id','account public_id is unique');
 select col_is_unique('public','stores','public_id','store public_id is unique');
-select has_check('public','accounts','accounts_status_check','account status is constrained');
-select has_check('public','stores','stores_status_check','store status is constrained');
-select has_check('public','accounts','accounts_status_state_check','account status reason state is constrained');
-select has_check('public','stores','stores_status_state_check','store status reason state is constrained');
-select has_check('public','accounts','accounts_version_check','account version is positive');
-select has_check('public','stores','stores_version_check','store version is positive');
+select ok(exists(select 1 from pg_constraint where conrelid='public.accounts'::regclass and conname='accounts_status_check' and contype='c'),'account status is constrained');
+select ok(exists(select 1 from pg_constraint where conrelid='public.stores'::regclass and conname='stores_status_check' and contype='c'),'store status is constrained');
+select ok(exists(select 1 from pg_constraint where conrelid='public.accounts'::regclass and conname='accounts_status_state_check' and contype='c'),'account status reason state is constrained');
+select ok(exists(select 1 from pg_constraint where conrelid='public.stores'::regclass and conname='stores_status_state_check' and contype='c'),'store status reason state is constrained');
+select ok(exists(select 1 from pg_constraint where conrelid='public.accounts'::regclass and conname='accounts_version_check' and contype='c'),'account version is positive');
+select ok(exists(select 1 from pg_constraint where conrelid='public.stores'::regclass and conname='stores_version_check' and contype='c'),'store version is positive');
 
 select ok(exists(select 1 from pg_constraint where conrelid='public.stores'::regclass and confrelid='public.accounts'::regclass and contype='f' and confdeltype='r'),'store account foreign key restricts deletion');
 select is((select count(*) from pg_constraint where conrelid in ('public.accounts'::regclass,'public.stores'::regclass) and contype='f' and confrelid='public.members'::regclass),4::bigint,'both tables bind created and updated actors to members');
