@@ -1,6 +1,6 @@
 import type { SafeAuthError } from './auth-types'
 
-const errorMessages: Record<string, Omit<SafeAuthError, 'code' | 'request_id'>> = {
+const errorMessages: Record<string, Omit<SafeAuthError, 'code' | 'request_id' | 'correlation_id'>> = {
   INVALID_CREDENTIALS: {
     message_key: 'auth.invalid_credentials',
     message: '邮箱或密码不正确，请重新输入。',
@@ -105,12 +105,24 @@ function readString(record: Record<string, unknown>, key: string) {
   return typeof value === 'string' ? value : null
 }
 
-export function safeAuthError(code: string, requestId: string | null = null): SafeAuthError {
+const traceIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+export function safeTraceId(value: unknown) {
+  return typeof value === 'string' && value.length === 36 && traceIdPattern.test(value) ? value : null
+}
+
+export function safeAuthError(
+  code: string,
+  requestId: string | null = null,
+  correlationId: string | null = null,
+): SafeAuthError {
   const safeCode = errorMessages[code] ? code : 'UNEXPECTED'
+  const safeCorrelationId = safeTraceId(correlationId)
   return {
     code: safeCode,
     ...errorMessages[safeCode],
-    request_id: requestId,
+    request_id: safeTraceId(requestId),
+    ...(safeCorrelationId ? { correlation_id: safeCorrelationId } : {}),
   }
 }
 
@@ -127,9 +139,10 @@ export function normalizeAuthError(error: unknown, fallbackCode = 'UNEXPECTED'):
   const normalizedCode = rawCode
     ? providerCodeMap[rawCode.toLowerCase()] ?? rawCode.toUpperCase()
     : fallbackCode
-  const requestId = readString(record, 'request_id')
+  const requestId = safeTraceId(readString(record, 'request_id'))
+  const correlationId = safeTraceId(readString(record, 'correlation_id'))
 
-  return safeAuthError(normalizedCode, requestId)
+  return safeAuthError(normalizedCode, requestId, correlationId)
 }
 
 export function isRetryableAuthError(error: SafeAuthError) {

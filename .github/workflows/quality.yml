@@ -55,6 +55,9 @@ jobs:
       - name: Verify Auth and membership contract
         run: npm run verify:auth
 
+      - name: Verify observability contract
+        run: npm run verify:observability
+
       - name: Verify credential-safe CI failure path
         run: npm run verify:ci-credential-suppression
 
@@ -143,6 +146,9 @@ jobs:
           fi
 
           npm run verify:auth:runtime
+
+      - name: Verify audit, event, and observability runtime
+        run: npm run verify:observability:runtime
 
       - name: Lint
         run: npm run lint

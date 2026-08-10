@@ -1,4 +1,5 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { createClient, FunctionsHttpError, type SupabaseClient } from '@supabase/supabase-js'
+import { safeTraceId } from './auth-errors'
 import type {
   AccessContext,
   AuthAdapter,
@@ -86,15 +87,65 @@ function parseAccessContext(value: unknown): AccessContext {
   }
 }
 
-function throwEnvelope(value: unknown) {
+interface StableEnvelopeError {
+  code: string
+  request_id: string | null
+  correlation_id?: string | null
+}
+
+const businessCodePattern = /^[A-Z][A-Z0-9_]{0,63}$/
+
+function unexpectedEnvelopeError(): StableEnvelopeError {
+  return { code: 'UNEXPECTED', request_id: null }
+}
+
+function traceIdFrom(
+  nested: Record<string, unknown>,
+  root: Record<string, unknown>,
+  key: 'request_id' | 'correlation_id',
+) {
+  return safeTraceId(nested[key]) ?? safeTraceId(root[key])
+}
+
+function stableEnvelopeError(value: unknown): StableEnvelopeError | null {
   const record = asRecord(value)
-  const error = asRecord(record?.error)
-  if (record?.ok === false && error) {
-    throw {
-      code: typeof error.code === 'string' ? error.code : 'UNEXPECTED',
-      request_id: typeof error.request_id === 'string' ? error.request_id : null,
-    }
+  if (record?.ok !== false) return null
+
+  const error = asRecord(record.error)
+  const code = error?.code
+  if (!error || typeof code !== 'string' || !businessCodePattern.test(code)) {
+    return unexpectedEnvelopeError()
   }
+
+  const requestId = traceIdFrom(error, record, 'request_id')
+  const correlationId = traceIdFrom(error, record, 'correlation_id')
+  return {
+    code,
+    request_id: requestId,
+    ...(correlationId ? { correlation_id: correlationId } : {}),
+  }
+}
+
+function assertSuccessEnvelope(value: unknown) {
+  const record = asRecord(value)
+  if (record?.ok === true) return record
+  throw stableEnvelopeError(value) ?? unexpectedEnvelopeError()
+}
+
+async function throwFunctionInvokeError(error: unknown): Promise<never> {
+  if (!(error instanceof FunctionsHttpError)) throw error
+
+  const context = error.context as { json?: () => Promise<unknown> } | null
+  if (!context || typeof context.json !== 'function') throw unexpectedEnvelopeError()
+
+  let body: unknown
+  try {
+    body = await context.json()
+  } catch {
+    throw unexpectedEnvelopeError()
+  }
+
+  throw stableEnvelopeError(body) ?? unexpectedEnvelopeError()
 }
 
 export function createSupabaseAuthAdapterFromClient(client: SupabaseClient): AuthAdapter {
@@ -107,8 +158,8 @@ export function createSupabaseAuthAdapterFromClient(client: SupabaseClient): Aut
     async getAccessContext() {
       const { data, error } = await client.rpc('get_my_auth_context')
       if (error) throw error
-      throwEnvelope(data)
-      return parseAccessContext(asRecord(data)?.data)
+      const envelope = assertSuccessEnvelope(data)
+      return parseAccessContext(envelope.data)
     },
     async signIn(email, password) {
       const { error } = await client.auth.signInWithPassword({ email, password })
@@ -121,7 +172,7 @@ export function createSupabaseAuthAdapterFromClient(client: SupabaseClient): Aut
     async acceptInvitation(invitationId) {
       const { data, error } = await client.rpc('accept_my_invitation', { p_invitation_id: invitationId })
       if (error) throw error
-      throwEnvelope(data)
+      assertSuccessEnvelope(data)
     },
     async inviteMember(input: InviteMemberInput) {
       const { data, error } = await client.functions.invoke('invite-member', {
@@ -133,8 +184,8 @@ export function createSupabaseAuthAdapterFromClient(client: SupabaseClient): Aut
           idempotency_key: input.idempotency_key,
         },
       })
-      if (error) throw error
-      throwEnvelope(data)
+      if (error) await throwFunctionInvokeError(error)
+      assertSuccessEnvelope(data)
     },
     async signOutLocal() {
       const { error } = await client.auth.signOut({ scope: 'local' })
