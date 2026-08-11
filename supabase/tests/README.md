@@ -77,3 +77,29 @@ WBS 2.1 adds `0030_wbs_2_1_account_store_schema.sql` and
 account/store schema, constraints, audit identity, least grants, shared reads,
 stale-session denial, and direct-write refusal. They add 73 assertions without
 replacing the earlier WBS 1.4–1.6 regression suites.
+
+WBS 2.2 adds exactly three focused suites without replacing any earlier
+regression:
+
+- `0032_wbs_2_2_contacts_schema.sql` proves the public/private field boundary,
+  one-store ownership, restrictive foreign keys, immutable identity, forced
+  RLS, and required indexes.
+- `0033_wbs_2_2_contacts_acl.sql` proves explicit table/sequence/function ACLs,
+  no direct private-table path, Realtime exclusion, empty-search-path
+  privileged functions, and no shadow claim authority.
+- `0034_wbs_2_2_contact_read_rpc.sql` proves the safe denial envelope,
+  super-admin reason gate, live session/member/department checks, sanitized
+  allow/deny audit, and zero sensitive canary leakage.
+
+The WBS 2.2 plans are frozen at 53, 35, and 46 assertions respectively, for an
+exact subtotal of 134. Evidence must record both this subtotal and the full
+pgTAP total; extra WBS 2.2 suites are not allowed.
+`scripts/verify-contact-access-runtime.mjs` separately uses local real Auth JWTs
+for anon, A1, A2, MA, B1, SA, disabled, inactive-department, old-session, and
+forged-metadata paths. It refuses non-local Supabase URLs and prints only
+sanitized counts. Any unauthorized plaintext, partial value, mask, tail,
+recoverable value, direct private-table/Realtime value, or audit canary is P0.
+
+Contact test fixtures must use synthetic canaries held only in process memory.
+Never paste canaries, raw RPC responses, JWTs, keys, local status output, names,
+contact channels, SQL errors, or stack traces into CI output or review evidence.
