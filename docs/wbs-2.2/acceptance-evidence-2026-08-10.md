@@ -1,6 +1,6 @@
 # WBS 2.2 联系人敏感边界验收证据
 
-状态：**技术门禁与 Agent 1/2/3 复核 PASS；第三方监理、Agent 0、合并与 main Quality Pending。**
+状态：**技术门禁、Agent 1/2/3 复核、第三方监理与 Agent 0 对 supervisor tail 的独立核验 PASS；当前 Agent 0 文档尾自身双 CI、用户 protected merge、Squash merge 与 main Quality Pending。**
 
 ## 1. 审查目标
 
@@ -40,6 +40,18 @@ merge-ref 冒充 implementation SHA。
 full pgTAP **12/393**、WBS 2.2 **134**、contact runtime **249 assertions / 9
 sessions / 1 stale-session case**、frontend **9/124**，私表、Realtime、未授权
 canary、敏感键、审计 canary、secret pattern 与 PII 命中均为 **0**。
+
+### Binding and supervisor tail Quality
+
+| Stage | Exact SHA | Push run / job | PR run / job | Steps | Result |
+| --- | --- | --- | --- | --- | --- |
+| Binding tail | `3f25aed465b3aebf233caed9ef89917eaa48243b` | `31408141762 / 93519397021` | `31408146113 / 93519412069` | 25/25 | **completed / success** |
+| Supervisor tail | `b54fb6e916b75c7def3988f86c86c70f960311e9` | `31449206958 / 93649855907` | `31449208829 / 93649860898` | 25/25 | **completed / success** |
+
+PR #14 reviewed head 与远端 `agent/wbs-2-2-contact-secrets` tip 在 Agent 0 核验时均为
+`b54fb6e916b75c7def3988f86c86c70f960311e9`。Supervisor tail 相对 binding tail
+仅新增监理报告并更新监理包，属于 docs-only tail。监理完成 24/24 检查并给出
+**PASS**，P0=0、P1=0；SUP-201 与 SUP-202 为不阻断的 P2。
 
 ## 3. 脱敏自动证据
 
@@ -81,19 +93,20 @@ canary、敏感键、审计 canary、secret pattern 与 PII 命中均为 **0**�
 - [Agent 2 client/mobile review](agent2-client-review-2026-08-10.md): **PASS**, P0=0, P1=0。
 - [Agent 3 quality review](agent3-quality-review-2026-08-10.md): **PASS**, P0=0, P1=0。
 
-## 6. 未完成治理门
+## 6. 治理门状态
 
-- Documentation-content tail `c82a463d5219a1c90731095eb5d5d3f0175000bc`
-  push/PR Quality: **completed / success，25/25**。
-- 当前五份证据文档 binding amendment 的新 exact-SHA push Quality: **Pending**。
-- 当前五份证据文档 binding amendment 的新 exact-SHA PR Quality: **Pending**。
-- Third-party supervisor disposition: **Pending**。
-- Agent 0 independent verification: **Pending**。
+- Documentation-content tail `c82a463d5219a1c90731095eb5d5d3f0175000bc` push/PR Quality: **completed / success，25/25**。
+- Binding tail `3f25aed465b3aebf233caed9ef89917eaa48243b` push/PR Quality: **completed / success，25/25**。
+- Third-party supervisor disposition: **PASS，24/24，P0=0 / P1=0**。
+- Supervisor tail `b54fb6e916b75c7def3988f86c86c70f960311e9` push/PR Quality: **completed / success，25/25**。
+- Agent 0 independent verification against supervisor tail `b54fb6e916b75c7def3988f86c86c70f960311e9`: **PASS**。
+- 当前 Agent 0 documentation-only tail 的 exact-SHA push/PR Quality: **Pending；本次新增文档与状态修订不能由 `b54fb6e9` 双 CI 自证**。
 - User-authorized protected Squash merge: **Pending**。
 - Resulting `main` Quality: **Pending**。
 - Formal progress change 13/54 → 14/54: **Pending**。
 
-当前 binding amendment 会协调修改全部五份证据文档（acceptance、Agent 1、
-Agent 2、Agent 3 与 third-party package），因此它不属于 `c82a463` 的已验证内容，
-不能由 `c82a463` 双 CI 自证。必须先提交新的 documentation-only exact SHA，并为
-该 SHA 取得新的 push/PR Quality，之后才能交第三方监理。
+当前 amendment 新增 Agent 0 记录，并同步更新 acceptance、supervisor report 与
+third-party package。
+它不属于已验证 supervisor tail `b54fb6e9`，不能由该尾双 CI 自证；必须形成新的
+documentation-only exact SHA 并取得自身 push/PR Quality 后，才可请求用户授权
+protected Squash merge。合并、main Quality 与正式进度在实际完成前继续保持 Pending。

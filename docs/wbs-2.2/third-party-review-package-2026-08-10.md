@@ -1,12 +1,14 @@
 # WBS 2.2 第三方监理包
 
-状态：**binding tail 双 CI 已通过，第三方监理已 PASS；Agent 0、protected merge
+状态：**binding tail 与 supervisor tail 双 CI 已通过，第三方监理及 Agent 0 对
+supervisor tail 的独立核验已 PASS；当前 Agent 0 文档尾自身双 CI、protected merge
 与 main Quality 仍为独立后续门禁。**
 
 监理结论：`docs/wbs-2.2/supervisor-review-2026-08-10.md` — **PASS**（24/24 检查）。
-Binding tail SHA `3f25aed465b3aebf233caed9ef89917eaa48243b` 的 push/PR Quality
-已绿；本文与监理结论共同组成 supervisor tail，入库后须对 then-current SHA
-再取得独立 push/PR Quality，随后由 Agent 0 核验。
+Binding tail SHA `3f25aed465b3aebf233caed9ef89917eaa48243b` 与 supervisor tail SHA
+`b54fb6e916b75c7def3988f86c86c70f960311e9` 的 push/PR Quality 均已绿；Agent 0
+已对 supervisor tail 完成独立核验。当前 amendment 仍须取得自身双 CI，之后才可
+请求用户授权 protected Squash merge。
 
 ## A. Review target
 
@@ -30,9 +32,12 @@ Binding tail SHA `3f25aed465b3aebf233caed9ef89917eaa48243b` 的 push/PR Quality
 - Content-tail PR run/job: `31407227201 / 93516398294` — completed / success /
   25 of 25 steps success; GitHub merge-ref bound to the reviewed tail head
 - Binding-tail SHA（五文档 amendment）: `3f25aed465b3aebf233caed9ef89917eaa48243b`
-- Binding-tail push run/job: `31408146113 / 93519412069` — completed / success / 25 of 25 steps
-- Binding-tail PR run/job: `31408141762 / 93519397021` — completed / success / 25 of 25 steps
-- Supervisor tail（监理结论）: `docs/wbs-2.2/supervisor-review-2026-08-10.md` — 入库后记录其 SHA 与双 CI
+- Binding-tail push run/job: `31408141762 / 93519397021` — completed / success / 25 of 25 steps
+- Binding-tail PR run/job: `31408146113 / 93519412069` — completed / success / 25 of 25 steps
+- Supervisor tail SHA: `b54fb6e916b75c7def3988f86c86c70f960311e9`
+- Supervisor-tail push run/job: `31449206958 / 93649855907` — completed / success / 25 of 25 steps
+- Supervisor-tail PR run/job: `31449208829 / 93649860898` — completed / success / 25 of 25 steps
+- Supervisor conclusion: `docs/wbs-2.2/supervisor-review-2026-08-10.md` — **PASS**, 24/24, P0=0, P1=0
 
 ## B. Evidence index
 
@@ -70,9 +75,9 @@ Binding tail SHA `3f25aed465b3aebf233caed9ef89917eaa48243b` 的 push/PR Quality
 - audit/lint/typecheck/test/build: PASS。
 - 360×800 five states: body/document width 360、panel width 320、horizontal overflow 0。
 
-上述脱敏计数已在 documentation-content tail 的 push 与 PR Quality 中再次一致
-核验。当前 binding amendment 未包含在该 tail 中，仍须由 amendment 自身双 CI
-复核这些状态后才能交第三方监理。
+上述脱敏计数已在 documentation-content、binding 与 supervisor tails 的 push/PR
+Quality 中一致复核。第三方监理已完成；当前 Agent 0 documentation-only amendment
+仍须取得自身双 CI，且不得用 supervisor tail 的既有 CI 自证。
 
 ## E. Required supervisor checks
 
@@ -129,19 +134,18 @@ Binding tail SHA `3f25aed465b3aebf233caed9ef89917eaa48243b` 的 push/PR Quality
 
 ## H. Agent 0 independent verification
 
-- Supervisor identity/reference verified：`docs/wbs-2.2/supervisor-review-2026-08-10.md`（待 Agent 0 核验）
-- PR head = remote tip = reviewed tail SHA：`3f25aed4`（监理已核验；Agent 0 复核）
-- Tail diff reviewed as docs-only：监理已核验（+540 仅文档）；Agent 0 复核
-- Exact-SHA push/PR Quality verified：binding tail `31408146113 / 31408141762` 双绿（监理已核验）；supervisor tail 待其自身双 CI
-- Open P0/P1 / CHANGES_REQUESTED：P0=0、P1=0、无 review 阻断（监理已核验）
-- Final decision：**Pending**（Agent 0）
+- Supervisor identity/reference verified：`docs/wbs-2.2/supervisor-review-2026-08-10.md` — **PASS**。
+- Review target：supervisor tail `b54fb6e916b75c7def3988f86c86c70f960311e9`。
+- PR head = remote branch tip = review target at verification time：**PASS**。
+- Supervisor tail diff：相对 binding tail `3f25aed4` 仅新增监理报告并更新监理包，**docs-only PASS**。
+- Exact-SHA push/PR Quality：`31449206958 / 93649855907` 与 `31449208829 / 93649860898`，均 **completed / success / 25 of 25**。
+- Supervisor checklist/disposition：24/24、PASS、P0=0、P1=0；SUP-201/SUP-202 为不阻断 P2。
+- Open P0/P1 / CHANGES_REQUESTED：P0=0、P1=0、无 review 阻断。
+- Final decision against supervisor tail：**PASS**（Agent 0）。
+- Immutable Agent 0 reference：`docs/wbs-2.2/agent0-final-verification-2026-08-11.md`。
 
-监理结论已作为 supervisor tail 写入，必须先提交并取得 supervisor tail 自身的
-push/PR Quality；随后才由 Agent 0 核验。合并与 main Quality 在实际发生前不得写
-PASS。
-
-当前五文档 binding amendment 必须先形成新的 exact SHA 并取得自身 push/PR
-Quality，才能交第三方监理。如果监理结论随后作为新的 docs-only supervisor tail
-入库，必须记录 review target 与 supervisor-tail SHA，并为 supervisor tail 再取得独立
-push/PR Quality；随后才由 Agent 0 核验。合并与 main Quality 在实际发生前不得写
-PASS。
+本次 amendment 新增 Agent 0 记录并同步更新 acceptance、supervisor report 与
+third-party package；它不在
+`b54fb6e9` 的已验证 tree 内，不能由 supervisor-tail CI 自证。必须先提交新的
+documentation-only exact SHA 并取得自身 push/PR Quality，随后才可请求用户授权
+protected Squash merge。合并、main Quality 与 14/54 在实际完成前不得写 PASS。

@@ -6,14 +6,14 @@
 - Reviewed binding-tail SHA：`3f25aed465b3aebf233caed9ef89917eaa48243b`
 - Implementation SHA：`6a3f4d1105ccb8345d2ce751f593ffaafafd4b89`
 - Implementation parent/base：`8d7401beaf82aaf725d30b6d30726d8b36a52a48`
-- Binding-tail push Quality：`31408146113 / 93519412069` — completed / success / 25 of 25 steps
-- Binding-tail PR Quality：`31408141762 / 93519397021` — completed / success / 25 of 25 steps
+- Binding-tail push Quality：`31408141762 / 93519397021` — completed / success / 25 of 25 steps
+- Binding-tail PR Quality：`31408146113 / 93519412069` — completed / success / 25 of 25 steps
 - Date / timezone：2026-08-10 / Asia/Shanghai
 - Checklist completed：24 / 24
 - Decision：**PASS**
 - Blocking findings：None
 - Non-blocking findings：2 P2（SUP-201、SUP-202），移交 WBS 4.2 跟进
-- Immutable signature/reference：本文件 SHA（supervisor tail）与 push/PR Quality run IDs 记录于监理包与验收证据
+- Immutable supervisor-tail reference：`b54fb6e916b75c7def3988f86c86c70f960311e9`；其 push/PR Quality run IDs 记录于监理包与验收证据
 
 ## Evidence binding（独立复算）
 
@@ -32,8 +32,8 @@
 
 | Event | Run / job | Reviewed head | Result |
 |---|---|---|---|
-| push | `31408146113 / 93519412069` | `3f25aed465b3aebf233caed9ef89917eaa48243b` | completed / success / 25 of 25 steps |
-| pull_request | `31408141762 / 93519397021` | `3f25aed465b3aebf233caed9ef89917eaa48243b` | completed / success / 25 of 25 steps |
+| push | `31408141762 / 93519397021` | `3f25aed465b3aebf233caed9ef89917eaa48243b` | completed / success / 25 of 25 steps |
+| pull_request | `31408146113 / 93519412069` | `3f25aed465b3aebf233caed9ef89917eaa48243b` | completed / success / 25 of 25 steps |
 
 两个 run 的关键 steps 均 success：Verify contact boundary contract、Verify contact access runtime、Test database policies and Auth contract、Verify real Auth sessions、Verify audit/event/observability runtime、Lint、Typecheck、Test、Build。
 
@@ -49,7 +49,7 @@ Binding tail 相对 implementation SHA 的 diff：仅 5 份 `docs/wbs-2.2/` 证�
 
 ### 2. Reviewed tail 的 push 与 PR Quality 均 completed/success
 
-**PASS。** push run `31408146113 / 93519412069`、PR run `31408141762 / 93519397021`，均 completed/success，25/25 steps success。
+**PASS。** push run `31408141762 / 93519397021`、PR run `31408146113 / 93519412069`，均 completed/success，25/25 steps success。
 
 ### 3. Tail diff 只含本 WBS 的证据文档，未改变实现
 
@@ -156,8 +156,13 @@ Binding tail 相对 implementation SHA 的 diff：仅 5 份 `docs/wbs-2.2/` 证�
 |---|---|---|---|---|
 | Implementation | `6a3f4d1105ccb8345d2ce751f593ffaafafd4b89` | `31405862026 / 93511915238` | `31405915945 / 93512096256` | 双绿 |
 | Content tail | `c82a463d5219a1c90731095eb5d5d3f0175000bc` | `31407223281 / 93516386450` | `31407227201 / 93516398294` | 双绿 |
-| Binding tail（本次监理目标） | `3f25aed465b3aebf233caed9ef89917eaa48243b` | `31408146113 / 93519412069` | `31408141762 / 93519397021` | 双绿 |
-| Supervisor tail（本文件） | 见本文 SHA | 见 CI run IDs | 见 CI run IDs | 入库后取得 |
+| Binding tail（本次监理目标） | `3f25aed465b3aebf233caed9ef89917eaa48243b` | `31408141762 / 93519397021` | `31408146113 / 93519412069` | 双绿 |
+| Supervisor tail（原始监理报告版本） | `b54fb6e916b75c7def3988f86c86c70f960311e9` | `31449206958 / 93649855907` | `31449208829 / 93649860898` | 双绿；Agent 0 已核验 |
+
+本文件当前又作为 Agent 0 documentation-only amendment 的一部分被修订，以纠正
+binding-tail push/PR 触发标签。该修订不属于 `b54fb6e9` 的 tree，不能由上述双 CI
+自证；它与 acceptance、third-party package、Agent 0 record 共同形成的新尾，其 exact
+SHA 与 push/PR Quality 在提交前保持 Pending。
 
 ## 结论
 
@@ -165,4 +170,7 @@ Binding tail 相对 implementation SHA 的 diff：仅 5 份 `docs/wbs-2.2/` 证�
 
 WBS 2.2 联系人敏感边界在 binding-tail SHA `3f25aed465b3aebf233caed9ef89917eaa48243b` 处满足全部 24 项监理检查。无开放 P0/P1。2 个 P2 非阻断建议移交 WBS 2.5/4.2 跟进。6 个核心文件 SHA-256 独立复算全部匹配，全量 pgTAP 393（WBS 2.2=134）与前端 9/124 经 git tree 独立核验。binding tail 双 CI 25/25 steps 全绿。Agent 1/2/3 绑定同一 implementation SHA 且 P0/P1=0。PR 无未关闭 review 阻断。docs-only tail 边界、Realtime 出口、SECURITY DEFINER 空 search_path、脱敏审计与前端无持久化 sink 均经代码级独立验证。
 
-本结论不授权 merge；后续仍须完成 Supervisor tail 入库、Agent 0 独立核验、用户 protected merge 授权、Squash merge 与 main Quality。
+本结论不授权 merge。历史 supervisor tail `b54fb6e9` 已入库并取得自身双 CI，Agent 0
+也已完成针对该尾的独立核验；当前四文档 amendment 仍须取得自身 exact-SHA push/PR
+Quality。之后仍须用户 protected merge 授权、Squash merge 与 main Quality；在实际
+完成前不得更新 14/54。
