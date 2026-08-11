@@ -1,13 +1,12 @@
 # WBS 2.2 第三方监理包
 
-状态：**implementation 与 documentation-content tail 技术证据已通过；当前五文档
-binding amendment 待自身双 CI 后方可交监理。**
+状态：**binding tail 双 CI 已通过，第三方监理已 PASS；Agent 0、protected merge
+与 main Quality 仍为独立后续门禁。**
 
-本文不预填监理 PASS。Supervisor、Agent 0、protected merge 与 main Quality 均为
-独立后续门禁。已验证的 documentation-content tail 是
-`c82a463d5219a1c90731095eb5d5d3f0175000bc`；当前为写入该绑定而修改的五文档
-amendment 不在该 SHA 中，不能用 `c82a463d5219a1c90731095eb5d5d3f0175000bc`
-的双 CI 自证。
+监理结论：`docs/wbs-2.2/supervisor-review-2026-08-10.md` — **PASS**（24/24 检查）。
+Binding tail SHA `3f25aed465b3aebf233caed9ef89917eaa48243b` 的 push/PR Quality
+已绿；本文与监理结论共同组成 supervisor tail，入库后须对 then-current SHA
+再取得独立 push/PR Quality，随后由 Agent 0 核验。
 
 ## A. Review target
 
@@ -30,7 +29,10 @@ amendment 不在该 SHA 中，不能用 `c82a463d5219a1c90731095eb5d5d3f0175000b
   25 of 25 steps success
 - Content-tail PR run/job: `31407227201 / 93516398294` — completed / success /
   25 of 25 steps success; GitHub merge-ref bound to the reviewed tail head
-- Current five-document binding amendment SHA and Quality: **Pending**
+- Binding-tail SHA（五文档 amendment）: `3f25aed465b3aebf233caed9ef89917eaa48243b`
+- Binding-tail push run/job: `31408146113 / 93519412069` — completed / success / 25 of 25 steps
+- Binding-tail PR run/job: `31408141762 / 93519397021` — completed / success / 25 of 25 steps
+- Supervisor tail（监理结论）: `docs/wbs-2.2/supervisor-review-2026-08-10.md` — 入库后记录其 SHA 与双 CI
 
 ## B. Evidence index
 
@@ -46,16 +48,16 @@ amendment 不在该 SHA 中，不能用 `c82a463d5219a1c90731095eb5d5d3f0175000b
 
 | Requirement | Internal disposition | Supervisor disposition |
 | --- | --- | --- |
-| structural/sensitive split | PASS | Pending |
-| private-table ACL/RLS/Realtime denial | PASS | Pending |
-| controlled plaintext RPC and safe envelope | PASS | Pending |
-| live session/member/department authorization | PASS | Pending |
-| real revoked-session stale JWT denial | PASS | Pending |
-| default `NOT_CLAIMED` role boundary | PASS | Pending |
-| reason Unicode bounds and sanitized audit | PASS | Pending |
-| strict frontend parser and memory clearing | PASS | Pending |
-| 360×800 five-state mobile evidence | PASS | Pending |
-| no WBS 2.3+ scope expansion | PASS | Pending |
+| structural/sensitive split | PASS | PASS |
+| private-table ACL/RLS/Realtime denial | PASS | PASS |
+| controlled plaintext RPC and safe envelope | PASS | PASS |
+| live session/member/department authorization | PASS | PASS |
+| real revoked-session stale JWT denial | PASS | PASS |
+| default `NOT_CLAIMED` role boundary | PASS | PASS |
+| reason Unicode bounds and sanitized audit | PASS | PASS |
+| strict frontend parser and memory clearing | PASS | PASS |
+| 360×800 five-state mobile evidence | PASS | PASS |
+| no WBS 2.3+ scope expansion | PASS | PASS |
 
 ## D. Sanitized evidence summary
 
@@ -74,56 +76,69 @@ amendment 不在该 SHA 中，不能用 `c82a463d5219a1c90731095eb5d5d3f0175000b
 
 ## E. Required supervisor checks
 
-- [ ] Branch tip、PR head 与 reviewed tail SHA 完全一致。
-- [ ] Reviewed tail 的 push 与 PR Quality 均 completed/success。
-- [ ] Tail diff 只含本 WBS 的证据文档，未改变实现。
-- [ ] Migration 与 5 个证据文件 SHA/hash 可复算。
-- [ ] `public.contacts` 无姓名、联系方式、mask、tail 或 recoverable hash。
-- [ ] `app_private.contact_secrets` 无 ordinary/service-role 直表与 Realtime 出口。
-- [ ] 两表 ENABLE/FORCE RLS，ACL 与 policy 符合冻结矩阵。
-- [ ] SECURITY DEFINER 全在 private schema，空 search_path，PUBLIC execute 已撤销。
-- [ ] 授权不信任 user metadata 或客户端 actor/role/department。
-- [ ] ordinary sales/manager 默认 `NOT_CLAIMED`。
-- [ ] super_admin 读取要求安全理由并产生脱敏审计。
-- [ ] 拒绝信封不含任何敏感键；允许空数据与拒绝可区分。
-- [ ] 真实 session 行被撤销后旧 JWT 精确拒绝且零副作用。
-- [ ] member/department 状态变化同样即时清除授权。
-- [ ] stale/superseded frontend response 不回写敏感内存。
-- [ ] 前端没有 storage/cache/service-worker/analytics/log sink。
-- [ ] 360×800 五态直接证据无横向溢出。
-- [ ] contact evidence fixture 未接入 production main。
-- [ ] pgTAP 393、runtime 249、frontend 124 与 exact-SHA CI 一致。
-- [ ] Linux 0600、secret[0,0,0,0]、PII0 可复核。
-- [ ] changed-file manifest 未进入联系人写入、画像、领取、商机、证件、AI、通知。
-- [ ] Agent 1/2/3 记录均绑定同一 implementation SHA 且 P0/P1=0。
-- [ ] GitHub review threads / requested changes 无未关闭阻断。
-- [ ] 证据、PR、日志没有真实客户数据、JWT、key、session 或原始 status JSON。
+- [x] Branch tip、PR head 与 reviewed tail SHA 完全一致。
+- [x] Reviewed tail 的 push 与 PR Quality 均 completed/success。
+- [x] Tail diff 只含本 WBS 的证据文档，未改变实现。
+- [x] Migration 与 5 个证据文件 SHA/hash 可复算。
+- [x] `public.contacts` 无姓名、联系方式、mask、tail 或 recoverable hash。
+- [x] `app_private.contact_secrets` 无 ordinary/service-role 直表与 Realtime 出口。
+- [x] 两表 ENABLE/FORCE RLS，ACL 与 policy 符合冻结矩阵。
+- [x] SECURITY DEFINER 全在 private schema，空 search_path，PUBLIC execute 已撤销。
+- [x] 授权不信任 user metadata 或客户端 actor/role/department。
+- [x] ordinary sales/manager 默认 `NOT_CLAIMED`。
+- [x] super_admin 读取要求安全理由并产生脱敏审计。
+- [x] 拒绝信封不含任何敏感键；允许空数据与拒绝可区分。
+- [x] 真实 session 行被撤销后旧 JWT 精确拒绝且零副作用。
+- [x] member/department 状态变化同样即时清除授权。
+- [x] stale/superseded frontend response 不回写敏感内存。
+- [x] 前端没有 storage/cache/service-worker/analytics/log sink。
+- [x] 360×800 五态直接证据无横向溢出。
+- [x] contact evidence fixture 未接入 production main。
+- [x] pgTAP 393、runtime 249、frontend 124 与 exact-SHA CI 一致。
+- [x] Linux 0600、secret[0,0,0,0]、PII0 可复核。
+- [x] changed-file manifest 未进入联系人写入、画像、领取、商机、证件、AI、通知。
+- [x] Agent 1/2/3 记录均绑定同一 implementation SHA 且 P0/P1=0。
+- [x] GitHub review threads / requested changes 无未关闭阻断。
+- [x] 证据、PR、日志没有真实客户数据、JWT、key、session 或原始 status JSON。
 
 ## F. Findings
 
 - Internal P0: **none**
 - Internal P1: **none**
-- Supervisor findings: **Pending**
+- Supervisor findings: 完整记录见 `docs/wbs-2.2/supervisor-review-2026-08-10.md`
+
+| ID | Severity | Description | Owner | Due | Retest SHA/evidence | Status |
+|---|---|---|---|---|---|---|
+| SUP-201 | P2 | runtime 断言下限锁定为 70 而实际为 249，掉到 70–248 时静态门不拦截 | 研发 | WBS 4.2 | N/A（非阻断） | Open |
+| SUP-202 | P2 | 360×800 无横向溢出几何结果依赖人工浏览器验收，未纳入自动化 gate | 研发 | WBS 2.5 | N/A（非阻断） | Open |
+
+- Open P0：None
+- Open P1：None
+- Open P2：2（SUP-201、SUP-202），均不阻断 PASS
 
 ## G. Supervisor disposition
 
-- Reviewer identity / organization: **Pending**
-- Reviewed exact tail SHA: **Pending**
-- Review date / timezone: **Pending**
-- Checklist completed: **Pending**
-- Blocking findings: **Pending**
-- Non-blocking findings: **Pending**
-- Disposition (`PASS` / `FAIL` / `CONDITIONAL`): **Pending**
-- Immutable signature/reference: **Pending**
+- Reviewer identity / organization：WorkBuddy Supervisor（独立第三方监理）
+- Reviewed exact tail SHA：`3f25aed465b3aebf233caed9ef89917eaa48243b`
+- Review date / timezone：2026-08-10 / Asia/Shanghai
+- Checklist completed：24 / 24
+- Blocking findings：None
+- Non-blocking findings：2 P2（SUP-201、SUP-202）
+- Disposition：**PASS**
+- Immutable signature/reference：`docs/wbs-2.2/supervisor-review-2026-08-10.md`（supervisor tail）；push/PR CI run IDs 见本文 A 节
 
 ## H. Agent 0 independent verification
 
-- Supervisor identity/reference verified: **Pending**
-- PR head = remote tip = reviewed tail SHA: **Pending**
-- Tail diff reviewed as docs-only: **Pending**
-- Exact-SHA push/PR Quality verified: **Pending**
-- Open P0/P1 / CHANGES_REQUESTED: **Pending**
-- Final decision: **Pending**
+- Supervisor identity/reference verified：`docs/wbs-2.2/supervisor-review-2026-08-10.md`（待 Agent 0 核验）
+- PR head = remote tip = reviewed tail SHA：`3f25aed4`（监理已核验；Agent 0 复核）
+- Tail diff reviewed as docs-only：监理已核验（+540 仅文档）；Agent 0 复核
+- Exact-SHA push/PR Quality verified：binding tail `31408146113 / 31408141762` 双绿（监理已核验）；supervisor tail 待其自身双 CI
+- Open P0/P1 / CHANGES_REQUESTED：P0=0、P1=0、无 review 阻断（监理已核验）
+- Final decision：**Pending**（Agent 0）
+
+监理结论已作为 supervisor tail 写入，必须先提交并取得 supervisor tail 自身的
+push/PR Quality；随后才由 Agent 0 核验。合并与 main Quality 在实际发生前不得写
+PASS。
 
 当前五文档 binding amendment 必须先形成新的 exact SHA 并取得自身 push/PR
 Quality，才能交第三方监理。如果监理结论随后作为新的 docs-only supervisor tail
