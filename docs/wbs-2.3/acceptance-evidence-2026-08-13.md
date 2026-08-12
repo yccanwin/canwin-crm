@@ -1,6 +1,6 @@
 # WBS 2.3 验收证据
 
-> 状态：implementation、五文档 content tail 与 binding amendment 已取得各自双 CI；第三方监理对 binding tail 给出 PASS；正式验收仍 Pending。当前监理报告与同步修改构成 supervisor documentation tail，不能用 binding-tail CI 自证本次 tail。
+> 状态：implementation、content、binding 与 supervisor documentation tail 均已取得各自双 CI；第三方监理与 Agent 0 均 PASS。正式验收仍 Pending。当前 Agent 0 记录与同步修改构成新的 documentation-only tail，不能使用 supervisor-tail CI 自证本次 tail。
 
 ## 1. 不可变版本与范围
 
@@ -61,8 +61,11 @@ PR run `31623500862` 的首次 job `94203915610` 在第一条 Auth Admin 请求�
 - Content-tail PR Quality：[31624489749](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749) / [94207256870](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749/job/94207256870)，reviewed head `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` / completed / success / 27 of 27。
 - Binding amendment SHA：`e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`；push `31624956872 / 94208859442`、PR `31624960245 / 94208872372`，均 completed / success / 27 of 27。
 - 第三方监理：**PASS / 24 of 24 / P0=0 / P1=0 / P2=0**，目标为 binding tail `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`。
-- 当前 supervisor documentation-tail SHA / push CI / PR CI：`Pending`。
-- Agent 0：`Pending`。
+- Supervisor documentation-tail SHA：`5f8f211cad5cf66682e806588d807600e477c7ce`。
+- Supervisor-tail Push Quality：`31625947704 / 94212222824`，completed / success / 27 of 27。
+- Supervisor-tail PR Quality：`31625953314 / 94212241996`，reviewed head `5f8f211cad5cf66682e806588d807600e477c7ce` / completed / success / 27 of 27。
+- Agent 0：**PASS** for supervisor tail `5f8f211cad5cf66682e806588d807600e477c7ce`；P0=0、P1=0、P2=0。
+- 当前 Agent 0 documentation-tail SHA / push CI / PR CI：`Pending`。
 - 用户 protected Squash 授权 / Squash merge / main Quality / 正式 `15/54`：`Pending`。
 
-新增证据文档不得使用前一 SHA 自证。五文档内容由 content tail `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` 的双 CI 证明，绑定信息由 binding tail `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967` 的双 CI 证明；当前 supervisor tail 不在该 tree 内，须取得自己的 exact-SHA push/PR Quality。Agent 0 尾之后仍须同样取得自身双 CI。
+新增证据文档不得使用前一 SHA 自证。五文档内容由 content tail `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` 的双 CI 证明，绑定信息由 binding tail `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967` 的双 CI 证明，监理报告由 supervisor tail `5f8f211cad5cf66682e806588d807600e477c7ce` 的双 CI 证明；当前 Agent 0 尾不在该 tree 内，须取得自己的 exact-SHA push/PR Quality 后，才可请求用户授权 protected Squash merge。

@@ -1,6 +1,6 @@
 # WBS 2.3 第三方监理包
 
-状态：**Supervisor PASS** for binding tail `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`；24/24，P0=0、P1=0、P2=0。当前 supervisor documentation tail 尚未取得自身双 CI，Agent 0 仍不得开始最终 disposition。
+状态：**Supervisor PASS** for binding tail `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`；24/24，P0=0、P1=0、P2=0。Supervisor documentation tail `5f8f211cad5cf66682e806588d807600e477c7ce` 已取得自身双 CI；Agent 0 对该 tail 独立核验 PASS。当前 Agent 0 documentation tail 自身 SHA/双 CI 仍 Pending。
 
 ## A. 不可变引用
 
@@ -78,8 +78,9 @@
 - Supervisor conclusion / checks 1–24：**PASS / 24 of 24** for `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`
 - Five-document content-tail SHA and its push/PR Quality：`a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` / completed / success / 27 of 27 for both triggers
 - Binding-amendment SHA and its push/PR Quality：`e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967` / completed / success / 27 of 27 for both triggers
-- Supervisor documentation-tail SHA and its push/PR Quality：`Pending`
-- Agent 0 independent verification：`Pending`
+- Supervisor documentation-tail SHA and its push/PR Quality：`5f8f211cad5cf66682e806588d807600e477c7ce` / push `31625947704 / 94212222824` / PR `31625953314 / 94212241996` / both completed / success / 27 of 27
+- Agent 0 independent verification：**PASS** for `5f8f211cad5cf66682e806588d807600e477c7ce`；P0=0、P1=0、P2=0
+- Agent 0 documentation-tail exact SHA and its push/PR Quality：`Pending`
 - User protected merge authorization：`Pending`
 - Squash merge / main Quality / formal `15/54`：`Pending`
 

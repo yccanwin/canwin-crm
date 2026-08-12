@@ -4,7 +4,7 @@
 
 **PASS**。对 binding tail exact SHA `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967` 完成 24/24 项独立检查；P0=0、P1=0、P2=0，无必须整改项。
 
-本结论不替代 Agent 0，不授权 merge，也不宣告 WBS 2.3 正式完成。当前报告与监理包/验收证据的同步修改构成新的 supervisor documentation tail；该 tail 的 exact SHA 与自身 push/PR Quality 在提交前为 `Pending`，不得使用 `e330eb0` 的 CI 自证。
+本结论不授权 merge，也不宣告 WBS 2.3 正式完成。历史 supervisor documentation tail 已固定为 `5f8f211cad5cf66682e806588d807600e477c7ce` 并取得自身双 CI，Agent 0 已对该 exact SHA 独立核验 PASS。当前 Agent 0 记录与同步修改不属于 `5f8f211` tree，构成新的 documentation-only tail，仍须取得自身双 CI。
 
 ## 1. 审查身份与不可变目标
 
@@ -55,7 +55,7 @@ Implementation PR run 的首次 job `94203915610` 在首次 Auth Admin 请求发
 21. **PASS — leak gates。** secret patterns `[0,0,0,0]`；PII、document/storage、forbidden portrait keys、unauthorized 与 audit canary 均 0；合成 fixture 不含真实数据。
 22. **PASS — CI topology/safety。** 23 authored => 27 GitHub steps；精确 1 Supabase start / 3 protected status / 1 functions serve；0600、mask、trap cleanup、raw output withheld 均由 static/controlled failure 证明。
 23. **PASS — Agent evidence。** Agent 1/2/3 均绑定 implementation SHA `97581aaf…`，各自 PASS，P0=0、P1=0，范围与计数一致。
-24. **PASS — evidence chain。** Implementation、五文档 content tail 与 binding amendment 均有自身 exact-SHA push/PR Quality；PR review/thread 无阻断。当前 supervisor tail 尚未产生 SHA，因此正确保持自身 CI Pending。
+24. **PASS — evidence chain。** Implementation、五文档 content tail、binding amendment 与 supervisor tail 均有自身 exact-SHA push/PR Quality；PR review/thread 无阻断。
 
 ## 3. 脱敏证据摘要
 
@@ -73,9 +73,11 @@ Implementation PR run 的首次 job `94203915610` 在首次 Auth Admin 请求发
 - P2：0
 - Mandatory remediation：none
 - Supervisor conclusion：**PASS** for binding tail `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`
-- Supervisor documentation-tail exact SHA / push Quality / PR Quality：`Pending`
-- Agent 0 independent verification：`Pending`
+- Supervisor documentation-tail exact SHA：`5f8f211cad5cf66682e806588d807600e477c7ce`
+- Supervisor-tail push / PR Quality：`31625947704 / 94212222824` / `31625953314 / 94212241996`，均 completed / success / 27 of 27
+- Agent 0 independent verification：**PASS** for `5f8f211cad5cf66682e806588d807600e477c7ce`；P0=0、P1=0、P2=0
+- Agent 0 documentation-tail exact SHA / push Quality / PR Quality：`Pending`
 - User protected Squash authorization：`Pending`
 - Squash merge / main Quality / formal `15/54`：`Pending`
 
-只有当前 supervisor tail 取得自身双 CI 后，才可交 Agent 0 独立终验。Agent 0、merge、main Quality 与父级台账不得从本 PASS 推导为已完成。
+只有当前 Agent 0 documentation tail 取得自身双 CI 后，才可请求用户授权 protected Squash merge。Merge、main Quality 与父级台账不得从 Agent 0 PASS 推导为已完成。
