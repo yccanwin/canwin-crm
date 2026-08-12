@@ -1,6 +1,6 @@
 # WBS 2.3 第三方监理包
 
-状态：`Pending review`。本包已装配 implementation 直接证据；当前五文档 documentation-content tail 及 binding amendment 尚未取得自身双 CI，第三方不得提前填写 Supervisor PASS。
+状态：`Pending review`。本包已装配 implementation 与五文档 content-tail 的直接证据；当前 binding amendment 尚未取得自身双 CI，第三方不得提前填写 Supervisor PASS。
 
 ## A. 不可变引用
 
@@ -13,7 +13,9 @@
 - Static / runtime / scale verifier SHA-256：`163fa9500bce6400fdc4aa8d5cfe54e0eb7c93e5537aa4b3f1fc4cd112897760` / `b2d5bd587abb5a07ec59274b50e557131a2b95899748b5fc14c27108a9d5d512` / `e87ad3ec502b6e63043e5c7edb3b361d13603a4db43a882365bbf3b6bfb69b93`。
 - Frontend contract / state / golden SHA-256：`e39d80b66730db4e9c79c28c47da77c9b0935269a8681bf668b166be64506ef7` / `443748708a6f0685a74cab2b63cc765687a6aceafb23af88bce79e5162f85e2f` / `03dc8e34317153b0e46a9de7bd355b13fe25654842b79fe88de551c00a3699d0`。
 - Mobile geometry evidence SHA-256：`90ac303e03c8e4b74fe5facb160abf7173e3dd85c8a5a173441983fbe120e648`。
-- Acceptance / Agent 1 / Agent 2 / Agent 3 records：本目录五文档 content tail 内；tail SHA 与自身双 CI `Pending`。
+- Acceptance / Agent 1 / Agent 2 / Agent 3 records：本目录五文档 content tail `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` 内。
+- Content-tail Push Quality：[31624485420](https://github.com/yccanwin/canwin-crm/actions/runs/31624485420) / [94207241719](https://github.com/yccanwin/canwin-crm/actions/runs/31624485420/job/94207241719)，completed / success / 27 of 27。
+- Content-tail PR Quality：[31624489749](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749) / [94207256870](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749/job/94207256870)，reviewed head `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` / completed / success / 27 of 27。
 
 ## B. Required supervisor checks
 
@@ -71,7 +73,7 @@
 
 - Supervisor identity / reviewed at UTC：`Pending`
 - Supervisor conclusion / checks 1–24：`Pending`
-- Five-document content-tail SHA and its push/PR Quality：`Pending`
+- Five-document content-tail SHA and its push/PR Quality：`a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` / completed / success / 27 of 27 for both triggers
 - Binding-amendment SHA and its push/PR Quality：`Pending`
 - Agent 0 independent verification：`Pending`
 - User protected merge authorization：`Pending`

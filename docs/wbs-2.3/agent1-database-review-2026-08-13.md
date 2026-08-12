@@ -10,9 +10,9 @@
 - Open P0：**0**
 - Open P1：**0**
 
-本记录只绑定上述 implementation exact SHA。它是 implementation CI 之后新增的
-documentation-only evidence tail，不属于下列 implementation runs 的被测内容；本记录未来
-提交后仍须取得自身 exact-head push/PR Quality，才可交付第三方监理。
+本记录只绑定上述 implementation exact SHA。其原始内容已进入五文档 documentation-content
+tail `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7`，并取得自身 push/PR Quality；当前回写该绑定
+信息的 amendment 不在 content tail 内，仍须取得新的 exact-head push/PR Quality。
 
 ## Exact-SHA Quality 证据
 
@@ -93,7 +93,8 @@ PII findings 均为 **0**。本记录不包含 key、JWT、password、session va
 
 ## 剩余治理门禁
 
-- 本 Agent 1 documentation tail 的 exact-SHA push/PR Quality：**Pending**。
+- 五文档 content tail：`a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7`；push `31624485420 / 94207241719`、PR `31624489749 / 94207256870`，均 **completed / success / 27 of 27**。
+- 当前 binding amendment 的 exact-SHA push/PR Quality：**Pending**。
 - 第三方监理复核与 disposition：**Pending**。
 - Agent 0 独立终验：**Pending**。
 - 用户授权的 protected Squash merge：**Pending**。

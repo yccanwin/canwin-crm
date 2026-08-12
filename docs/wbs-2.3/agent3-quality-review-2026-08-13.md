@@ -85,9 +85,9 @@ push job 与 PR rerun job 的 GitHub step 摘要均确认 audit、lint、typeche
 
 ## 5. 尚未完成的门禁
 
-- 本文档当前为未提交 documentation tail，不能自证；其 future exact SHA 及自身 push/PR Quality：`Pending`。
+- 本文档原始内容已进入五文档 content tail `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7`；push `31624485420 / 94207241719`、PR `31624489749 / 94207256870` 均 completed / success / 27 of 27。
+- 当前回写 content-tail 绑定信息的 binding amendment exact SHA 及自身 push/PR Quality：`Pending`。
 - 第三方 Supervisor 审查与 disposition：`Pending`。
 - Agent 0 独立终验：`Pending`。
 - 用户 protected Squash merge 授权、merge、main Quality：`Pending`。
 - WBS 2.3 正式验收与项目进度更新：`Pending`。
-

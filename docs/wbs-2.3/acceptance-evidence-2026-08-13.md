@@ -1,6 +1,6 @@
 # WBS 2.3 验收证据
 
-> 状态：implementation evidence assembled；正式验收仍 Pending。本文件只绑定 implementation exact SHA，当前五文档 documentation-content tail 尚未提交，不能用 implementation CI 自证。
+> 状态：implementation evidence 与五文档 documentation-content tail 已取得各自双 CI；正式验收仍 Pending。当前为回写 content-tail 绑定信息的 binding amendment，不能用 content-tail CI 自证本次 amendment。
 
 ## 1. 不可变版本与范围
 
@@ -55,11 +55,13 @@ PR run `31623500862` 的首次 job `94203915610` 在第一条 Auth Admin 请求�
 
 - Auth runtime：`44 assertions`；contact runtime：`249 / 9 sessions / 1 stale`；observability runtime：`87 / 16 workers`。
 - Dependency audit：0 high vulnerabilities；credential failure path：secret 未暴露、状态日志 `0600`、cleanup 完成。
-- Agent 1 / Agent 2 / Agent 3：各自记录正在形成；只有其文档进入 content tail 后才可由该 tail 自身 CI 证明。
-- 当前五文档 documentation-content tail SHA / push CI / PR CI：`Pending`。
+- Agent 1 / Agent 2 / Agent 3：各自独立记录已进入同一五文档 content tail，结论均为 PASS，P0/P1 均为 0。
+- 五文档 documentation-content tail SHA：`a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7`。
+- Content-tail Push Quality：[31624485420](https://github.com/yccanwin/canwin-crm/actions/runs/31624485420) / [94207241719](https://github.com/yccanwin/canwin-crm/actions/runs/31624485420/job/94207241719)，completed / success / 27 of 27。
+- Content-tail PR Quality：[31624489749](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749) / [94207256870](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749/job/94207256870)，reviewed head `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` / completed / success / 27 of 27。
 - Binding amendment SHA / 双 CI：`Pending`。
 - 第三方监理：`Pending`。
 - Agent 0：`Pending`。
 - 用户 protected Squash 授权 / Squash merge / main Quality / 正式 `15/54`：`Pending`。
 
-新增证据文档不得使用前一 SHA 自证。当前五文档 content tail、后续 binding amendment、监理尾与 Agent 0 尾均必须分别取得自身 exact-SHA push/PR Quality，才能进入下一治理门。
+新增证据文档不得使用前一 SHA 自证。原五文档内容已由 content tail `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` 的双 CI 证明；本次回写不在该 tree 内，须形成新的 binding-amendment SHA 并取得自身双 CI。监理尾与 Agent 0 尾之后仍须分别取得自身 exact-SHA push/PR Quality。
