@@ -49,7 +49,28 @@ select ok(exists(select 1 from pg_indexes where schemaname='public' and indexnam
 select ok(exists(select 1 from pg_indexes where schemaname='public' and indexname='store_derived_portrait_values_department_freshness_idx'),'derived department filter index exists');
 select ok(exists(select 1 from pg_indexes where schemaname='app_private' and indexname='store_derived_portrait_history_current_timeline_idx'),'history current timeline index exists');
 select ok(exists(select 1 from pg_indexes where schemaname='app_private' and indexname='store_derived_portrait_history_store_field_idx'),'history store timeline index exists');
-select ok((select indexdef like '%USING gin (text_search_value extensions.gin_trgm_ops)%WHERE ((status = ''active''::text) AND (source_kind = ''manual''::text) AND (value_type = ''text''::text))' from pg_indexes where schemaname='public' and indexname='store_portrait_values_text_trgm_idx'),'trigram index covers active manual text rows without cross-table predicate');
+select ok(exists(
+  select 1
+  from pg_index i
+  join pg_class idx on idx.oid=i.indexrelid
+  join pg_class tbl on tbl.oid=i.indrelid
+  join pg_namespace tbl_ns on tbl_ns.oid=tbl.relnamespace
+  join pg_am am on am.oid=idx.relam
+  join pg_attribute attr on attr.attrelid=tbl.oid and attr.attnum=i.indkey[0]
+  join pg_opclass opc on opc.oid=i.indclass[0]
+  join pg_namespace opc_ns on opc_ns.oid=opc.opcnamespace
+  where tbl_ns.nspname='public'
+    and tbl.relname='store_portrait_values'
+    and idx.relname='store_portrait_values_text_trgm_idx'
+    and am.amname='gin'
+    and attr.attname='text_search_value'
+    and opc_ns.nspname='extensions'
+    and opc.opcname='gin_trgm_ops'
+    and i.indpred is not null
+    and pg_get_expr(i.indpred,i.indrelid) like '%status%active%'
+    and pg_get_expr(i.indpred,i.indrelid) like '%source_kind%manual%'
+    and pg_get_expr(i.indpred,i.indrelid) like '%value_type%text%'
+),'trigram index covers active manual text rows without cross-table predicate');
 select is((select count(*) from pg_trigger where tgrelid in('public.portrait_field_definitions'::regclass,'public.portrait_field_options'::regclass,'public.store_portrait_values'::regclass,'public.store_portrait_value_options'::regclass,'public.store_derived_portrait_values'::regclass,'app_private.store_derived_portrait_history'::regclass) and not tgisinternal),17::bigint,'all lifecycle and append-only triggers exist');
 select is((select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='app_private' and p.proname in('protect_portrait_definition','validate_portrait_option','validate_store_portrait_value','validate_store_portrait_value_option','require_portrait_multi_options','validate_derived_portrait_value','validate_derived_portrait_history','reject_portrait_mutation') and not p.prosecdef),8::bigint,'all trigger helpers are security invoker');
 select is((select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='app_private' and p.proname in('protect_portrait_definition','validate_portrait_option','validate_store_portrait_value','validate_store_portrait_value_option','require_portrait_multi_options','validate_derived_portrait_value','validate_derived_portrait_history','reject_portrait_mutation','portrait_current_department_id') and position('search_path=' in array_to_string(p.proconfig,','))>0),9::bigint,'all private helpers fix empty search path');
