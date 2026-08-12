@@ -292,14 +292,14 @@ async function main() {
       values
         (${sqlLiteral(`p23_text_${runId.replaceAll('-', '_')}`.slice(0,63))},'Text','text','manual','store_global','active',false,true,1,${users.SA.memberId},${users.SA.memberId},null,null),
         (${sqlLiteral(`p23_bool_${runId.replaceAll('-', '_')}`.slice(0,63))},'Boolean','boolean','manual','store_global','active',false,false,2,${users.SA.memberId},${users.SA.memberId},null,null)
-      returning id,field_key
+      returning id,field_key,value_type
     ), manual_values as (
       insert into public.store_portrait_values(store_id,field_definition_id,value_type,revision,text_value,boolean_value,created_by_member_id,updated_by_member_id)
       select (select id from s),id,value_type,1,
         case when value_type='text' then 'synthetic searchable portrait' end,
         case when value_type='boolean' then false end,
         ${users.SA.memberId},${users.SA.memberId}
-      from public.portrait_field_definitions where id in (select id from defs) and source_kind='manual'
+      from defs
       returning id
     ), legal_value as (
       insert into public.store_derived_portrait_values
