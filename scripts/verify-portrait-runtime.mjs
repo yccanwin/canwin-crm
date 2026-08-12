@@ -285,7 +285,7 @@ async function main() {
       values(${sqlLiteral(`Synthetic Portrait ${runId}`)},${users.SA.memberId},${users.SA.memberId}) returning id
     ), s as (
       insert into public.stores(account_id,name,created_by_member_id,updated_by_member_id)
-      select id,${sqlLiteral(`Synthetic Store ${runId}`)},${users.SA.memberId},${users.SA.memberId} from a returning id
+      select id,${sqlLiteral(`Synthetic Store ${runId}`)},${users.SA.memberId},${users.SA.memberId} from a returning id,public_id
     ), defs as (
       insert into public.portrait_field_definitions
         (field_key,label,value_type,source_kind,context_scope,status,is_read_only,allow_keyword_search,sort_order,created_by_member_id,updated_by_member_id,created_by_system,updated_by_system)
@@ -319,7 +319,7 @@ async function main() {
     )
     select json_build_object(
       'account_id',(select id from a),'store_id',(select id from s),
-      'store_public_id',(select public_id from public.stores where id=(select id from s)),
+      'store_public_id',(select public_id from s),
       'definition_ids',(select json_agg(id) from defs),
       'definition_count',(select count(*) from defs),'manual_count',(select count(*) from manual_values),
       'derived_count',(select count(*) from legal_value)+(select count(*) from license_value)+(select count(*) from dept_a_value)
@@ -360,6 +360,7 @@ async function main() {
   assert(fixture.definition_count === 2)
   assert(fixture.manual_count === 2)
   assert(fixture.derived_count === 3)
+  assert(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(fixture.store_public_id))
 
   safeStage = 'RT23-03A'
   const catalogs = {}
