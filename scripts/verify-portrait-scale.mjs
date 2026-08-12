@@ -30,6 +30,7 @@ let functionalErrors = 0
 let transportErrors = 0
 let diskSpillCount = 0
 let intendedIndexUsed = false
+let safePlanSummary = { classification:'NOT_COLLECTED' }
 function fail() { throw new Error('PORTRAIT_SCALE_FAILED') }
 function sqlLiteral(value) { return `'${String(value).replaceAll("'", "''")}'` }
 function scanEvidence(fragments, canaries) {
@@ -71,6 +72,50 @@ function inspectPlan(node, state) {
   if (String(node['Index Name'] ?? '') === state.targetIndex) state.index = true
   state.spill += Number(node['Temp Read Blocks'] ?? 0) + Number(node['Temp Written Blocks'] ?? 0)
   for (const child of node.Plans ?? []) inspectPlan(child, state)
+}
+function safeNumber(value) {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null
+}
+function summarizePlan(node, targetIndex, indexMethods) {
+  const allowedNodeTypes = new Set([
+    'Aggregate', 'Bitmap Heap Scan', 'Bitmap Index Scan', 'CTE Scan', 'Hash', 'Hash Join',
+    'Index Only Scan', 'Index Scan', 'Materialize', 'Nested Loop', 'Seq Scan', 'Sort',
+  ])
+  const scans = []
+  let nodeCount = 0
+  let truncated = false
+  let targetSeen = false
+  let otherIndexSeen = false
+  let seqScanSeen = false
+  function visit(current) {
+    if (!current || typeof current !== 'object') return
+    nodeCount += 1
+    if (nodeCount > 64) { truncated = true; return }
+    const rawNodeType = String(current['Node Type'] ?? '')
+    const nodeType = allowedNodeTypes.has(rawNodeType) ? rawNodeType : 'OTHER'
+    const rawIndexName = String(current['Index Name'] ?? '')
+    const safeIndexName = /^[a-z_][a-z0-9_]{0,62}$/.test(rawIndexName) ? rawIndexName : null
+    const rawIndexMethod = safeIndexName ? indexMethods.get(safeIndexName) : null
+    const indexMethod = ['gin','btree','gist','brin','hash','spgist'].includes(rawIndexMethod) ? rawIndexMethod : rawIndexMethod ? 'other' : null
+    const indexClass = rawIndexName === targetIndex ? 'target_gin' : rawIndexName ? 'other_index' : 'none'
+    if (indexClass === 'target_gin') targetSeen = true
+    if (indexClass === 'other_index') otherIndexSeen = true
+    if (nodeType === 'Seq Scan') seqScanSeen = true
+    if ((nodeType.includes('Scan') || indexClass !== 'none') && scans.length < 16) {
+      scans.push({
+        node_type:nodeType, index_class:indexClass, index_name:safeIndexName, index_method:indexMethod,
+        plan_rows:safeNumber(current['Plan Rows']), actual_rows:safeNumber(current['Actual Rows']),
+        actual_loops:safeNumber(current['Actual Loops']),
+        rows_removed_by_filter:safeNumber(current['Rows Removed by Filter']),
+      })
+    } else if ((nodeType.includes('Scan') || indexClass !== 'none') && scans.length >= 16) truncated = true
+    for (const child of current.Plans ?? []) visit(child)
+  }
+  visit(node)
+  const classification = targetSeen ? 'TARGET_GIN' : otherIndexSeen ? 'OTHER_INDEX'
+    : seqScanSeen ? 'SEQ_SCAN' : scans.length ? 'NO_TARGET_INDEX' : 'NO_SCAN_NODE'
+  return { classification, checker_consistent:null, target_seen:targetSeen, node_count:Math.min(nodeCount,64), truncated, scans }
 }
 
 async function main() {
@@ -163,6 +208,22 @@ async function main() {
     if (controlCanaryCount !== canaries.length) fail()
     const intendedIndexName = runPsql(`select indexname from pg_indexes where schemaname=${sqlLiteral(schema)} and tablename='store_portrait_values' and indexdef like '%USING gin%' and indexdef like '%text_search_value%';`)
     if (!intendedIndexName) fail()
+    const indexCatalog = JSON.parse(runPsql(`
+      select coalesce(json_agg(json_build_object('name',idx.relname,'method',am.amname) order by idx.relname),'[]'::json)::text
+      from pg_index pi
+      join pg_class tbl on tbl.oid=pi.indrelid
+      join pg_namespace ns on ns.oid=tbl.relnamespace
+      join pg_class idx on idx.oid=pi.indexrelid
+      join pg_am am on am.oid=idx.relam
+      where ns.nspname=${sqlLiteral(schema)} and tbl.relname='store_portrait_values';
+    `))
+    const indexMethods = new Map()
+    for (const entry of indexCatalog) {
+      if (!entry || !/^[a-z_][a-z0-9_]{0,62}$/.test(String(entry.name ?? ''))
+        || !['gin','btree','gist','brin','hash','spgist'].includes(String(entry.method ?? ''))) fail()
+      indexMethods.set(entry.name, entry.method)
+    }
+    if (indexMethods.get(intendedIndexName) !== 'gin') fail()
 
     safeStage = 'PF23-02'
     const workers = []
@@ -252,20 +313,34 @@ async function main() {
     if (eligibleKeywordResults !== 25) fail()
     const planText = runPsql(`
       explain(analyze,buffers,format json)
-      select count(*) from ${schema}.store_portrait_values v
+      with keyword_hits as materialized (
+        select store_id,field_definition_id from ${schema}.store_portrait_values
+        where status='active' and source_kind='manual' and value_type='text'
+          and text_search_value like '%portrait-399%'
+      )
+      select count(*) from keyword_hits v
       join ${schema}.portrait_field_definitions d on d.id=v.field_definition_id
       where d.status='active' and d.source_kind='manual' and d.privacy_class='shared_non_sensitive'
         and d.allow_keyword_search and d.value_type='text'
-        and v.field_definition_id=1 and v.status='active' and v.source_kind='manual' and v.value_type='text'
-        and v.text_search_value like '%portrait-399%';
+        and d.id=1;
     `)
     evidenceFragments.push(planText)
     const plan = JSON.parse(planText)
     const state = { index: false, spill: 0, targetIndex: intendedIndexName }
     inspectPlan(plan?.[0]?.Plan, state)
+    safePlanSummary = summarizePlan(plan?.[0]?.Plan, intendedIndexName, indexMethods)
+    safePlanSummary.checker_consistent = safePlanSummary.target_seen === state.index
+    if (!safePlanSummary.checker_consistent) safePlanSummary.classification = 'CHECKER_MISMATCH'
+    const planSummaryScan = scanEvidence([JSON.stringify(safePlanSummary)], canaries)
+    if (planSummaryScan.secret_pattern_counts.some((count) => count !== 0)
+      || planSummaryScan.pii_pattern_count !== 0
+      || planSummaryScan.document_storage_canary_hits !== 0
+      || planSummaryScan.forbidden_portrait_key_hits !== 0) {
+      safePlanSummary = { classification:'WITHHELD_BY_SCANNER' }
+    }
     intendedIndexUsed = state.index
     diskSpillCount = state.spill
-    if (!intendedIndexUsed || diskSpillCount !== 0) fail()
+    if (!safePlanSummary.checker_consistent || !intendedIndexUsed || diskSpillCount !== 0) fail()
 
     const auditCanaryHits = Number(runPsql(`select count(*) from public.audit_log where ${canaries.map((canary) => `safe_data::text like ${sqlLiteral(`%${canary}%`)}`).join(' or ')};`))
     if (auditCanaryHits !== 0) fail()
@@ -302,6 +377,7 @@ async function main() {
 
 main().catch(() => {
   console.error(JSON.stringify({ status:'FAIL', stage:safeStage, functional_errors:functionalErrors,
-    transport_errors:transportErrors, intended_index_used:intendedIndexUsed, disk_spill_count:diskSpillCount }))
+    transport_errors:transportErrors, intended_index_used:intendedIndexUsed, disk_spill_count:diskSpillCount,
+    plan_summary:safePlanSummary }))
   process.exit(1)
 })

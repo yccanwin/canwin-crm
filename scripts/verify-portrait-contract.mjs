@@ -255,10 +255,29 @@ for (const [source, checks] of [[runtime, [
 }
 forbidMatch(scale, /\boffset\s+\d+/i, 'Stable-page scale proof must use keyset pagination and must not use OFFSET.')
 forbidMatch(scale, /secret_pattern_counts\s*:\s*\[\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\]|pii_pattern_count\s*:\s*0|document_storage_canary_hits\s*:\s*0|audit_canary_hits\s*:\s*0/, 'Scale evidence must compute leak counters from executed scans rather than hard-code zero.')
-const scaleIndexProbe = scale.slice(scale.indexOf("safeStage = 'PF23-04'"), scale.indexOf('evidenceFragments.push(planText)'))
-requireMatch(scaleIndexProbe, /eligibleKeywordResults\s*!==\s*25/, 'Keyword eligibility probe must require the exact selective result count.')
-requireMatch(scaleIndexProbe, /explain\s*\(\s*analyze\s*,\s*buffers\s*,\s*format\s+json\s*\)[\s\S]*?join\s+\$\{schema\}\.portrait_field_definitions[\s\S]*?allow_keyword_search[\s\S]*?text_search_value\s+like\s+'%portrait-399%'/i, 'Keyword index probe must retain the live definition eligibility join and selective trigram predicate.')
+const scaleIndexProbe = scale.slice(scale.indexOf('const planText'), scale.indexOf('evidenceFragments.push(planText)'))
+const scaleEligibilityProbe = scale.slice(scale.indexOf('const eligibleKeywordResults'), scale.indexOf('const planText'))
+requireMatch(scaleEligibilityProbe, /eligibleKeywordResults\s*!==\s*25/, 'Keyword eligibility probe must require the exact selective result count.')
+for (const fragment of ["v.status='active'", "v.source_kind='manual'", "v.value_type='text'"]) {
+  requireMatch(scaleEligibilityProbe, new RegExp(fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `Keyword eligibility count must retain ${fragment}.`)
+}
+for (const [probe, label, fieldPredicate] of [[scaleEligibilityProbe, 'eligibility count', 'v.field_definition_id=1'], [scaleIndexProbe, 'materialized plan', 'd.id=1']]) {
+  requireMatch(probe, /join\s+\$\{schema\}\.portrait_field_definitions\s+d\s+on\s+d\.id=v\.field_definition_id/i, `Keyword ${label} must join the live definition catalog.`)
+  for (const fragment of ["d.status='active'", "d.source_kind='manual'", "d.privacy_class='shared_non_sensitive'", 'd.allow_keyword_search', "d.value_type='text'", fieldPredicate, "text_search_value like '%portrait-399%'"]) {
+    requireMatch(probe, new RegExp(fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `Keyword ${label} must retain ${fragment}.`)
+  }
+}
+requireMatch(scaleIndexProbe, /explain\s*\(\s*analyze\s*,\s*buffers\s*,\s*format\s+json\s*\)[\s\S]*?with\s+keyword_hits\s+as\s+materialized\s*\([\s\S]*?status='active'[\s\S]*?source_kind='manual'[\s\S]*?value_type='text'[\s\S]*?text_search_value\s+like\s+'%portrait-399%'/i, 'Keyword index probe must materialize the partial-GIN candidate scan before the live definition eligibility join.')
 forbidMatch(scaleIndexProbe, /\border\s+by\b|\blimit\s+\d+/i, 'Keyword index probe must not conflate the GIN proof with pagination ordering or limits.')
+forbidMatch(scaleIndexProbe, /keyword_hits[\s\S]*?field_definition_id\s*=\s*1[\s\S]*?\)/i, 'The materialized keyword candidate scan must not be narrowed by a field id before the GIN probe.')
+requireMatch(scale, /safePlanSummary\s*=\s*summarizePlan[\s\S]*?scanEvidence\(\[JSON\.stringify\(safePlanSummary\)\],\s*canaries\)[\s\S]*?WITHHELD_BY_SCANNER/, 'Scale failure diagnostics must summarize and rescan the plan before output.')
+requireMatch(scale, /nodeCount\s*>\s*64[\s\S]*?scans\.length\s*<\s*16/, 'Scale plan diagnostics must cap total and scan-node output.')
+requireMatch(scale, /\^\[a-z_\]\[a-z0-9_\]\{0,62\}\$[\s\S]*?\['gin','btree','gist','brin','hash','spgist'\][\s\S]*?checker_consistent\s*=\s*safePlanSummary\.target_seen\s*===\s*state\.index[\s\S]*?CHECKER_MISMATCH/, 'Scale plan diagnostics must sanitize index names/methods and detect checker disagreement.')
+requireMatch(scale, /return\s*\{\s*classification,\s*checker_consistent:null,\s*target_seen:targetSeen,\s*node_count:Math\.min\(nodeCount,64\),\s*truncated,\s*scans\s*\}/, 'Scale plan diagnostics must keep an exact top-level safe key set.')
+requireMatch(scale, /scans\.push\(\{\s*node_type:nodeType,\s*index_class:indexClass,\s*index_name:safeIndexName,\s*index_method:indexMethod,\s*plan_rows:safeNumber\(current\['Plan Rows'\]\),\s*actual_rows:safeNumber\(current\['Actual Rows'\]\),\s*actual_loops:safeNumber\(current\['Actual Loops'\]\),\s*rows_removed_by_filter:safeNumber\(current\['Rows Removed by Filter'\]\),?\s*\}\)/, 'Scale plan diagnostics must keep an exact nested scan-node safe key set.')
+const scalePlanSummaryBuilder = scale.slice(scale.indexOf('function summarizePlan'), scale.indexOf('async function main'))
+forbidMatch(scalePlanSummaryBuilder, /current\[['"](?:Filter|Index Cond|Recheck Cond|Output|Relation Name|Schema|Alias|Plans Removed|Rows Removed by Index Recheck)['"]\]/, 'Scale plan diagnostics must not copy raw plan conditions, output, relation, schema, alias, or recheck fields.')
+forbidMatch(scale, /plan_summary\s*:\s*(?:planText|plan|evidenceFragments|migrationText|sourceBinding)/, 'Scale failure output must never expose a raw plan, SQL, migration, source binding, or evidence buffer.')
 
 const portraitContract = read('apps/web/src/portrait/portrait-contract.ts')
 const portraitState = read('apps/web/src/portrait/portrait-state.ts')
