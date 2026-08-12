@@ -339,6 +339,7 @@ const normalizedWorkflow = workflow.replace(/\r\n/g, '\n');
 const startStep = workflowStep(normalizedWorkflow, 'Start local Supabase');
 const runtimeStep = workflowStep(normalizedWorkflow, 'Verify real Auth sessions');
 const contactRuntimeStep = workflowStep(normalizedWorkflow, 'Verify contact access runtime');
+const portraitRuntimeStep = workflowStep(normalizedWorkflow, 'Verify portrait runtime and performance');
 for (const [name, step, expectedHash] of [
   ['Start local Supabase', startStep, '2cc6007269bf5526f99d2a78aca03752053a3237c94c40967dbf83a3f256bf9a'],
   ['Verify real Auth sessions', runtimeStep, 'f2579e55e6050339a1379066f1fce77f53c798699a227e23fb69adccee4325d6'],
@@ -361,6 +362,7 @@ requireMatch(workflow, /start_status=\$\?[\s\S]{0,240}\bexit\s+"\$start_status"/
 requireMatch(workflow, /^\s*run:\s*npx\s+supabase\s+test\s+db\s+--local\s*$/m, 'Quality must run the entire local pgTAP suite without selecting one file.');
 requireMatch(runtimeStep, /^\s{10}if ! status_json="\$\(npx supabase status -o json 2>"\$status_log"\)"; then$/m, 'Quality must capture Supabase status while withholding credential-bearing stderr.');
 requireMatch(contactRuntimeStep, /^\s{10}if ! status_json="\$\(npx supabase status -o json 2>"\$status_log"\)"; then$/m, 'Quality contact runtime must capture Supabase status while withholding credential-bearing stderr.');
+requireMatch(portraitRuntimeStep, /^\s{10}if ! status_json="\$\(npx supabase status -o json 2>"\$status_log"\)"; then$/m, 'Quality portrait runtime must capture Supabase status while withholding credential-bearing stderr.');
 for (const variable of ['CANWIN_TEST_API_URL', 'CANWIN_TEST_PUBLISHABLE_KEY', 'CANWIN_TEST_SECRET_KEY', 'CANWIN_TEST_FUNCTION_URL']) {
   if (!workflow.includes(variable)) failures.push(`Quality must provide ${variable} from local Supabase status.`);
 }
@@ -380,7 +382,7 @@ forbidMatch(normalizedWorkflow, /uses:\s*actions\/upload-artifact(?:@|\s|$)/i, '
 const normalizedShellCommands = normalizedWorkflow.replace(/\\\n[\t ]*/g, ' ');
 for (const [pattern, label, expected] of [
   [/\bsupabase[\t ]+start\b/g, 'supabase start', 1],
-  [/\bsupabase[\t ]+status[\t ]+-o[\t ]+json\b/g, 'supabase status -o json', 2],
+  [/\bsupabase[\t ]+status[\t ]+-o[\t ]+json\b/g, 'supabase status -o json', 3],
   [/\bsupabase[\t ]+functions[\t ]+serve\b/g, 'supabase functions serve', 1],
 ]) {
   const actual = [...normalizedShellCommands.matchAll(pattern)].length;
@@ -405,6 +407,7 @@ const allowedSensitiveReferenceLines = new Set([
   'if npx supabase start >"$start_log" 2>&1; then',
   'status_log="$RUNNER_TEMP/canwin-supabase-status.log"',
   'status_log="$RUNNER_TEMP/canwin-contact-status.log"',
+  'status_log="$RUNNER_TEMP/canwin-portrait-status.log"',
   'function_env="$RUNNER_TEMP/canwin-functions.env"',
   'edge_log="$RUNNER_TEMP/canwin-edge.log"',
   'rm -f -- "$status_log" "$function_env" "$edge_log"',

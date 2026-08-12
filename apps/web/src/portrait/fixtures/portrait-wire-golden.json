@@ -1,0 +1,279 @@
+{
+  "fixture_version": 1,
+  "synthetic_only": true,
+  "catalog_envelope": {
+    "schema_version": 1,
+    "fields": [
+      {
+        "schema_version": 1,
+        "public_id": "81000000-0000-4000-8000-000000000001",
+        "field_key": "business_note",
+        "label": "经营特点",
+        "description": "合成非敏感文本画像",
+        "value_type": "text",
+        "source_kind": "manual",
+        "privacy_level": "shared_non_sensitive",
+        "context_scope": "store_global",
+        "status": "active",
+        "sort_order": 1,
+        "constraints": { "min_length": 1, "max_length": 500 },
+        "allow_keyword_search": true,
+        "allowed_filter_operators": ["equals", "prefix"],
+        "capabilities": { "can_set": false, "can_clear": false },
+        "options": []
+      },
+      {
+        "schema_version": 1,
+        "public_id": "81000000-0000-4000-8000-000000000002",
+        "field_key": "business_category",
+        "label": "经营品类",
+        "description": null,
+        "value_type": "single_select",
+        "source_kind": "manual",
+        "privacy_level": "shared_non_sensitive",
+        "context_scope": "store_global",
+        "status": "inactive",
+        "sort_order": 2,
+        "constraints": {},
+        "allow_keyword_search": false,
+        "allowed_filter_operators": ["equals"],
+        "capabilities": { "can_set": false, "can_clear": false },
+        "options": [
+          {
+            "public_id": "82000000-0000-4000-8000-000000000002",
+            "option_key": "retail",
+            "label": "传统零售",
+            "status": "inactive",
+            "sort_order": 2
+          },
+          {
+            "public_id": "82000000-0000-4000-8000-000000000001",
+            "option_key": "food",
+            "label": "餐饮",
+            "status": "active",
+            "sort_order": 1
+          }
+        ]
+      },
+      {
+        "schema_version": 1,
+        "public_id": "81000000-0000-4000-8000-000000000003",
+        "field_key": "service_modes",
+        "label": "服务方式",
+        "description": null,
+        "value_type": "multi_select",
+        "source_kind": "manual",
+        "privacy_level": "shared_non_sensitive",
+        "context_scope": "store_global",
+        "status": "active",
+        "sort_order": 3,
+        "constraints": { "min_selections": 1, "max_selections": 50 },
+        "allow_keyword_search": false,
+        "allowed_filter_operators": ["contains_any", "contains_all"],
+        "capabilities": { "can_set": false, "can_clear": false },
+        "options": [
+          {
+            "public_id": "82000000-0000-4000-8000-000000000003",
+            "option_key": "takeout",
+            "label": "外卖",
+            "status": "active",
+            "sort_order": 1
+          },
+          {
+            "public_id": "82000000-0000-4000-8000-000000000004",
+            "option_key": "dine_in",
+            "label": "堂食",
+            "status": "active",
+            "sort_order": 2
+          }
+        ]
+      },
+      {
+        "schema_version": 1,
+        "public_id": "81000000-0000-4000-8000-000000000004",
+        "field_key": "supports_delivery",
+        "label": "支持配送",
+        "description": null,
+        "value_type": "boolean",
+        "source_kind": "manual",
+        "privacy_level": "shared_non_sensitive",
+        "context_scope": "store_global",
+        "status": "active",
+        "sort_order": 4,
+        "constraints": {},
+        "allow_keyword_search": false,
+        "allowed_filter_operators": ["is_true", "is_false"],
+        "capabilities": { "can_set": false, "can_clear": false },
+        "options": []
+      },
+      {
+        "schema_version": 1,
+        "public_id": "81000000-0000-4000-8000-000000000005",
+        "field_key": "seat_count",
+        "label": "座位数",
+        "description": null,
+        "value_type": "number",
+        "source_kind": "manual",
+        "privacy_level": "shared_non_sensitive",
+        "context_scope": "store_global",
+        "status": "active",
+        "sort_order": 5,
+        "constraints": { "maximum_scale": 12 },
+        "allow_keyword_search": false,
+        "allowed_filter_operators": ["eq", "gte", "lte", "between"],
+        "capabilities": { "can_set": false, "can_clear": false },
+        "options": []
+      },
+      {
+        "schema_version": 1,
+        "public_id": "23000000-0000-4000-8000-000000000001",
+        "field_key": "has_legal_person_id",
+        "label": "法人身份证状态",
+        "description": "系统保留定义",
+        "value_type": "boolean",
+        "source_kind": "system_derived",
+        "privacy_level": "shared_non_sensitive",
+        "context_scope": "store_global",
+        "status": "reserved",
+        "sort_order": 900001,
+        "constraints": {},
+        "allow_keyword_search": false,
+        "allowed_filter_operators": ["is_true", "is_false", "is_unknown"],
+        "capabilities": { "can_set": false, "can_clear": false },
+        "options": []
+      },
+      {
+        "schema_version": 1,
+        "public_id": "23000000-0000-4000-8000-000000000002",
+        "field_key": "has_business_license",
+        "label": "营业执照状态",
+        "description": "系统保留定义",
+        "value_type": "boolean",
+        "source_kind": "system_derived",
+        "privacy_level": "shared_non_sensitive",
+        "context_scope": "store_global",
+        "status": "reserved",
+        "sort_order": 900002,
+        "constraints": {},
+        "allow_keyword_search": false,
+        "allowed_filter_operators": ["is_true", "is_false", "is_unknown"],
+        "capabilities": { "can_set": false, "can_clear": false },
+        "options": []
+      },
+      {
+        "schema_version": 1,
+        "public_id": "23000000-0000-4000-8000-000000000003",
+        "field_key": "documents_complete",
+        "label": "证件齐全状态",
+        "description": "系统保留定义",
+        "value_type": "boolean",
+        "source_kind": "system_derived",
+        "privacy_level": "shared_non_sensitive",
+        "context_scope": "store_department",
+        "status": "reserved",
+        "sort_order": 900003,
+        "constraints": {},
+        "allow_keyword_search": false,
+        "allowed_filter_operators": ["is_true", "is_false", "is_unknown"],
+        "capabilities": { "can_set": false, "can_clear": false },
+        "options": []
+      }
+    ]
+  },
+  "derived_envelopes": [
+    {
+      "schema_version": 1,
+      "context": {
+        "auth_user_public_id": "83000000-0000-4000-8000-000000000001",
+        "member_public_id": "84000000-0000-4000-8000-000000000001",
+        "primary_department_public_id": "85000000-0000-4000-8000-000000000001",
+        "store_public_id": "86000000-0000-4000-8000-000000000001",
+        "context_version": 7
+      },
+      "values": [
+        {
+          "schema_version": 1,
+          "field_public_id": "23000000-0000-4000-8000-000000000001",
+          "store_public_id": "86000000-0000-4000-8000-000000000001",
+          "department_public_id": null,
+          "context_version": 7,
+          "freshness": "unknown",
+          "value": null,
+          "calculation_version": null,
+          "source_version": null,
+          "computed_at": null,
+          "source_changed_at": null,
+          "reason_code": "NOT_COMPUTED"
+        },
+        {
+          "schema_version": 1,
+          "field_public_id": "23000000-0000-4000-8000-000000000002",
+          "store_public_id": "86000000-0000-4000-8000-000000000001",
+          "department_public_id": null,
+          "context_version": 7,
+          "freshness": "fresh",
+          "value": true,
+          "calculation_version": "calc-v1",
+          "source_version": "source-v1",
+          "computed_at": "2026-08-11T08:00:00.000Z",
+          "source_changed_at": "2026-08-11T07:59:00.000Z",
+          "reason_code": null
+        },
+        {
+          "schema_version": 1,
+          "field_public_id": "23000000-0000-4000-8000-000000000003",
+          "store_public_id": "86000000-0000-4000-8000-000000000001",
+          "department_public_id": "85000000-0000-4000-8000-000000000001",
+          "context_version": 7,
+          "freshness": "stale",
+          "value": null,
+          "calculation_version": "calc-v1",
+          "source_version": "source-v2",
+          "computed_at": "2026-08-11T08:00:00.000Z",
+          "source_changed_at": "2026-08-11T08:01:00.000Z",
+          "reason_code": "SOURCE_CHANGED"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "context": {
+        "auth_user_public_id": "83000000-0000-4000-8000-000000000001",
+        "member_public_id": "84000000-0000-4000-8000-000000000001",
+        "primary_department_public_id": "85000000-0000-4000-8000-000000000002",
+        "store_public_id": "86000000-0000-4000-8000-000000000001",
+        "context_version": 8
+      },
+      "values": [
+        {
+          "schema_version": 1,
+          "field_public_id": "23000000-0000-4000-8000-000000000002",
+          "store_public_id": "86000000-0000-4000-8000-000000000001",
+          "department_public_id": null,
+          "context_version": 8,
+          "freshness": "fresh",
+          "value": false,
+          "calculation_version": "calc-v1",
+          "source_version": "source-v1",
+          "computed_at": "2026-08-11T08:00:00.000Z",
+          "source_changed_at": "2026-08-11T07:59:00.000Z",
+          "reason_code": null
+        },
+        {
+          "schema_version": 1,
+          "field_public_id": "23000000-0000-4000-8000-000000000003",
+          "store_public_id": "86000000-0000-4000-8000-000000000001",
+          "department_public_id": "85000000-0000-4000-8000-000000000002",
+          "context_version": 8,
+          "freshness": "fresh",
+          "value": false,
+          "calculation_version": "calc-v1",
+          "source_version": "source-v1",
+          "computed_at": "2026-08-11T08:00:00.000Z",
+          "source_changed_at": "2026-08-11T07:59:00.000Z",
+          "reason_code": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-12T10:25:31+08:00",
+  "browser": {
+    "engine": "Chromium CDP",
+    "product": "Google Chrome",
+    "version": "151.0.7922.76",
+    "headless": true
+  },
+  "viewport": {
+    "width": 360,
+    "height": 800,
+    "device_scale_factor": 1
+  },
+  "verifier": "scripts/verify-portrait-mobile-geometry.mjs",
+  "fixture_url": "/evidence/portrait-mobile.html",
+  "results": [
+    { "scenario": "types", "document_width": 360, "body_width": 360, "panel_left": 20, "panel_right": 340, "panel_width": 320, "horizontal_overflow": 0, "minimum_control_height": null },
+    { "scenario": "clear", "document_width": 360, "body_width": 360, "panel_left": 20, "panel_right": 340, "panel_width": 320, "horizontal_overflow": 0, "minimum_control_height": 44 },
+    { "scenario": "unsupported", "document_width": 360, "body_width": 360, "panel_left": 20, "panel_right": 340, "panel_width": 320, "horizontal_overflow": 0, "minimum_control_height": null },
+    { "scenario": "inactive-history", "document_width": 360, "body_width": 360, "panel_left": 20, "panel_right": 340, "panel_width": 320, "horizontal_overflow": 0, "minimum_control_height": null },
+    { "scenario": "derived", "document_width": 360, "body_width": 360, "panel_left": 20, "panel_right": 340, "panel_width": 320, "horizontal_overflow": 0, "minimum_control_height": null },
+    { "scenario": "department-switch", "document_width": 360, "body_width": 360, "panel_left": 20, "panel_right": 340, "panel_width": 320, "horizontal_overflow": 0, "minimum_control_height": null },
+    { "scenario": "error", "document_width": 360, "body_width": 360, "panel_left": 20, "panel_right": 340, "panel_width": 320, "horizontal_overflow": 0, "minimum_control_height": 44 }
+  ],
+  "summary": {
+    "scenarios": 7,
+    "all_passed": true,
+    "horizontal_overflow_failures": 0,
+    "control_height_failures": 0,
+    "sensitive_fixture_count": 0
+  }
+}
