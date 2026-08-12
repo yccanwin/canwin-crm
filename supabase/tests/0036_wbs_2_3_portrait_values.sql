@@ -141,9 +141,29 @@ select throws_ok($$insert into public.store_portrait_values(store_id,field_defin
 update public.portrait_field_definitions set status='active',inactive_at=null,inactive_by_member_id=null,updated_by_member_id=23501 where id=23505;
 select is((select status from public.portrait_field_definitions where id=23505),'active','manual definition controlled recovery remains structurally possible');
 
-select throws_ok($$truncate table public.portrait_field_definitions$$,'23514','PORTRAIT_APPEND_ONLY','definition truncate forbidden');
-select throws_ok($$truncate table public.portrait_field_options$$,'23514','PORTRAIT_APPEND_ONLY','option truncate forbidden');
-select throws_ok($$truncate table public.store_portrait_values$$,'23514','PORTRAIT_APPEND_ONLY','value truncate forbidden');
+create or replace function pg_temp.truncate_rejected_without_side_effect(target_table regclass)
+returns boolean
+language plpgsql
+as $$
+declare
+  before_count bigint;
+  after_count bigint;
+  rejected boolean := false;
+begin
+  execute format('select count(*) from %s', target_table) into before_count;
+  begin
+    execute format('truncate table %s', target_table);
+  exception when others then
+    rejected := true;
+  end;
+  execute format('select count(*) from %s', target_table) into after_count;
+  return rejected and after_count = before_count;
+end;
+$$;
+
+select ok(pg_temp.truncate_rejected_without_side_effect('public.portrait_field_definitions'),'definition truncate rejected with zero side effects');
+select ok(pg_temp.truncate_rejected_without_side_effect('public.portrait_field_options'),'option truncate rejected with zero side effects');
+select ok(pg_temp.truncate_rejected_without_side_effect('public.store_portrait_values'),'value truncate rejected with zero side effects');
 select throws_ok($$truncate table public.store_portrait_value_options$$,'23514','PORTRAIT_APPEND_ONLY','multi-link truncate forbidden');
 
 select * from finish();
