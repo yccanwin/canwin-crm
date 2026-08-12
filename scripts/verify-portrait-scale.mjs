@@ -31,6 +31,8 @@ let transportErrors = 0
 let diskSpillCount = 0
 let intendedIndexUsed = false
 let safePlanSummary = { classification:'NOT_COLLECTED' }
+let safePlanCapture = { phase:'NOT_STARTED', eligible_count:null, plan_bytes:0, plan_lines:0, plan_sha256:null }
+let safeCanaries = []
 function fail() { throw new Error('PORTRAIT_SCALE_FAILED') }
 function sqlLiteral(value) { return `'${String(value).replaceAll("'", "''")}'` }
 function scanEvidence(fragments, canaries) {
@@ -50,6 +52,14 @@ function runPsql(sql, timeout = 240_000) {
   ], { input: sql, encoding: 'utf8', maxBuffer: 24 * 1024 * 1024, timeout, windowsHide: true })
   if (result.status !== 0 || typeof result.stdout !== 'string') fail()
   return result.stdout.trim().split(/\r?\n/).filter(Boolean).at(-1) ?? ''
+}
+function runPsqlFullText(sql, timeout = 240_000) {
+  const result = spawnSync('docker', [
+    'exec', '-i', LOCAL_DB_CONTAINER, 'psql', '-X', '-q', '-A', '-t', '-v', 'ON_ERROR_STOP=1',
+    '-U', 'postgres', '-d', 'postgres',
+  ], { input: sql, encoding: 'utf8', maxBuffer: 24 * 1024 * 1024, timeout, windowsHide: true })
+  if (result.status !== 0 || typeof result.stdout !== 'string' || result.stdout.trim().length === 0) fail()
+  return result.stdout.trim()
 }
 function runPsqlAsync(sql) {
   return new Promise((resolve, reject) => {
@@ -136,6 +146,7 @@ async function main() {
     `sb_secret_CI_CANARY_${randomUUID().replaceAll('-', '')}`,
     `pii-canary-${randomUUID()}@invalid.example`,
   ]
+  safeCanaries = canaries
   const scannerControl = scanEvidence(canaries, canaries)
   if (scannerControl.document_storage_canary_hits !== canaries.length
     || !scannerControl.secret_pattern_counts.some((count) => count > 0)
@@ -302,6 +313,7 @@ async function main() {
     }
 
     safeStage = 'PF23-04'
+    safePlanCapture.phase = 'ELIGIBILITY_QUERY'
     const eligibleKeywordResults = Number(runPsql(`
       select count(*) from ${schema}.store_portrait_values v
       join ${schema}.portrait_field_definitions d on d.id=v.field_definition_id
@@ -310,8 +322,12 @@ async function main() {
         and v.field_definition_id=1 and v.status='active' and v.source_kind='manual' and v.value_type='text'
         and v.text_search_value like '%portrait-399%';
     `))
+    safePlanCapture.eligible_count = Number.isSafeInteger(eligibleKeywordResults) && eligibleKeywordResults >= 0
+      ? eligibleKeywordResults : null
+    safePlanCapture.phase = 'ELIGIBILITY_COUNTED'
     if (eligibleKeywordResults !== 25) fail()
-    const planText = runPsql(`
+    safePlanCapture.phase = 'EXPLAIN_QUERY'
+    const planText = runPsqlFullText(`
       explain(analyze,buffers,format json)
       with keyword_hits as materialized (
         select store_id,field_definition_id from ${schema}.store_portrait_values
@@ -324,11 +340,19 @@ async function main() {
         and d.allow_keyword_search and d.value_type='text'
         and d.id=1;
     `)
+    safePlanCapture = {
+      phase:'EXPLAIN_CAPTURED', eligible_count:safePlanCapture.eligible_count,
+      plan_bytes:Buffer.byteLength(planText,'utf8'), plan_lines:planText.split(/\r?\n/).length,
+      plan_sha256:createHash('sha256').update(planText).digest('hex'),
+    }
+    if (Object.keys(safePlanCapture).sort().join('|') !== 'eligible_count|phase|plan_bytes|plan_lines|plan_sha256') fail()
     evidenceFragments.push(planText)
     const plan = JSON.parse(planText)
+    safePlanCapture.phase = 'PLAN_PARSED'
     const state = { index: false, spill: 0, targetIndex: intendedIndexName }
     inspectPlan(plan?.[0]?.Plan, state)
     safePlanSummary = summarizePlan(plan?.[0]?.Plan, intendedIndexName, indexMethods)
+    safePlanCapture.phase = 'PLAN_INSPECTED'
     safePlanSummary.checker_consistent = safePlanSummary.target_seen === state.index
     if (!safePlanSummary.checker_consistent) safePlanSummary.classification = 'CHECKER_MISMATCH'
     const planSummaryScan = scanEvidence([JSON.stringify(safePlanSummary)], canaries)
@@ -376,8 +400,26 @@ async function main() {
 }
 
 main().catch(() => {
-  console.error(JSON.stringify({ status:'FAIL', stage:safeStage, functional_errors:functionalErrors,
+  const captureKeys = Object.keys(safePlanCapture).sort().join('|')
+  if (captureKeys !== 'eligible_count|phase|plan_bytes|plan_lines|plan_sha256') {
+    safePlanCapture = { phase:'WITHHELD_BY_SCANNER', eligible_count:null, plan_bytes:0, plan_lines:0, plan_sha256:null }
+  }
+  const captureScan = scanEvidence([JSON.stringify(safePlanCapture)], safeCanaries)
+  if (captureScan.secret_pattern_counts.some((count) => count !== 0)
+    || captureScan.pii_pattern_count !== 0
+    || captureScan.document_storage_canary_hits !== 0
+    || captureScan.forbidden_portrait_key_hits !== 0) {
+    safePlanCapture = { phase:'WITHHELD_BY_SCANNER', eligible_count:null, plan_bytes:0, plan_lines:0, plan_sha256:null }
+  }
+  let safeFailureOutput = { status:'FAIL', stage:safeStage, functional_errors:functionalErrors,
     transport_errors:transportErrors, intended_index_used:intendedIndexUsed, disk_spill_count:diskSpillCount,
-    plan_summary:safePlanSummary }))
+    plan_capture:safePlanCapture, plan_summary:safePlanSummary }
+  if (Object.keys(safeFailureOutput).sort().join('|') !== 'disk_spill_count|functional_errors|intended_index_used|plan_capture|plan_summary|stage|status|transport_errors') {
+    safeFailureOutput = { status:'FAIL', stage:'PF23-OUTPUT_WITHHELD', functional_errors:0,
+      transport_errors:0, intended_index_used:false, disk_spill_count:0,
+      plan_capture:{ phase:'WITHHELD_BY_SCANNER', eligible_count:null, plan_bytes:0, plan_lines:0, plan_sha256:null },
+      plan_summary:{ classification:'WITHHELD_BY_SCANNER' } }
+  }
+  console.error(JSON.stringify(safeFailureOutput))
   process.exit(1)
 })
