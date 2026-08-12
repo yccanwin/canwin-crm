@@ -255,6 +255,10 @@ for (const [source, checks] of [[runtime, [
 }
 forbidMatch(scale, /\boffset\s+\d+/i, 'Stable-page scale proof must use keyset pagination and must not use OFFSET.')
 forbidMatch(scale, /secret_pattern_counts\s*:\s*\[\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\]|pii_pattern_count\s*:\s*0|document_storage_canary_hits\s*:\s*0|audit_canary_hits\s*:\s*0/, 'Scale evidence must compute leak counters from executed scans rather than hard-code zero.')
+const scaleIndexProbe = scale.slice(scale.indexOf("safeStage = 'PF23-04'"), scale.indexOf('evidenceFragments.push(planText)'))
+requireMatch(scaleIndexProbe, /eligibleKeywordResults\s*!==\s*25/, 'Keyword eligibility probe must require the exact selective result count.')
+requireMatch(scaleIndexProbe, /explain\s*\(\s*analyze\s*,\s*buffers\s*,\s*format\s+json\s*\)[\s\S]*?join\s+\$\{schema\}\.portrait_field_definitions[\s\S]*?allow_keyword_search[\s\S]*?text_search_value\s+like\s+'%portrait-399%'/i, 'Keyword index probe must retain the live definition eligibility join and selective trigram predicate.')
+forbidMatch(scaleIndexProbe, /\border\s+by\b|\blimit\s+\d+/i, 'Keyword index probe must not conflate the GIN proof with pagination ordering or limits.')
 
 const portraitContract = read('apps/web/src/portrait/portrait-contract.ts')
 const portraitState = read('apps/web/src/portrait/portrait-state.ts')

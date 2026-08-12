@@ -241,15 +241,23 @@ async function main() {
     }
 
     safeStage = 'PF23-04'
-    const planText = runPsql(`
-      explain(analyze,buffers,format json)
-      select v.store_id from ${schema}.store_portrait_values v
+    const eligibleKeywordResults = Number(runPsql(`
+      select count(*) from ${schema}.store_portrait_values v
       join ${schema}.portrait_field_definitions d on d.id=v.field_definition_id
       where d.status='active' and d.source_kind='manual' and d.privacy_class='shared_non_sensitive'
         and d.allow_keyword_search and d.value_type='text'
         and v.field_definition_id=1 and v.status='active' and v.source_kind='manual' and v.value_type='text'
-        and v.text_search_value like '%portrait-399%'
-      order by v.store_id limit 50;
+        and v.text_search_value like '%portrait-399%';
+    `))
+    if (eligibleKeywordResults !== 25) fail()
+    const planText = runPsql(`
+      explain(analyze,buffers,format json)
+      select count(*) from ${schema}.store_portrait_values v
+      join ${schema}.portrait_field_definitions d on d.id=v.field_definition_id
+      where d.status='active' and d.source_kind='manual' and d.privacy_class='shared_non_sensitive'
+        and d.allow_keyword_search and d.value_type='text'
+        and v.field_definition_id=1 and v.status='active' and v.source_kind='manual' and v.value_type='text'
+        and v.text_search_value like '%portrait-399%';
     `)
     evidenceFragments.push(planText)
     const plan = JSON.parse(planText)
@@ -272,6 +280,7 @@ async function main() {
       warmup_queries_per_class_per_connection:1,
       samples_per_class:sampleCounts, p95_ms_by_class:p95ByClass, maximum_p95_ms:MAX_P95_MS,
       functional_errors:functionalErrors, transport_errors:transportErrors, correctness_percent:100,
+      eligible_keyword_results:eligibleKeywordResults,
       intended_index_used:intendedIndexUsed, disk_spill_count:diskSpillCount,
       fixture_binding:'LIKE_PUBLIC_TABLES_INCLUDING_ALL', migration_sha256:migrationSha256,
       source_index_sha256:createHash('sha256').update(sourceBinding.source_indexdef).digest('hex'),
