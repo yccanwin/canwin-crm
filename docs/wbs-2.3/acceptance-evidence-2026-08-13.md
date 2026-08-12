@@ -1,13 +1,13 @@
 # WBS 2.3 验收证据
 
-> 状态：implementation evidence 与五文档 documentation-content tail 已取得各自双 CI；正式验收仍 Pending。当前为回写 content-tail 绑定信息的 binding amendment，不能用 content-tail CI 自证本次 amendment。
+> 状态：implementation、五文档 content tail 与 binding amendment 已取得各自双 CI；第三方监理对 binding tail 给出 PASS；正式验收仍 Pending。当前监理报告与同步修改构成 supervisor documentation tail，不能用 binding-tail CI 自证本次 tail。
 
 ## 1. 不可变版本与范围
 
 - 生成日期 / 时区：`2026-08-13` / Asia/Shanghai
 - Repository / branch / PR：`yccanwin/canwin-crm` / `agent/wbs-2-3-dynamic-portraits` / [#15](https://github.com/yccanwin/canwin-crm/pull/15)
 - Implementation exact SHA / tree：`97581aaf8d9effaf0f764cbf1b16c20cb42b5f80` / `e76fc47b73a809c5cb2299d7e1779d40d014aceb`
-- Remote branch tip：`97581aaf8d9effaf0f764cbf1b16c20cb42b5f80`
+- Implementation-stage remote branch tip：`97581aaf8d9effaf0f764cbf1b16c20cb42b5f80`
 - Base：`main` at `3b698d939e313aa4fcc04ad42227c07be12a3dc6`
 - Unique CLI migration：`supabase/migrations/20260811170803_wbs_2_3_dynamic_portraits.sql`
 - Migration SHA-256：`a89c95192c2f0aa84584c70958718e5cb37a50606a552d0a700f150b744cd04b`
@@ -59,9 +59,10 @@ PR run `31623500862` 的首次 job `94203915610` 在第一条 Auth Admin 请求�
 - 五文档 documentation-content tail SHA：`a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7`。
 - Content-tail Push Quality：[31624485420](https://github.com/yccanwin/canwin-crm/actions/runs/31624485420) / [94207241719](https://github.com/yccanwin/canwin-crm/actions/runs/31624485420/job/94207241719)，completed / success / 27 of 27。
 - Content-tail PR Quality：[31624489749](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749) / [94207256870](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749/job/94207256870)，reviewed head `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` / completed / success / 27 of 27。
-- Binding amendment SHA / 双 CI：`Pending`。
-- 第三方监理：`Pending`。
+- Binding amendment SHA：`e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`；push `31624956872 / 94208859442`、PR `31624960245 / 94208872372`，均 completed / success / 27 of 27。
+- 第三方监理：**PASS / 24 of 24 / P0=0 / P1=0 / P2=0**，目标为 binding tail `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`。
+- 当前 supervisor documentation-tail SHA / push CI / PR CI：`Pending`。
 - Agent 0：`Pending`。
 - 用户 protected Squash 授权 / Squash merge / main Quality / 正式 `15/54`：`Pending`。
 
-新增证据文档不得使用前一 SHA 自证。原五文档内容已由 content tail `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` 的双 CI 证明；本次回写不在该 tree 内，须形成新的 binding-amendment SHA 并取得自身双 CI。监理尾与 Agent 0 尾之后仍须分别取得自身 exact-SHA push/PR Quality。
+新增证据文档不得使用前一 SHA 自证。五文档内容由 content tail `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` 的双 CI 证明，绑定信息由 binding tail `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967` 的双 CI 证明；当前 supervisor tail 不在该 tree 内，须取得自己的 exact-SHA push/PR Quality。Agent 0 尾之后仍须同样取得自身双 CI。

@@ -1,11 +1,11 @@
 # WBS 2.3 第三方监理包
 
-状态：`Pending review`。本包已装配 implementation 与五文档 content-tail 的直接证据；当前 binding amendment 尚未取得自身双 CI，第三方不得提前填写 Supervisor PASS。
+状态：**Supervisor PASS** for binding tail `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`；24/24，P0=0、P1=0、P2=0。当前 supervisor documentation tail 尚未取得自身双 CI，Agent 0 仍不得开始最终 disposition。
 
 ## A. 不可变引用
 
 - Repository / branch / PR：`yccanwin/canwin-crm` / `agent/wbs-2-3-dynamic-portraits` / [#15](https://github.com/yccanwin/canwin-crm/pull/15)
-- Implementation exact SHA / tree / remote tip：`97581aaf8d9effaf0f764cbf1b16c20cb42b5f80` / `e76fc47b73a809c5cb2299d7e1779d40d014aceb` / `97581aaf8d9effaf0f764cbf1b16c20cb42b5f80`
+- Implementation exact SHA / tree / implementation-stage remote tip：`97581aaf8d9effaf0f764cbf1b16c20cb42b5f80` / `e76fc47b73a809c5cb2299d7e1779d40d014aceb` / `97581aaf8d9effaf0f764cbf1b16c20cb42b5f80`
 - Push Quality：[31623499489](https://github.com/yccanwin/canwin-crm/actions/runs/31623499489) / [94203909787](https://github.com/yccanwin/canwin-crm/actions/runs/31623499489/job/94203909787)，completed / success / 27 of 27。
 - PR Quality：[31623500862](https://github.com/yccanwin/canwin-crm/actions/runs/31623500862)；首次 job `94203915610` 的 Auth transport status-0 失败保留；同 exact SHA 一次 failed-job rerun [94205179524](https://github.com/yccanwin/canwin-crm/actions/runs/31623500862/job/94205179524) completed / success / 27 of 27。
 - Migration：`supabase/migrations/20260811170803_wbs_2_3_dynamic_portraits.sql` / SHA-256 `a89c95192c2f0aa84584c70958718e5cb37a50606a552d0a700f150b744cd04b`。
@@ -16,33 +16,36 @@
 - Acceptance / Agent 1 / Agent 2 / Agent 3 records：本目录五文档 content tail `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` 内。
 - Content-tail Push Quality：[31624485420](https://github.com/yccanwin/canwin-crm/actions/runs/31624485420) / [94207241719](https://github.com/yccanwin/canwin-crm/actions/runs/31624485420/job/94207241719)，completed / success / 27 of 27。
 - Content-tail PR Quality：[31624489749](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749) / [94207256870](https://github.com/yccanwin/canwin-crm/actions/runs/31624489749/job/94207256870)，reviewed head `a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` / completed / success / 27 of 27。
+- Binding tail：`e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`。
+- Binding-tail Push Quality：[31624956872](https://github.com/yccanwin/canwin-crm/actions/runs/31624956872) / [94208859442](https://github.com/yccanwin/canwin-crm/actions/runs/31624956872/job/94208859442)，completed / success / 27 of 27。
+- Binding-tail PR Quality：[31624960245](https://github.com/yccanwin/canwin-crm/actions/runs/31624960245) / [94208872372](https://github.com/yccanwin/canwin-crm/actions/runs/31624960245/job/94208872372)，reviewed head `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967` / completed / success / 27 of 27。
 
 ## B. Required supervisor checks
 
-- [ ] 1. 唯一 CLI WBS 2.3 migration，且只新增 0035/0036/0037。
-- [ ] 2. 六表、schema、FK、RESTRICT、索引与 audit/version 字段符合冻结契约。
-- [ ] 3. 五类型 typed slots 互斥，number 精度、false/0/clear 语义正确。
-- [ ] 4. definition/option/manual value 生命周期、不变字段与物理删除保护正确。
-- [ ] 5. option 归属、多选去重、inactive 历史保留且新值拒绝正确。
-- [ ] 6. 三个 reserved definition 的 UUID、类型、来源、隐私、scope 与只读属性固定。
-- [ ] 7. migration 未插入任何 derived current/history boolean。
-- [ ] 8. fresh/unknown/stale 的 boolean/null/reason/version/time 组合被约束并直接测试。
-- [ ] 9. allow_keyword_search 仅限安全 active manual text，GIN 与查询实时 catalog 校验可实现。
-- [ ] 10. 所有公开画像表及 private history 均 ENABLE/FORCE RLS。
-- [ ] 11. anon 零权限；authenticated 仅 exact RPC；service_role 对表/sequence REVOKE ALL。
-- [ ] 12. 实时 session/member/department 授权不读取 user_metadata，旧 JWT 与停用主体失权。
-- [ ] 13. manual 数据跨部门共享；derived department 数据只投影当前主营部门。
-- [ ] 14. private history append-only，UPDATE/DELETE/TRUNCATE 均拒绝且零副作用。
-- [ ] 15. 模块未加入 Realtime publication，也未开放通用写/配置/计算 RPC。
-- [ ] 16. 客户端 exact parser、unknown fail-safe、explicit clear、inactive history 与稳定排序正确。
-- [ ] 17. 缓存绑定 auth/member/department/store/field/context version，旧响应不会跨上下文写入。
-- [ ] 18. 360×800 七场景真实浏览器无横向溢出，fixture 未接生产 main。
-- [ ] 19. Runtime 达到冻结断言数/真实 session，真实撤销 auth.sessions 后旧 token 拒绝。
-- [ ] 20. 10k/50/10/20、每类 200、功能错误 0、正确率 100%、p95<=800、目标索引且无 spill。
-- [ ] 21. contact/document/storage/department-private/secret/PII/audit canary 全链路命中 0。
-- [ ] 22. Quality 拓扑精确；状态临时文件 0600、mask、cleanup、原始日志不回显。
-- [ ] 23. Agent 1/2/3 均绑定 implementation SHA，P0/P1 与 findings 一致。
-- [ ] 24. Implementation 与每个证据尾均取得自身 exact-SHA push/PR Quality，review thread 无阻断。
+- [x] 1. 唯一 CLI WBS 2.3 migration，且只新增 0035/0036/0037。
+- [x] 2. 六表、schema、FK、RESTRICT、索引与 audit/version 字段符合冻结契约。
+- [x] 3. 五类型 typed slots 互斥，number 精度、false/0/clear 语义正确。
+- [x] 4. definition/option/manual value 生命周期、不变字段与物理删除保护正确。
+- [x] 5. option 归属、多选去重、inactive 历史保留且新值拒绝正确。
+- [x] 6. 三个 reserved definition 的 UUID、类型、来源、隐私、scope 与只读属性固定。
+- [x] 7. migration 未插入任何 derived current/history boolean。
+- [x] 8. fresh/unknown/stale 的 boolean/null/reason/version/time 组合被约束并直接测试。
+- [x] 9. allow_keyword_search 仅限安全 active manual text，GIN 与查询实时 catalog 校验可实现。
+- [x] 10. 所有公开画像表及 private history 均 ENABLE/FORCE RLS。
+- [x] 11. anon 零权限；authenticated 仅 exact RPC；service_role 对表/sequence REVOKE ALL。
+- [x] 12. 实时 session/member/department 授权不读取 user_metadata，旧 JWT 与停用主体失权。
+- [x] 13. manual 数据跨部门共享；derived department 数据只投影当前主营部门。
+- [x] 14. private history append-only，UPDATE/DELETE/TRUNCATE 均拒绝且零副作用。
+- [x] 15. 模块未加入 Realtime publication，也未开放通用写/配置/计算 RPC。
+- [x] 16. 客户端 exact parser、unknown fail-safe、explicit clear、inactive history 与稳定排序正确。
+- [x] 17. 缓存绑定 auth/member/department/store/field/context version，旧响应不会跨上下文写入。
+- [x] 18. 360×800 七场景真实浏览器无横向溢出，fixture 未接生产 main。
+- [x] 19. Runtime 达到冻结断言数/真实 session，真实撤销 auth.sessions 后旧 token 拒绝。
+- [x] 20. 10k/50/10/20、每类 200、功能错误 0、正确率 100%、p95<=800、目标索引且无 spill。
+- [x] 21. contact/document/storage/department-private/secret/PII/audit canary 全链路命中 0。
+- [x] 22. Quality 拓扑精确；状态临时文件 0600、mask、cleanup、原始日志不回显。
+- [x] 23. Agent 1/2/3 均绑定 implementation SHA，P0/P1 与 findings 一致。
+- [x] 24. Implementation 与每个证据尾均取得自身 exact-SHA push/PR Quality，review thread 无阻断。
 
 ## C. 脱敏计数索引
 
@@ -58,23 +61,24 @@
 
 | Requirement group | Direct tests | Static/runtime/frontend/scale | Supervisor |
 | --- | --- | --- | --- |
-| Schema / lifecycle / indexes | 0035=70, 0036=90 | static=PASS, scale target index=true | Pending |
-| RLS / ACL / real session | 0037=96 | runtime 902/7/1 | Pending |
-| Reserved / derived three-state | 0036/0037 | golden + runtime fresh/unknown/stale | Pending |
-| Client / 360 / zero persistence | frontend 255 | 7 real-browser scenarios / leak 0 | Pending |
-| Scale / query plans | exact 25 eligibility | 7x200, p95<=800, spill 0 | Pending |
-| Scope / AC status / leaks | static allowlist | AC-08 Defined; canaries 0 | Pending |
+| Schema / lifecycle / indexes | 0035=70, 0036=90 | static=PASS, scale target index=true | PASS |
+| RLS / ACL / real session | 0037=96 | runtime 902/7/1 | PASS |
+| Reserved / derived three-state | 0036/0037 | golden + runtime fresh/unknown/stale | PASS |
+| Client / 360 / zero persistence | frontend 255 | 7 real-browser scenarios / leak 0 | PASS |
+| Scale / query plans | exact 25 eligibility | 7x200, p95<=800, spill 0 | PASS |
+| Scope / AC status / leaks | static allowlist | AC-08 Defined; canaries 0 | PASS |
 
-- P0：`Pending supervisor disposition`
-- P1：`Pending supervisor disposition`
-- P2 owner / due：`Pending supervisor disposition`
+- P0：`0`
+- P1：`0`
+- P2：`0`
 
 ## E. Disposition 与后续治理
 
-- Supervisor identity / reviewed at UTC：`Pending`
-- Supervisor conclusion / checks 1–24：`Pending`
+- Supervisor identity / reviewed at：Independent third-party supervisor / `2026-08-13` Asia/Shanghai
+- Supervisor conclusion / checks 1–24：**PASS / 24 of 24** for `e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967`
 - Five-document content-tail SHA and its push/PR Quality：`a95ae51cb6f63e2d944e5fd8a2bd62ebf8b272b7` / completed / success / 27 of 27 for both triggers
-- Binding-amendment SHA and its push/PR Quality：`Pending`
+- Binding-amendment SHA and its push/PR Quality：`e330eb0965dc7acd4c83967ecbdbf5d3ad0ed967` / completed / success / 27 of 27 for both triggers
+- Supervisor documentation-tail SHA and its push/PR Quality：`Pending`
 - Agent 0 independent verification：`Pending`
 - User protected merge authorization：`Pending`
 - Squash merge / main Quality / formal `15/54`：`Pending`
