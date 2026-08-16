@@ -36,6 +36,6 @@
     "check": "npm run verify:scaffold && npm run verify:env && npm run verify:quality-config && npm run verify:supabase && npm run verify:auth && npm run verify:observability && npm run verify:shared-archive && npm run verify:contacts && npm run verify:portraits && npm run verify:ci-credential-suppression && npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "devDependencies": {
-    "supabase": "2.112.0"
+    "supabase": "2.114.0"
   }
 }
